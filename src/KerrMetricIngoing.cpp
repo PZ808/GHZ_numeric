@@ -20,12 +20,12 @@ std::array<double, 10> KerrMetricIngoing::g(double v, double r, double th, doubl
     double del = kerr_metric.Delta(r);
     double lam = kerr_metric.Lambda(r, th);
 
-    double g_vv   = -(1.-2.*M*r/sig);
-    double g_vr   = 1.0;
-    double g_vph   = -a*s2*(1 - 2*M*r/sig);
-    double g_rph   = -a*s2;
-    double g_thth   = sig;
-    double g_phph   = (r*r + a*a + 2*M*r*a*a*s2/sig)*s2;
+    double g_vv   = (1.-2.*M*r/sig);
+    double g_vr   = -1.0;
+    double g_vph   = a*s2*(1 - 2*M*r/sig);
+    double g_rph   = a*s2;
+    double g_thth   = -sig;
+    double g_phph   = -(r*r + a*a + 2*M*r*a*a*s2/sig)*s2;
 
     return { g_vv, g_vr, 0.0, g_vph, 0.0, 0.0, g_rph, g_thth, 0.0, g_phph };
 }

@@ -20,16 +20,17 @@ KerrMetricBL::KerrMetricBL(const KerrParams& p, const KerrMetric& km) : params(p
 
 std::array<double, 10> KerrMetricBL::g(double t, double r, double th, double phi) const {
     (void)t; (void)phi;
+    // Kerr BL metric in mostly minus
     double s2 = std::sin(th)*std::sin(th);
     double sig =  kerr_metric.Sigma(r,th); //Sigma(r, th);
     double del = kerr_metric.Delta(r);
     double lam = kerr_metric.Lambda(r, th);
 
-    double g_tt     = -(1.0 - 2.0*params.M*r/sig);
-    double g_rr     = sig/del;
-    double g_thth   = sig;
-    double g_tphi   = -2.0*params.M*params.a*r*s2/sig;
-    double g_phiphi = lam*s2/sig;
+    double g_tt     = (1.0 - 2.0*params.M*r/sig);
+    double g_rr     = -sig/del;
+    double g_thth   = -sig;
+    double g_tphi   = 2.0*params.M*params.a*r*s2/sig;
+    double g_phiphi = -lam*s2/sig;
 
     return { g_tt, 0, 0, g_tphi, g_rr, 0, 0, g_thth, 0, g_phiphi };
 }

@@ -2,31 +2,31 @@
 // Created by Peter Zimmerman on 25.10.25.
 //
 
-#include "../include/HeldScalars.hpp"
-
 #pragma once
-#include "SpinCoefficients.hpp"
-#include "Tetrad.hpp"
-
-#include "../include/HeldScalars.hpp"
 #include <iostream>
+#include "../include/SpinCoeffsNP.hpp"
+#include "../include/GHPScalars.hpp"
+#include "../include/WeylScalars.hpp"
+#include "../include/HeldScalars.hpp"
+#include <cmath>
 
-void HeldScalars::fromSpinCoeffs(const SpinCoefficients& sc) {
+
+void HeldScalars::set_HeldScalars_from_NP_SpinCoeffs(const SpinCoefficients& sc, const WeylScalars& ws) {
     using SCT = SpinCoeffType;
-
+    using WST = WeylScalarType;
+    using std::conj;
     // Unprimed
-    rho = sc.get(SCT::rho);
-    tau = sc.get(SCT::tau);
-    epsilon = sc.get(SCT::epsilon);
-    kappa = sc.get(SCT::kappa);
-    sigma = sc.get(SCT::sigma);
+    Complex rho = sc.get(SCT::rho);
+    Complex rho_bar = conj(rho);
 
-    // Primed (Held conjugate)
-    rhoPrime = -std::conj(sc.get(SCT::mu));
-    tauPrime = std::conj(sc.get(SCT::pi));
-    epsilonPrime = std::conj(sc.get(SCT::gamma));
-    kappaPrime = -std::conj(sc.get(SCT::nu));
-    sigmaPrime = -std::conj(sc.get(SCT::lambda));
+    tauH = sc.get(SCT::tau)/(rho*rho_bar);
+    tauH_bar = conj(tauH);
+
+    rhopH = -0.5;
+    rhopH_bar = -0.5;
+
+    PsiH = ws.get(WST::Psi2)/(rho*rho*rho);
+
 }
 
 void HeldScalars::print() const {
@@ -34,15 +34,9 @@ void HeldScalars::print() const {
         std::cout << name << " = " << c << "\n";
     };
 
-    printC("rho", rho);
-    printC("tau", tau);
-    printC("epsilon", epsilon);
-    printC("kappa", kappa);
-    printC("sigma", sigma);
+    printC("tauH", tauH);
+    printC("rhopH", rhopH);
+    printC("PsiH", PsiH);
+    printC("OmH", OmH);
 
-    printC("rho'", rhoPrime);
-    printC("tau'", tauPrime);
-    printC("epsilon'", epsilonPrime);
-    printC("kappa'", kappaPrime);
-    printC("sigma'", sigmaPrime);
 }

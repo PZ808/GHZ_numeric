@@ -18,7 +18,7 @@ enum class SpinCoeffType {
     epsilon, gamma, beta, alpha
 };
 
-// GHP Spin Coefficient container
+// NP spin coefficient container
 class SpinCoefficients {
 private:
     std::map<SpinCoeffType, Complex> coeffs;

@@ -5,7 +5,7 @@
 #ifndef GHZ_NUMERIC_KINNERSLEYTETRAD_HPP
 #define GHZ_NUMERIC_KINNERSLEYTETRAD_HPP
 #pragma once
-#include "SpinCoeffsNP.hpp"
+
 #include "Tetrads.hpp"
 
 class KinnersleyTetradBL : public Tetrad {
