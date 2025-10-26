@@ -55,6 +55,7 @@ double CoordinateSystem::phiSharp(double r) const {
 // ---------------------------
 IngoingCoords CoordinateSystem::toIngoing(const BLCoords& bl) const {
     // convert from bl to ingoing
+
     double v_in  = bl.t + rStar(bl.r);
     double r_in = bl.r;
     double th_in = bl.th;
@@ -67,10 +68,10 @@ OutgoingCoords CoordinateSystem::toOutgoing(const BLCoords& bl) const {
     // convert from bl to outgoing
     double u_out  = bl.t - rStar(bl.r);
     double r_out = bl.r;
-    double th_out = bl.th;
+    double z_out = std::cos(bl.th);
     double ph_out = bl.ph - phiSharp(bl.r);
 
-    return {u_out, r_out, th_out, ph_out};
+    return {u_out, r_out, z_out, ph_out};
 }
 
 BLCoords CoordinateSystem::toBoyerLindquist(const IngoingCoords& in) const {
@@ -86,7 +87,7 @@ BLCoords CoordinateSystem::toBoyerLindquist(const OutgoingCoords& out) const {
     // convert from outgoing to bl
     double t_bl  = out.u + rStar(out.r);
     double r_bl = out.r;
-    double th_bl = out.th;
+    double th_bl = std::acos(out.z);
     double ph_bl = out.ph_out + phiSharp(r_bl);
     return { t_bl, r_bl, th_bl, ph_bl };
 }

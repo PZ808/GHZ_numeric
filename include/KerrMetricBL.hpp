@@ -18,12 +18,12 @@ private:
 public:
     explicit KerrMetricBL(const KerrParams& p, const KerrMetric& km);
 
-    //double Sigma(Real r, Real th) const;
-    //double Delta(Real r) const;
-    //double Lambda(Real r) const;
+    //Real Sigma(Real r, Real th) const;
+    //Real Delta(Real r) const;
+    //Real Lambda(Real r) const;
 
-    [[nodiscard]] std::array<double, 10> g(Real t, Real r, Real th, Real phi) const ;
-    [[nodiscard]] std::array<double, 10> ginv(Real t, Real r, Real th, Real phi) const ;
+    [[nodiscard]] ghz::SymmetricMatrix4 g(double t, double r, double th, double phi) const;
+    [[nodiscard]] ghz::SymmetricMatrix4 ginv(Real t, Real r, Real th, Real phi) const;
 };
 
 #endif //  //GHZ_NUMERIC_KERRMETRICBL_HPP

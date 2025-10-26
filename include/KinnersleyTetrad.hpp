@@ -19,7 +19,7 @@ class KinnersleyTetradOutgoing : public Tetrad {
 public:
 using Tetrad::Tetrad;
 
-void build(Real u, Real r, Real theta, Real ph_out) override;
+void build(Real u, Real r, Real z, Real ph) override;
 };
 
 #endif //GHZ_NUMERIC_KINNERSLEYTETRAD_HPP

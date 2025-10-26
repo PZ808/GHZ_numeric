@@ -67,6 +67,7 @@ public:
 
 struct SpinCoefficientsGHP {
     GHPScalar kappa, kappap, sigma, sigmap, tau, taup, rho, rhop;
+    Complex beta, betap, epsilon, epsilonp;
     SpinCoefficientsGHP() = default;
 
     explicit SpinCoefficientsGHP(const SpinCoefficients& sc_np);

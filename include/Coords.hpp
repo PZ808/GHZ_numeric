@@ -16,7 +16,16 @@ enum class CoordType {
     OutgoingKerr
 };
 
-struct BLCoords {
+struct Coords {
+    Real x0, x1, x2, x3;
+
+    Coords(Real x0_, Real x1_, Real x2_, Real x3_)
+            : x0(x0_), x1(x1_), x2(x2_), x3(x3_) {}
+};;
+
+
+struct BLCoords  {
+    //using Coords::Coords;
     double t, r, th, ph;
 };
 
@@ -25,7 +34,7 @@ struct IngoingCoords {
 };
 
 struct OutgoingCoords {
-    double u, r, th, ph_out;
+    double u, r, z, ph_out; // z = cos(th)
 };
 
 class CoordinateSystem {

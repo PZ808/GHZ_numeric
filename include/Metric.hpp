@@ -7,12 +7,12 @@
 
 #pragma once
 #include <array>
+#include "VectorsGHZ.hpp"
 
 class Metric {
 public:
     virtual ~Metric() = default;
-    //std::array<double, 10> g(double time, double radial, double polar, double azi) const = 0;
-    //std::array<double, 10> ginv(double time, double radial, double polar, double azi) const = 0;
+
 };
 
 #endif //GHZ_NUMERIC_METRIC_HPP

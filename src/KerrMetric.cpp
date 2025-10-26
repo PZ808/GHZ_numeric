@@ -12,28 +12,27 @@ using namespace math;
 
 KerrMetric::KerrMetric(const KerrParams& p) : params(p) {}
 
-double KerrMetric::M() const { return params.M; }
-double KerrMetric::a() const { return params.a; }
-double KerrMetric::r_plus() const { return params.M+sqrt(params.M*params.M-params.a*params.a); }
-double KerrMetric::r_minus() const { return params.M-sqrt(params.M*params.M-params.a*params.a); }
-double KerrMetric::Om_plus() const { return params.a/( sqr(params.M+sqrt(params.M*params.M-params.a*params.a))+ sqr(params.a) );  }
-double KerrMetric::Om_minus() const { return params.a / ( sqr(params.M-sqrt(params.M*params.M-params.a*params.a)) + sqr(params.a) );  }
+Real KerrMetric::M() const { return params.M; }
+Real KerrMetric::a() const { return params.a; }
+Real KerrMetric::r_plus() const { return params.M+sqrt(params.M*params.M-params.a*params.a); }
+Real KerrMetric::r_minus() const { return params.M-sqrt(params.M*params.M-params.a*params.a); }
+Real KerrMetric::Om_plus() const { return params.a/( sqr(params.M+sqrt(params.M*params.M-params.a*params.a))+ sqr(params.a) );  }
+Real KerrMetric::Om_minus() const { return params.a / ( sqr(params.M-sqrt(params.M*params.M-params.a*params.a)) + sqr(params.a) );  }
 
-double KerrMetric::kappa_plus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M+sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ); }
-double KerrMetric::kappa_minus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M-sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ) ; }
+Real KerrMetric::kappa_plus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M+sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ); }
+Real KerrMetric::kappa_minus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M-sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ) ; }
 
 
-double KerrMetric::Sigma(double r, double theta) const {
-    double z = std::cos(theta);
+Real KerrMetric::Sigma(Real r, Real theta) const {
+    Real z = std::cos(theta);
     return sqr(r) + sqr(z*params.a);
 }
-double KerrMetric::Delta(double r) const {
-    return sqr(r)- 2.0*params.M*r +sqr(params.a);
-}
-double KerrMetric::Lambda(double r, double theta) const {
-    double z = std::cos(theta);
-    double s2 = sqr(std::sin(theta));
-    double del = sqr(r)- 2.0*params.M*r +sqr(params.a);
+Real KerrMetric::Delta(Real r) const { return sqr(r)- 2.0*params.M*r +sqr(params.a); }
+
+Real KerrMetric::Lambda(Real r, Real theta) const {
+    Real z = std::cos(theta);
+    Real s2 = sqr(std::sin(theta));
+    Real del = sqr(r)- 2.0*params.M*r +sqr(params.a);
     return sqr(sqr(r)+sqr(params.a) )-sqr(params.a)*del*s2;
 }
 

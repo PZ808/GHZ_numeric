@@ -8,6 +8,7 @@
 #pragma once
 #include <complex>
 #include <map>
+#include "TeukTypes.hpp"
 
 enum class WeylScalarType {
     Psi0, Psi1, Psi2, Psi3, Psi4
@@ -16,7 +17,7 @@ enum class WeylScalarType {
 
 // GHP Spin Coefficient container
 class WeylScalars {
-    using Complex = std::complex<double>;
+    using Complex = teuk::Complex;
 
 private:
     std::map<WeylScalarType, Complex> weyl_scalars;

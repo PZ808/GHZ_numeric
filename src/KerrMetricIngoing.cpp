@@ -11,7 +11,7 @@
 KerrMetricIngoing::KerrMetricIngoing(const KerrParams& p, const KerrMetric& km) : params(p) , kerr_metric(km) {
 }
 
-std::array<double, 10> KerrMetricIngoing::g(double v, double r, double th, double phi_in) const {
+ghz::SymmetricMatrix4 KerrMetricIngoing::g(double v, double r, double th, double phi_in) const {
     (void)v; (void)phi_in;
     double M = params.M;
     double a = params.a;
@@ -30,7 +30,7 @@ std::array<double, 10> KerrMetricIngoing::g(double v, double r, double th, doubl
     return { g_vv, g_vr, 0.0, g_vph, 0.0, 0.0, g_rph, g_thth, 0.0, g_phph };
 }
 
-std::array<double, 10> KerrMetricIngoing::ginv(double t, double r, double th, double phi) const {
+ghz::SymmetricMatrix4 KerrMetricIngoing::ginv(double t, double r, double th, double phi) const {
     (void)t; (void)phi;
     double s2 = std::sin(th)*std::sin(th);
     double sig = kerr_metric.Sigma(r, th);

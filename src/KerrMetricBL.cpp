@@ -18,11 +18,11 @@ KerrMetricBL::KerrMetricBL(const KerrParams& p, const KerrMetric& km) : params(p
     //return kerr_metric.Delta(r); // r*r - 2.0*params.M*r + params.a*params.a;
 //}
 
-std::array<double, 10> KerrMetricBL::g(double t, double r, double th, double phi) const {
+ghz::SymmetricMatrix4 KerrMetricBL::g(double t, double r, double th, double phi) const {
     (void)t; (void)phi;
     // Kerr BL metric in mostly minus
     double s2 = std::sin(th)*std::sin(th);
-    double sig =  kerr_metric.Sigma(r,th); //Sigma(r, th);
+    double sig = kerr_metric.Sigma(r,th);
     double del = kerr_metric.Delta(r);
     double lam = kerr_metric.Lambda(r, th);
 
@@ -35,7 +35,7 @@ std::array<double, 10> KerrMetricBL::g(double t, double r, double th, double phi
     return { g_tt, 0, 0, g_tphi, g_rr, 0, 0, g_thth, 0, g_phiphi };
 }
 
-std::array<double, 10> KerrMetricBL::ginv(double t, double r, double th, double phi) const {
+ghz::SymmetricMatrix4 KerrMetricBL::ginv(Real t, Real r, Real th, Real phi) const {
     (void)t; (void)phi;
     double s2 = std::sin(th)*std::sin(th);
     double sig = kerr_metric.Sigma(r, th);

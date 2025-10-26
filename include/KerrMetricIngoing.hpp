@@ -17,9 +17,9 @@ private:
 
 public:
     explicit KerrMetricIngoing(const KerrParams& p, const KerrMetric& km);
+    [[nodiscard]] ghz::SymmetricMatrix4 g(double v, double r, double th, double ph) const ;
+    [[nodiscard]] ghz::SymmetricMatrix4 ginv(double v, double r, double th, double ph) const ;
 
-    [[nodiscard]] std::array<double, 10> g(Real v, Real r, Real th, Real phi_in) const ;
-    [[nodiscard]] std::array<double, 10> ginv(Real v, Real r, Real th, Real phi_in) const ;
 };
 
 #endif //GHZ_NUMERIC_KERRMETRICINGOING_HPP
