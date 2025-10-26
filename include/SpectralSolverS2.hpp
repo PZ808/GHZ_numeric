@@ -9,6 +9,7 @@
 #include <vector>
 #include <complex>
 #include "TeukTypes.hpp"
+#include "GHPScalars.hpp"
 #include <Eigen/Dense>
 #include <fftw3.h>
 
@@ -56,6 +57,8 @@ namespace SpecS2 {
         static std::pair<Real,Real> legendre_P_and_dP(int n, Real x);
         static vector<Real> legendre_gauss_lobatto(int N);
         static MatrixXd legendre_diff_matrix(const vector<Real>& x);
+
+        GHPField edth(const GHPField &f_in) const;
     };
 
 } // namespace SpecS2

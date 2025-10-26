@@ -5,9 +5,8 @@
 #ifndef GHZ_NUMERIC_GHPSCALARS_HPP
 #define GHZ_NUMERIC_GHPSCALARS_HPP
 #include <complex>
+#include <iomanip>
 #include "SpinCoeffsNP.hpp"
-
-//using Complex = std::complex<double>;
 
 class GHPScalar {
 public:
@@ -76,6 +75,113 @@ struct SpinCoefficientsGHP {
     // [[nodiscard]] SpinCoefficientsGHP prime() const;
 };
 
+class GHPField {
+public:
+    using Complex = teuk::Complex;
+
+private:
+    std::vector<std::vector<Complex>> values_; // [Nz][Nphi]
+    int p_;
+    int q_;
+    int Nz_;
+    int Nphi_;
+
+public:
+    // Constructor: create a Nz x Nphi field, optionally with an initial value
+    GHPField(int Nz, int Nphi, Complex init = 0.0, int p = 0, int q = 0)
+            : values_(Nz, std::vector<Complex>(Nphi, init)), p_(p), q_(q), Nz_(Nz), Nphi_(Nphi) {}
+
+
+    [[nodiscard]] const std::vector<std::vector<Complex>>& values() const { return values_; }
+    void set_values(const std::vector<std::vector<Complex>>& vals) { values_ = vals; }
+
+    [[nodiscard]] Complex operator()(int iz, int jphi) const { return values_[iz][jphi]; }
+    void set(int iz, int jphi, Complex val) { values_[iz][jphi] = val; }
+
+    [[nodiscard]] int p() const { return p_; }
+    [[nodiscard]] int q() const { return q_; }
+    [[nodiscard]] int Nz() const { return Nz_; }
+    [[nodiscard]] int Nphi() const { return Nphi_; }
+
+    // Element-wise conjugation (swaps weights)
+    [[nodiscard]] GHPField conj() const {
+        GHPField result(Nz_, Nphi_, 0.0, q_, p_);
+        for(int i = 0; i < Nz_; ++i)
+            for(int j = 0; j < Nphi_; ++j)
+                result.values_[i][j] = std::conj(values_[i][j]);
+        return result;
+    }
+
+    // Prime operation (swaps tetrad roles, may optionally transform values)
+    [[nodiscard]] GHPField prime() const {
+        // Default: just swap weights
+        GHPField result(Nz_, Nphi_, 0.0, -p_, -q_);
+        for(int i = 0; i < Nz_; ++i)
+            for(int j = 0; j < Nphi_; ++j)
+                result.values_[i][j] = values_[i][j]; // optionally add more rules here
+        return result;
+    }
+
+    // Element-wise multiplication
+    [[nodiscard]] GHPField operator*(const GHPField& other) const {
+        if(Nz_ != other.Nz_ || Nphi_ != other.Nphi_)
+            throw std::runtime_error("GHPField dimensions mismatch in multiplication");
+        GHPField result(Nz_, Nphi_, 0.0, p_ + other.p_, q_ + other.q_);
+        for(int i = 0; i < Nz_; ++i)
+            for(int j = 0; j < Nphi_; ++j)
+                result.values_[i][j] = values_[i][j] * other.values_[i][j];
+        return result;
+    }
+
+    // Element-wise addition (weights must match)
+    [[nodiscard]] GHPField operator+(const GHPField& other) const {
+        if(Nz_ != other.Nz_ || Nphi_ != other.Nphi_)
+            throw std::runtime_error("GHPField dimensions mismatch in addition");
+        if(p_ != other.p_ || q_ != other.q_)
+            throw std::runtime_error("GHPField weights mismatch in addition");
+        GHPField result(Nz_, Nphi_, 0.0, p_, q_);
+        for(int i = 0; i < Nz_; ++i)
+            for(int j = 0; j < Nphi_; ++j)
+                result.values_[i][j] = values_[i][j] + other.values_[i][j];
+        return result;
+    }
+
+    // Spin-boost transformation (element-wise)
+    [[nodiscard]] GHPField transform(const Complex& lambda) const {
+        GHPField result(Nz_, Nphi_, 0.0, p_, q_);
+        for(int i = 0; i < Nz_; ++i)
+            for(int j = 0; j < Nphi_; ++j)
+                result.values_[i][j] = std::pow(lambda, p_) * std::pow(std::conj(lambda), q_) * values_[i][j];
+        return result;
+    }
+
+    // Convenience string representation for debugging
+    std::string str(int iz = -1, int jphi = -1) const {
+        std::ostringstream oss;
+        oss << "GHPField(p,q)=(" << p_ << "," << q_ << "), size=(" << Nz_ << "," << Nphi_ << ")\n";
+        if(iz >= 0 && jphi >= 0) {
+            const auto& val = values_[iz][jphi];
+            oss << "values_[" << iz << "][" << jphi << "] = "
+                << std::setprecision(6) << val << "\n";
+        }
+        return oss.str();
+    }
+
+    // Access the underlying 2D array (read-only)
+    [[nodiscard]] const std::vector<std::vector<Complex>>& data() const { return values_; }
+
+    // Optionally: fill field with a function of (z,phi)
+    void fill(std::function<Complex(double z, double phi)> func,
+              const std::vector<double>& z_nodes,
+              const std::vector<double>& phi_nodes)
+    {
+        for(int i = 0; i < Nz_; ++i) {
+            for(int j = 0; j < Nphi_; ++j) {
+                values_[i][j] = func(z_nodes[i], phi_nodes[j]);
+            }
+        }
+    }
+};
 
 
 #endif //GHZ_NUMERIC_GHPSCALARS_HPP

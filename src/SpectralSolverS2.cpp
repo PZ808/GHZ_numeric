@@ -5,6 +5,7 @@
 #include "../include/SpectralSolverS2.hpp"
 #include <cmath>
 #include <cassert>
+#include "../include/GHPScalars.hpp"
 
 namespace SpecS2 {
 
@@ -179,6 +180,53 @@ namespace SpecS2 {
             D(i,i)=-s;
         }
         return D;
+    }
+
+// ============================================================
+// eth operator for a GHP scalar (spin-weighted derivative)
+// ===========================================================
+// @brief Computes the eth operator (spin-raising derivative) for a GHP scalar.
+//
+// Applies the spin-weighted derivative along the m-direction of the Newman-Penrose
+// tetrad. The returned GHP scalar has its spin weight raised by one:
+// (p,q) -> (p+1, q-1).
+//
+// @param f_in Input GHPScalar on the spectral grid (values stored in 2D vector).
+// @return GHPScalar The eth derivative of the input, with updated spin weights.
+//
+    GHPField SpectralSolver::edth(const GHPField& f_in) const
+    {
+        int Nz = Nz_;
+        int Nphi = Nphi_;
+
+        // Allocate derivative arrays
+        std::vector<std::vector<Complex>> df_dz(Nz, std::vector<Complex>(Nphi));
+        std::vector<std::vector<Complex>> df_dphi(Nz, std::vector<Complex>(Nphi));
+
+        // Copy input values
+        const auto& f = f_in.values();
+
+        // Compute spectral derivatives
+        dz(f, df_dz);         // ∂/∂z
+        dphi_fft(f, df_dphi); // ∂/∂φ
+
+        // Compute eth combination
+        std::vector<std::vector<Complex>> df_eth(Nz, std::vector<Complex>(Nphi));
+        for(int i = 0; i < Nz; ++i) {
+            double z = nodes()[i];
+            double factor = std::sqrt(1.0 - z*z);
+            for(int j = 0; j < Nphi; ++j) {
+                df_eth[i][j] = -factor * (df_dz[i][j] + Complex(0.0,1.0) * df_dphi[i][j] / factor);
+            }
+        }
+
+        // Return new field with raised GHP weights
+        // Allocate new GHPField of same size
+        GHPField out(Nz, Nphi, 0.0, f_in.p() + 1, f_in.q() - 1);
+
+        // Fill in the computed values
+        out.set_values(df_eth);
+        return out;
     }
 
 } // namespace SpecS2
