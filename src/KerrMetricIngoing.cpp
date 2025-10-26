@@ -7,35 +7,33 @@
 #include "../include/KerrMetricIngoing.hpp"
 #include <cmath>
 #include "../include/MathMacros.hpp"
+using namespace  math;
 
 KerrMetricIngoing::KerrMetricIngoing(const KerrParams& p, const KerrMetric& km) : params(p) , kerr_metric(km) {
 }
+void KerrMetricIngoing::build(const OutgoingCoords Xout) {
+    M_ = params.M;
+    a_ = params.a;
+    del_= kerr_metric.Delta(Xout.x1);
+    sig_ = sqr(Xout.x1)+sqr(a_*Xout.x2);
+    s2_ = 1.0-sqr(Xout.x2);
+    s1_ = sqrt(s1_);
+}
 
-ghz::SymmetricMatrix4 KerrMetricIngoing::g(double v, double r, double th, double phi_in) const {
-    (void)v; (void)phi_in;
-    double M = params.M;
-    double a = params.a;
-    double s2 = std::sin(th)*std::sin(th);
-    double sig =  kerr_metric.Sigma(r,th); //Sigma(r, th);
-    double del = kerr_metric.Delta(r);
-    double lam = kerr_metric.Lambda(r, th);
+ghz::SymmetricMatrix4 KerrMetricIngoing::g(const IngoingCoords Xin) const {
+    Real r = Xin.x1;
 
-    double g_vv   = (1.-2.*M*r/sig);
+    double g_vv   = (1.-2.*M_*r/sig_);
     double g_vr   = -1.0;
-    double g_vph   = a*s2*(1 - 2*M*r/sig);
-    double g_rph   = a*s2;
-    double g_thth   = -sig;
-    double g_phph   = -(r*r + a*a + 2*M*r*a*a*s2/sig)*s2;
+    double g_vph   = a_*s2_*(1.0-2.0*M_*r/sig_);
+    double g_rph   = a_*s2_;
+    double g_thth   = -sig_;
+    double g_phph   = -(r*r + a_*a_ + 2.0*M_*r*a_*a_*s2_/sig_)*s2_;
 
     return { g_vv, g_vr, 0.0, g_vph, 0.0, 0.0, g_rph, g_thth, 0.0, g_phph };
 }
 
-ghz::SymmetricMatrix4 KerrMetricIngoing::ginv(double t, double r, double th, double phi) const {
-    (void)t; (void)phi;
-    double s2 = std::sin(th)*std::sin(th);
-    double sig = kerr_metric.Sigma(r, th);
-    double del = kerr_metric.Delta(r);
-    double lam = kerr_metric.Lambda(r, th);
+ghz::SymmetricMatrix4 KerrMetricIngoing::ginv(const IngoingCoords Xin) const {
 
     double ginv_vv    = 0.0;
     double ginv_vr    = 0.0;

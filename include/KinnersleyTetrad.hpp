@@ -13,6 +13,7 @@ public:
     using Tetrad::Tetrad;
 
     void build(Real t_BL, Real r, Real theta, Real ph_BL) override;
+    void build_tetrad(const BLCoords& Xbl) override;
 };
 
 class KinnersleyTetradOutgoing : public Tetrad {

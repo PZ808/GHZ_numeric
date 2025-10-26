@@ -37,6 +37,7 @@ public:
     virtual ~Tetrad() = default;
 
     // build the tetrad in the given coordinate system
+    virtual void build_tetrad(const BLCoords& Xb) = 0;
     virtual void build(Real tBL_u_or_v, Real r, Real theta, Real phiBL_in_or_out) = 0;
 
     //const SpinCoefficients& spinCoeffs() const { return sc; }

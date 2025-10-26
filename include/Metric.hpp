@@ -9,6 +9,7 @@
 #include <array>
 #include "VectorsGHZ.hpp"
 
+
 class Metric {
 public:
     virtual ~Metric() = default;

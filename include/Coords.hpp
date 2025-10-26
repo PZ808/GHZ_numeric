@@ -24,17 +24,19 @@ struct Coords {
 };;
 
 
-struct BLCoords  {
-    //using Coords::Coords;
-    double t, r, th, ph;
+struct BLCoords : Coords {
+    using Coords::Coords;
+    //double t, r, th, ph;
 };
 
-struct IngoingCoords {
-    double v, r, th, ph_in;
+struct IngoingCoords : Coords {
+    using Coords::Coords;
+    //double v, r, th, ph_in;
 };
 
-struct OutgoingCoords {
-    double u, r, z, ph_out; // z = cos(th)
+struct OutgoingCoords : Coords {
+    using Coords::Coords;
+    //double u, r, z, ph_out; // z = cos(th)
 };
 
 class CoordinateSystem {
@@ -53,10 +55,10 @@ public:
     void setType(CoordType type);
 
     // transforms
-    IngoingCoords toIngoing(const BLCoords& bl) const;
-    OutgoingCoords toOutgoing(const BLCoords& bl) const;
-    BLCoords toBoyerLindquist(const IngoingCoords& in) const;
-    BLCoords toBoyerLindquist(const OutgoingCoords& out) const;
+    IngoingCoords BLtoIngoing(const BLCoords& bl) const;
+    OutgoingCoords BLtoOutgoing(const BLCoords& bl) const;
+    BLCoords IngoingtoBoyerLindquist(const IngoingCoords& in) const;
+    BLCoords OutGoingtoBoyerLindquist(const OutgoingCoords& out) const;
 
     // print readable form
     std::string typeName() const;

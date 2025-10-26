@@ -53,41 +53,46 @@ double CoordinateSystem::phiSharp(double r) const {
 // ---------------------------
 // Transformation definitions
 // ---------------------------
-IngoingCoords CoordinateSystem::toIngoing(const BLCoords& bl) const {
+IngoingCoords CoordinateSystem::BLtoIngoing(const BLCoords& bl) const {
     // convert from bl to ingoing
 
-    double v_in  = bl.t + rStar(bl.r);
-    double r_in = bl.r;
-    double th_in = bl.th;
-    double ph_in = bl.ph + phiSharp(bl.r); // optional correction term
+    Real t = bl.x0;
+    Real r = bl.x1;
+    Real th = bl.x2;
+    Real ph = bl.x3;
+
+    Real v_in = t + rStar(r);
+    Real r_in = r;
+    Real th_in = th;
+    Real ph_in = ph + phiSharp(r); // optional correction term
 
     return {v_in, r_in, th_in, ph_in};
 }
 
-OutgoingCoords CoordinateSystem::toOutgoing(const BLCoords& bl) const {
+OutgoingCoords CoordinateSystem::BLtoOutgoing(const BLCoords& bl) const {
     // convert from bl to outgoing
-    double u_out  = bl.t - rStar(bl.r);
-    double r_out = bl.r;
-    double z_out = std::cos(bl.th);
-    double ph_out = bl.ph - phiSharp(bl.r);
+    double u_out  = bl.x0 - rStar(bl.x1);
+    double r_out = bl.x1;
+    double z_out = std::cos(bl.x2);
+    double ph_out = bl.x3 - phiSharp(bl.x1);
 
     return {u_out, r_out, z_out, ph_out};
 }
 
-BLCoords CoordinateSystem::toBoyerLindquist(const IngoingCoords& in) const {
+BLCoords CoordinateSystem::IngoingtoBoyerLindquist(const IngoingCoords &in) const {
     // convert from ingoing to bl
-    double t_bl  = in.v - rStar(in.r);
-    double r_bl = in.r;
-    double th_bl = in.th;
-    double ph_bl = in.ph_in - phiSharp(r_bl);
+    double t_bl  = in.x0 - rStar(in.x1);
+    double r_bl = in.x1;
+    double th_bl = in.x2;
+    double ph_bl = in.x3 - phiSharp(in.x1);
     return { t_bl, r_bl, th_bl, ph_bl };
 }
 
-BLCoords CoordinateSystem::toBoyerLindquist(const OutgoingCoords& out) const {
+BLCoords CoordinateSystem::OutGoingtoBoyerLindquist(const OutgoingCoords &out) const {
     // convert from outgoing to bl
-    double t_bl  = out.u + rStar(out.r);
-    double r_bl = out.r;
-    double th_bl = std::acos(out.z);
-    double ph_bl = out.ph_out + phiSharp(r_bl);
+    double t_bl  = out.x0 + rStar(out.x1);
+    double r_bl = out.x1;
+    double th_bl = std::acos(out.x2);
+    double ph_bl = out.x3 + phiSharp(r_bl);
     return { t_bl, r_bl, th_bl, ph_bl };
 }

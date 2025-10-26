@@ -22,9 +22,6 @@ public:
     explicit KerrMetricOutgoing(const KerrParams& p, const KerrMetric& km);
     void build(const OutgoingCoords Xout);
 
-    //[[nodiscard]] ghz::SymmetricMatrix4 g(Real u, Real r, Real z, Real phi_out) const ;
-    //[[nodiscard]] ghz::SymmetricMatrix4 ginv(Real u, Real r, Real z, Real phi_out) const ;
-
     ghz::SymmetricMatrix4 g(const OutgoingCoords Xout) const;
     ghz::SymmetricMatrix4 ginv(const OutgoingCoords Xout) const;
 };
