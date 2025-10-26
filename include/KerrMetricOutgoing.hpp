@@ -19,8 +19,8 @@ private:
 public:
     explicit KerrMetricOutgoing(const KerrParams& p, const KerrMetric& km);
 
-    [[nodiscard]] std::array<double, 10> g(double u, double r, double th, double phi_out) const ;
-    [[nodiscard]] std::array<double, 10> ginv(double u, double r, double th, double phi_out) const ;
+    [[nodiscard]] std::array<double, 10> g(Real u, Real r, Real th, Real phi_out) const ;
+    [[nodiscard]] std::array<double, 10> ginv(Real u, Real r, Real th, Real phi_out) const ;
 };
 
 #endif //GHZ_NUMERIC_KERRMETRICOUTGOING_HPP

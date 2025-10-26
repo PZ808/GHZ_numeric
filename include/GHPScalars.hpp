@@ -7,11 +7,11 @@
 #include <complex>
 #include "SpinCoeffsNP.hpp"
 
-using Complex = std::complex<double>;
+//using Complex = std::complex<double>;
 
 class GHPScalar {
 public:
-    using Complex = std::complex<double>;
+    using Complex = teuk::Complex;
 
 private:
     Complex value_;
@@ -69,20 +69,7 @@ struct SpinCoefficientsGHP {
     GHPScalar kappa, kappap, sigma, sigmap, tau, taup, rho, rhop;
     SpinCoefficientsGHP() = default;
 
-    SpinCoefficientsGHP(const SpinCoefficients& sc_np) {
-        // initialize weights according to GHP convention (p,q)
-        // (using Held’s sign conventions)
-        using SCT = SpinCoeffType;
-
-        kappa  = GHPScalar(sc_np.get(SCT::kappa), 3, 1);
-        kappap = GHPScalar(-sc_np.get(SCT::nu), -3, -1);
-        sigma  = GHPScalar(sc_np.get(SCT::sigma), 3, -1);
-        sigmap = GHPScalar(-sc_np.get(SCT::lambda), -3, 1);
-        rho    = GHPScalar(sc_np.get(SCT::rho), 1, 1);
-        rhop   = GHPScalar(-sc_np.get(SCT::mu), -1, -1);
-        tau    = GHPScalar(sc_np.get(SCT::tau), 1, -1);
-        taup   = GHPScalar(sc_np.get(SCT::pi), -1, 1);
-    }
+    explicit SpinCoefficientsGHP(const SpinCoefficients& sc_np);
 
     // Apply the GHP prime operation: swap tetrad roles
     // [[nodiscard]] SpinCoefficientsGHP prime() const;

@@ -15,16 +15,16 @@ void KinnersleyTetradBL::build(double time, double r, double theta, double phi_a
 
     std::complex<double> I(0.0,1.0);
 
-    double a = metric.a();
-    double M = metric.M();
-    double del = metric.Delta(r);
-    double sig = metric.Sigma(r, theta);
+    Real a = metric.a();
+    Real M = metric.M();
+    Real del = metric.Delta(r);
+    Real sig = metric.Sigma(r, theta);
 
     // l.n = 1, m.mbar = -1
     l = { (r*r + a*a)/del, 1.0, 0.0, a/del };
     n = { (r*r + a*a)/(2.0*sig), -del/(2.0*sig), 0.0, a/(2.0*sig) };
     auto common = 1.0 / (std::sqrt(2.0)*(r + I*a*std::cos(theta)));
-    m = CVector4{ I*a*std::sin(theta), 0.0, 1.0, I/std::sin(theta) } * common;
+    m = ghz::CVector4{ I*a*std::sin(theta), 0.0, 1.0, I/std::sin(theta) } * common;
     mbar = m.conj();
 
     // Analytic spin coefficients
@@ -70,6 +70,6 @@ void KinnersleyTetradOutgoing::build(double time, double r, double theta, double
 
     std::complex<double> I(0.0,1.0);
     auto common = 1.0 / (std::sqrt(2.0)*(r + I*a*std::cos(theta)));
-    m = CVector4{ I*a*std::sin(theta), 0.0, 1.0, I/std::sin(theta) } * common;
+    m = ghz::CVector4{ I*a*std::sin(theta), 0.0, 1.0, I/std::sin(theta) } * common;
     mbar = m.conj();
 }

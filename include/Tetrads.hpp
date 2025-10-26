@@ -6,7 +6,9 @@
 #define GHZ_NUMERIC_TETRADS_HPP
 
 #pragma once
-#include "Vectors.hpp"
+//#include "Vectors.hpp"
+#include "TeukTypes.hpp"
+#include "VectorsGHZ.hpp"
 #include "SpinCoeffsNP.hpp"
 #include "GHPScalars.hpp"
 #include "HeldScalars.hpp"
@@ -14,14 +16,16 @@
 #include "Coords.hpp"
 #include "KerrMetric.hpp"
 
+using namespace teuk;
+
 class Tetrad {
 protected:
     const KerrMetric& metric;
     const CoordinateSystem& coords;
 
 public:
-    Vector4 l, n;
-    CVector4 m, mbar;
+    ghz::Vector4 l, n;
+    ghz::CVector4 m, mbar;
     SpinCoefficients sc;
     SpinCoefficientsGHP sc_ghp;
     HeldCoefficients sc_held;
@@ -33,7 +37,7 @@ public:
     virtual ~Tetrad() = default;
 
     // build the tetrad in the given coordinate system
-    virtual void build(double tBL_u_or_v, double r, double theta, double phiBL_in_or_out) = 0;
+    virtual void build(Real tBL_u_or_v, Real r, Real theta, Real phiBL_in_or_out) = 0;
 
     //const SpinCoefficients& spinCoeffs() const { return sc; }
     //const GHPScalarsTypeD& ghpScalarsTypeD() const { return ghps; }

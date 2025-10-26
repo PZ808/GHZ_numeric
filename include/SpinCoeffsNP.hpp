@@ -9,8 +9,10 @@
 #include <complex>
 #include <map>
 #include <string>
+#include "TeukTypes.hpp"
 
-using Complex = std::complex<double>;
+using Complex = teuk::Complex;
+
 
 enum class SpinCoeffType {
     kappa, sigma, lambda, nu,
@@ -27,7 +29,7 @@ public:
     SpinCoefficients() = default;
 
     void set(SpinCoeffType type, Complex value);
-    Complex get(SpinCoeffType type) const;
+    [[nodiscard]] Complex get(SpinCoeffType type) const;
 
     // Optional: print all coefficients
     std::string toString() const;

@@ -4,9 +4,6 @@
 
 #include "../include/SpinCoeffsNP.hpp"
 
-#include <sstream>
-#include <cmath>
-
 void SpinCoefficients::set(SpinCoeffType type, Complex value) {
     coeffs[type] = value;
 }

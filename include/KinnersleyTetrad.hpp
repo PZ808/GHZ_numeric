@@ -12,14 +12,14 @@ class KinnersleyTetradBL : public Tetrad {
 public:
     using Tetrad::Tetrad;
 
-    void build(double t_BL, double r, double theta, double ph_BL) override;
+    void build(Real t_BL, Real r, Real theta, Real ph_BL) override;
 };
 
 class KinnersleyTetradOutgoing : public Tetrad {
 public:
 using Tetrad::Tetrad;
 
-void build(double u, double r, double theta, double ph_out) override;
+void build(Real u, Real r, Real theta, Real ph_out) override;
 };
 
 #endif //GHZ_NUMERIC_KINNERSLEYTETRAD_HPP

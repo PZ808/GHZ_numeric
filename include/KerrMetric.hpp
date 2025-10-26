@@ -8,6 +8,7 @@
 #pragma once
 #include <array>
 #include "Metric.hpp"
+#include "VectorsGHZ.hpp"
 #include "KerrParams.hpp"
 
 
@@ -24,26 +25,27 @@ public:
     //virtual double Sigma(double r, double th) const = 0;
 
 
-    double M() const;
-    double a() const;
+    Real M() const;
+    Real a() const;
 
-    double r_plus() const;
-    double r_minus() const;
+    Real r_plus() const;
+    Real r_minus() const;
 
-    double Om_plus() const;
-    double Om_minus() const;
+    Real Om_plus() const;
+    Real Om_minus() const;
 
-    double kappa_plus() const;
-    double kappa_minus() const;
-
-
-    virtual double Sigma(double r, double theta) const;
-    virtual double  Delta(double r) const;
-    virtual double Lambda(double r, double theta) const;
+    Real kappa_plus() const;
+    Real kappa_minus() const;
 
 
-    std::array<double, 10> g(double t, double r, double th, double ph) const ;
-    std::array<double, 10> ginv(double t, double r, double th, double ph) const ;
+    virtual Real Sigma(double r, double theta) const;
+    virtual Real  Delta(double r) const;
+    virtual Real Lambda(double r, double theta) const;
+
+
+    //std::array<Real, 10>
+    ghz::SymmetricMatrix4 g(Real t, Real r, Real th, Real ph) const ;
+    ghz::SymmetricMatrix4 ginv(Real t, Real r, Real th, Real ph) const ;
 };
 
 #endif //GHZ_NUMERIC_KERRMETRIC_HPP

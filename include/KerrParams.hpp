@@ -5,15 +5,17 @@
 #ifndef GHZ_NUMERIC_KERRPARAMS_HPP
 #define GHZ_NUMERIC_KERRPARAMS_HPP
 
+#include "TeukTypes.hpp"
 #pragma once
 #include <cassert>
 
+using namespace teuk;
 
 struct KerrParams {
-    double M;
-    double a;
+    Real M;
+    Real a;
 
-    KerrParams(double mass, double spin);
+    KerrParams(Real mass, Real spin);
 };
 
 #endif //GHZ_NUMERIC_KERRPARAMS_HPP
