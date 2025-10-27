@@ -48,7 +48,9 @@ namespace ghz {
         [[nodiscard]] constexpr Vector4 operator*(Real s) const noexcept {
             return {s * data[0], s * data[1], s * data[2], s * data[3]};
         }
-
+        [[nodiscard]] constexpr Vector4 operator/(Real s) const noexcept {
+            return { data[0]/s,  data[1]/s,  data[2]/s,  data[3]/s};
+        }
         constexpr Vector4& operator+=(const Vector4& o) noexcept {
             for (int i = 0; i < 4; ++i) data[i] += o.data[i];
             return *this;

@@ -58,10 +58,8 @@ void KinnersleyTetradBL::build(Real time, Real r, Real theta, Real phi_azi) {
 }
 
 
-void KinnersleyTetradBL::build_tetrad(const BLCoords &Xbl) {
+void KinnersleyTetradBL::build_tetrad(const BLCoords& Xbl) {
 
-
-    using teuk::I;
     Real r = Xbl.x1;
     Real theta = Xbl.x2;
 
@@ -107,7 +105,12 @@ void KinnersleyTetradBL::build_tetrad(const BLCoords &Xbl) {
     weyls.set(WeylScalarType::Psi4,0.0);
 }
 
-void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
+//void KinnersleyTetradBL::build_tetrad_compact(teuk::Real u, teuk::Real sigma, teuk::Real z, teuk::Real ph) {
+    // r direction compactified
+    // to be implemented
+//}
+
+    void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
     (void)time; (void)phi_azi; // builds Kinnersley tetrad and derived quantities in  outgoing coordinates (u,r,z,phi)
 
     using teuk::I;
@@ -118,8 +121,9 @@ void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
     Real s2 = 1.0 - sqr(z); // sin^2(th)
     Real s1 = sqrt(1.0-z*z); // sin(th)
 
+
     // contravariant NP null basis l.n = 1, m.mbar = -1
-    l = { 1,0,0,0};
+    l = { 0,1,0,0};
     n = { (r*r + a*a)/sig, -del/(2.0*sig), 0.0, a/sig };
 
     auto common = 1.0 / (std::sqrt(2.0)*(r + I*a*z));
@@ -154,4 +158,70 @@ void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
     weyls.set(WeylScalarType::Psi2,M*cube(rho));
     weyls.set(WeylScalarType::Psi3,0.0);
     weyls.set(WeylScalarType::Psi4,0.0);
+}
+
+void KinnersleyTetradOutgoing::build_tetrad_compact(const OutgoingCoordsCompact &Xout_C) {
+    // sigma = \lambda rho0/r
+    using teuk::I;
+    using math::sqr;
+    Real a = metric.a();
+    Real M = metric.M();
+    Real r = coords.r_from_sigma(Xout_C.x1);  // r(\sigma) = \lambda/\sigma
+    Real z = Xout_C.x2;
+    Real del = metric.Delta(r);
+    Real sig = sqr(a*z)+sqr(r);
+    Real s2 = 1.0 - sqr(z); // sin^2(th)
+    Real Om_C = Xout_C.x1/metric.lambda_C(); // choice of conformal factor \Omega = \sigma/\lambda = 1/r
+    Real s1 = sqrt(1.0-z*z); // sin(th)
+    Real rho0_C = (metric.r_plus()/metric.lambda_C());;
+    Real dsigma_dr = -metric.lambda_C()*rho0_C / (r*r);
+    Real dOm_dr = 1.0/metric.lambda_C()*dsigma_dr;
+    Real Ups = - Om_C; // Upsilon = Om_C^{-1} d\Omega_C/dr
+    Real Delta_Ups = - del/(2.0*sig)*sqr(Om_C);
+    Complex delta_Ups = 0;
+
+
+
+    // contravariant NP null basis l.n = 1, m.mbar = -1
+    l = {0,1,0,0} ;
+    n = { (r*r + a*a)/sig, -del/(2.0*sig)*dsigma_dr, 0.0, a/sig };
+
+    // conformally rescale
+    l = l/ sqr(Om_C);
+    n = n * sqr(Om_C); //
+
+    auto common = 1.0 / (std::sqrt(2.0)*(r + I*a*z));
+    m = ghz::CVector4{ I*a*s1, 0.0, -s1 , I/s1 } * common;
+    mbar = m.conj();
+
+
+    Complex rho = -1.0/(r-I*a*z);
+    Complex rhobar = std::conj(rho);
+
+    // transform values take from Steward's Advanced GR book (3.11.2) pp 156
+    sc.set(SpinCoeffType::rho, rho/sqr(Om_C)) ;
+    sc.set(SpinCoeffType::mu, rhobar*sqr(rho)*del/2.0 + dOm_dr/Om_C);
+    sc.set(SpinCoeffType::tau, -I*a*s1/(sqrt(2)*sig)/Om_C);
+    sc.set(SpinCoeffType::pi, I*a*s1*sqr(rho)/sqrt(2)/Om_C + delta_Ups);
+    sc.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu)+ rho*rhobar*(r-M)/2.0 - Delta_Ups);
+    sc.set(SpinCoeffType::beta, -(rhobar*z/(2.0*s1*sqrt(2.0))) / Om_C);
+    sc.set(SpinCoeffType::alpha, (sc.get(SpinCoeffType::beta) + sc.get(SpinCoeffType::pi) - conj(delta_Ups)) / Om_C);
+
+    sc.set(SpinCoeffType::kappa, 0.0);
+    sc.set(SpinCoeffType::sigma, 0.0);
+    sc.set(SpinCoeffType::lambda, 0.0);
+    sc.set(SpinCoeffType::nu, 0.0);
+    sc.set(SpinCoeffType::epsilon, 0.0);
+
+    //SpinCoefficientsGHP sc_ghp(sc);
+    sc_ghp = SpinCoefficientsGHP(sc);
+    sc_held = HeldCoefficients(sc_ghp, weyls);
+
+    weyls.set(WeylScalarType::Psi0,0.0);
+    weyls.set(WeylScalarType::Psi1,0.0);
+    weyls.set(WeylScalarType::Psi2,M*cube(rho)/cube(Om_C));
+    weyls.set(WeylScalarType::Psi3,0.0);
+    weyls.set(WeylScalarType::Psi4,0.0);
+
+
 }

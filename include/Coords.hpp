@@ -13,7 +13,9 @@
 enum class CoordType {
     BoyerLindquist,
     IngoingKerr,
-    OutgoingKerr
+    OutgoingKerr,
+    OutgoingKerrCompact,
+    Hyperboloidal
 };
 
 struct Coords {
@@ -39,14 +41,27 @@ struct OutgoingCoords : Coords {
     //double u, r, z, ph_out; // z = cos(th)
 };
 
+struct OutgoingCoordsCompact : Coords {
+    using Coords::Coords;
+    //double u, r, z, ph_out; // z = cos(th)
+};
+
+struct HyperboloidalCoords : Coords {
+    using Coords::Coords;
+    // double tau, sigma, z, phi
+};
+
 class CoordinateSystem {
 private:
     const KerrMetric& metric;
     CoordType currentType;
 
     // helper: analytic tortoise coordinate
-    [[nodiscard]] double rStar(double r) const;
-    [[nodiscard]] double phiSharp(double r) const;
+    [[nodiscard]] Real rStar_(double r) const;
+    [[nodiscard]] Real phiSharp_(double r) const;
+    Real height_(Real sigma) const;
+    Real OmegConf_(Real sigma) const;
+    Real rho_(Real sigma) const;
 
 public:
     explicit CoordinateSystem(const KerrMetric& g, CoordType type = CoordType::BoyerLindquist);
@@ -54,14 +69,24 @@ public:
     CoordType type() const { return currentType; }
     void setType(CoordType type);
 
+
     // transforms
-    IngoingCoords BLtoIngoing(const BLCoords& bl) const;
-    OutgoingCoords BLtoOutgoing(const BLCoords& bl) const;
-    BLCoords IngoingtoBoyerLindquist(const IngoingCoords& in) const;
-    BLCoords OutGoingtoBoyerLindquist(const OutgoingCoords& out) const;
+    IngoingCoords bl_to_ingoing(const BLCoords& bl) const;
+    BLCoords ingoing_to_bl(const IngoingCoords& in) const;
+    HyperboloidalCoords ingoing_to_hyperboloidal(const IngoingCoords& in) const;
+
+    [[maybe_unused]] BLCoords outgoing_to_bl(const OutgoingCoords& out) const;
 
     // print readable form
     std::string typeName() const;
+
+    Real sigma_from_r_(Real r) const;
+
+    Real r_from_sigma(Real r) const;
+
+    Real Omeg_comf(Real sigma) const;
+
+    OutgoingCoords bl_to_outgoing(const BLCoords &bl) const;
 };
 
 #endif //GHZ_NUMERIC_COORDS_HPP

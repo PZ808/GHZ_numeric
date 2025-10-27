@@ -35,15 +35,17 @@ public:
             : metric(gKerr), coords(c) {}
 
     virtual ~Tetrad() = default;
-
-    // build the tetrad in the given coordinate system
-    virtual void build_tetrad(const BLCoords& Xb) = 0;
     virtual void build(Real tBL_u_or_v, Real r, Real theta, Real phiBL_in_or_out) = 0;
 
-    //const SpinCoefficients& spinCoeffs() const { return sc; }
-    //const GHPScalarsTypeD& ghpScalarsTypeD() const { return ghps; }
-    //const SpinCoefficientsGHP& spinCoefficientsGhp() const { return sc_ghp; }
-    //const WeylScalars& weylScalars() const { return weyls; }
 };
+
+class TetradTransformations {
+public:
+    static void conformal_transform(Tetrad& tetrad, const Real Om);
+    static void spin_boost(Tetrad& tetrad, const Complex& lambda);
+    //static void null_rotn_about_l(Tetrad& tetrad, const Complex& c);
+    //static void null_rotn_about_n(Tetrad& tetrad, const Complex& c);
+};
+
 
 #endif //GHZ_NUMERIC_TETRADS_HPP

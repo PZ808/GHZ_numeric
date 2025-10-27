@@ -15,6 +15,7 @@
 class KerrMetric : public Metric {
 private:
     KerrParams params;
+    Real k2_, lambda_, mu_, alpha_; // conformal params
 
 
 public:
@@ -33,11 +34,18 @@ public:
     Real kappa_plus() const;
     Real kappa_minus() const;
 
+    Real k2_C() const;
+    Real mu_C() const;
+    Real lambda_C() const;
+    Real alpha_C () const;
 
     virtual Real Sigma(double r, double theta) const;
     virtual Real Delta(double r) const;
     virtual Real Lambda(double r, double theta) const;
 
+    Real Sigma_z(Real r, Real z) const;
+
+    Real Lambda_z(Real r, Real z) const;
 };
 
 #endif //GHZ_NUMERIC_KERRMETRIC_HPP

@@ -7,7 +7,7 @@
 #include <cassert>
 
 
-KerrParams::KerrParams(double mass, double spin) : M(mass), a(spin) {
+KerrParams::KerrParams(Real mass, Real spin) : M(mass), a(spin)  {
     assert(M > 0.0 && "Mass must be positive");
     assert(std::abs(a) <= M && "|a| must be <= M for Kerr black hole");
 }
