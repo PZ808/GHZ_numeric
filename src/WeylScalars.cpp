@@ -11,7 +11,7 @@
 #include <sstream>
 #include <cmath>
 
-using Complex = std::complex<double>;
+using Complex = teuk::Complex;
 
 void WeylScalars::set(WeylScalarType type, Complex value) {
     weyl_scalars[type] = value;

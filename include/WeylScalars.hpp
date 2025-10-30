@@ -8,7 +8,7 @@
 #pragma once
 #include <complex>
 #include <map>
-#include "TeukTypes.hpp"
+#include "GhzTypes.hpp"
 
 enum class WeylScalarType {
     Psi0, Psi1, Psi2, Psi3, Psi4

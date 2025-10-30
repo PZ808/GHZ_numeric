@@ -13,13 +13,14 @@
 #include "SpinCoeffsNP.hpp"
 #include "MathMacros.hpp"
 
-using Complex = std::complex<double>;
+using Complex = teuk::Complex;
 
 
 class HeldScalar : public GHPScalar {
     // GHP scalars for type-D spacetime in a Weyl aligned NP frame
     // (shear-free geodesic null congruence)
 public:
+    void print() const;
 
 };
 

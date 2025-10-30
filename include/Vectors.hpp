@@ -11,6 +11,10 @@
 
 using Complex = std::complex<double>;
 
+/** \class
+ *
+ * \brief creates vectors for use in the code
+ */
 
 struct Vector4 {
     double data[4];

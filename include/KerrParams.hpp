@@ -5,9 +5,9 @@
 #ifndef GHZ_NUMERIC_KERRPARAMS_HPP
 #define GHZ_NUMERIC_KERRPARAMS_HPP
 
-#include "TeukTypes.hpp"
 #pragma once
 #include <cassert>
+#include "GhzTypes.hpp"
 
 using namespace teuk;
 

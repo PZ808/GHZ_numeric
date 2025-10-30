@@ -33,7 +33,7 @@ namespace teuk {
  * Example: -TEUK_PRECISION=2 for long double
  */
 #ifndef TEUK_PRECISION
-#  define TEUK_PRECISION 1
+#  define TEUK_PRECISION 2
 #endif
 
 // Primary template — not defined.

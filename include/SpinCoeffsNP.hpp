@@ -9,7 +9,7 @@
 #include <complex>
 #include <map>
 #include <string>
-#include "TeukTypes.hpp"
+#include "GhzTypes.hpp"
 
 using Complex = teuk::Complex;
 

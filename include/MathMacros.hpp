@@ -1,119 +1,162 @@
 //
 // Created by Peter Zimmerman on 25.10.25.
 //
-
 #ifndef GHZ_NUMERIC_MATHMACROS_HPP
 #define GHZ_NUMERIC_MATHMACROS_HPP
+#pragma once
+/**
+ * @file math_macros.hpp
+ * @brief Safe, type-generic math utilities compatible with Boost.Multiprecision.
+ *
+ *  - Provides both C-style macros (for legacy code) and C++ inline constexpr functions.
+ *  - All inline functions are precision-generic and work with teuk::Real / Complex types.
+ */
 
-// simple_math_macros.hpp
-// Small collection of simple math macros and their safer inline constexpr alternatives.
-//
-// Usage:
-//   #include "math_macros.hpp"
-//
-//   auto a = SQR(x);        // macro (be careful with side-effects)
-//   auto b = math::sqr(x);  // safer, constexpr template function
-//
-// Notes:
-// - Macros evaluate their arguments multiple times; prefer the inline constexpr functions below.
-// - The macro names are provided for compatibility with C-style code that expects macros.
-
-// Include <cmath> only for std::pow or std::abs when needed.
 #include <cmath>
+#include <complex>
 #include <type_traits>
+#include <boost/multiprecision/cpp_bin_float.hpp>
+#include "GhzTypes.hpp"  // for teuk::Real, Complex, etc.
 
-//
-// MACROS (simple, but may evaluate arguments multiple times)
-// Always parenthesize arguments and the whole expression.
-//
+// ======================================================
+//  MACROS (legacy support — prefer inline functions!)
+// ======================================================
+
 #define SQR(x)    ((x) * (x))
 #define CUBE(x)   ((x) * (x) * (x))
-#define POW2(x)   SQR(x)   // alias
-#define POW3(x)   CUBE(x)  // alias
+#define POW2(x)   SQR(x)
+#define POW3(x)   CUBE(x)
 
-// MIN / MAX macros (beware of double evaluation)
 #ifndef MIN
-#define MIN(a, b) (( (a) < (b) ) ? (a) : (b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 #ifndef MAX
-#define MAX(a, b) (( (a) > (b) ) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
-
-// CLAMP macro: clamps v to [lo, hi]
 #ifndef CLAMP
-#define CLAMP(v, lo, hi) ( ((v) < (lo)) ? (lo) : (((v) > (hi)) ? (hi) : (v)) )
+#define CLAMP(v, lo, hi) (((v) < (lo)) ? (lo) : (((v) > (hi)) ? (hi) : (v)))
 #endif
-
-// SIGN macro: -1, 0, +1
 #ifndef SIGN
-#define SIGN(x) ( ((x) > 0) - ((x) < 0) )
+#define SIGN(x) (((x) > 0) - ((x) < 0))
 #endif
 
-//
-// Safer, type-generic, constexpr inline alternatives (preferred in C++)
-//
+// ======================================================
+//  NAMESPACE math — safer, ADL-friendly alternatives
+// ======================================================
 namespace math {
 
-// sqr: x*x
-    template<typename T>
-    constexpr T sqr(T x) noexcept
-    {
-        return x * x;
-    }
+// Helper for ADL to find boost::multiprecision overloads
+using std::abs;
+using std::sqrt;
+using std::sin;
+using std::cos;
+using std::tan;
+using std::exp;
+using std::log;
+using std::pow;
 
-// cube: x*x*x
-    template<typename T>
-    constexpr T cube(T x) noexcept
-    {
-        return x * x * x;
-    }
+//----------------------------------------------------
+// Simple arithmetic helpers
+//----------------------------------------------------
+template <typename T>
+constexpr T sqr(const T& x) noexcept { return x * x; }
 
-// pow_n: integer small exponents (2..4). For general exponents use std::pow (floating).
-    template<typename T>
-    constexpr T pow2(T x) noexcept { return x * x; }
-    template<typename T>
-    constexpr T pow3(T x) noexcept { return x * x * x; }
-    template<typename T>
-    constexpr T pow4(T x) noexcept { return (x * x) * (x * x); }
+template <typename T>
+constexpr T cube(const T& x) noexcept { return x * x * x; }
 
-// min / max
-    template<typename T>
-    constexpr const T& min(const T& a, const T& b) noexcept { return (a < b) ? a : b; }
-    template<typename T>
-    constexpr const T& max(const T& a, const T& b) noexcept { return (a > b) ? a : b; }
+template <typename T>
+constexpr T pow2(const T& x) noexcept { return x * x; }
 
-// clamp
-    template<typename T>
-    constexpr const T& clamp(const T& v, const T& lo, const T& hi) noexcept
-    {
-        return (v < lo) ? lo : ((v > hi) ? hi : v);
-    }
+template <typename T>
+constexpr T pow3(const T& x) noexcept { return x * x * x; }
 
-// sign: -1, 0, +1 (integral and floating)
-    template<typename T>
-    constexpr int sign(T x) noexcept
-    {
-        return (T(0) < x) - (x < T(0));
-    }
+template <typename T>
+constexpr T pow4(const T& x) noexcept { return (x * x) * (x * x); }
 
-// safe abs wrapper that works for integers and floating point
-    template<typename T>
-    constexpr T absval(T x) noexcept
-    {
-        return x < T(0) ? -x : x;
-    }
+//----------------------------------------------------
+// Min / Max / Clamp
+//----------------------------------------------------
+template <typename T>
+constexpr const T& min(const T& a, const T& b) noexcept { return (a < b) ? a : b; }
+
+template <typename T>
+constexpr const T& max(const T& a, const T& b) noexcept { return (a > b) ? a : b; }
+
+template <typename T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) noexcept {
+    return (v < lo) ? lo : ((v > hi) ? hi : v);
+}
+
+//----------------------------------------------------
+// Sign & Absolute value
+//----------------------------------------------------
+template <typename T>
+constexpr int sign(const T& x) noexcept {
+    return (T(0) < x) - (x < T(0));
+}
+
+// Generic abs wrapper (works for multiprecision & complex)
+template <typename T>
+inline auto absval(const T& x) noexcept {
+    using boost::multiprecision::abs; // enable ADL
+    return abs(x);
+}
+
+//----------------------------------------------------
+// Trig / Exp / Log / Sqrt wrappers (ADL-safe)
+//----------------------------------------------------
+template <typename T>
+inline auto Sqrt(const T& x) noexcept {
+    using boost::multiprecision::sqrt;
+    return sqrt(x);
+}
+
+template <typename T>
+inline auto Sin(const T& x) noexcept {
+    using boost::multiprecision::sin;
+    return sin(x);
+}
+
+template <typename T>
+inline auto Cos(const T& x) noexcept {
+    using boost::multiprecision::cos;
+    return cos(x);
+}
+
+template <typename T>
+inline auto Tan(const T& x) noexcept {
+    using boost::multiprecision::tan;
+    return tan(x);
+}
+
+template <typename T>
+inline auto Exp(const T& x) noexcept {
+    using boost::multiprecision::exp;
+    return exp(x);
+}
+
+template <typename T>
+inline auto Log(const T& x) noexcept {
+    using boost::multiprecision::log;
+    return log(x);
+}
+
+template <typename Base, typename Exponent>
+inline auto Pow(const Base& a, const Exponent& b) noexcept {
+    using boost::multiprecision::pow;
+    return pow(a, b);
+}
 
 } // namespace math
 
-//
-// Optional: if you still want macro names that forward to safer functions,
-// uncomment the following lines:
-//
+// ======================================================
+//  Optional: redefine macros to call safe functions
+// ======================================================
 // #undef SQR
 // #define SQR(x) (math::sqr(x))
-//
-// This keeps the original macro name but uses the inline function, avoiding
-// multiple evaluations. Only do this if macros are required by existing code.
-//
+// #undef CUBE
+// #define CUBE(x) (math::cube(x))
 
-#endif //GHZ_NUMERIC_MATHMACROS_HPP
+#endif // GHZ_NUMERIC_MATHMACROS_HPP
+
+

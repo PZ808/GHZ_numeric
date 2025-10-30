@@ -57,8 +57,8 @@ private:
     CoordType currentType;
 
     // helper: analytic tortoise coordinate
-    [[nodiscard]] Real rStar_(double r) const;
-    [[nodiscard]] Real phiSharp_(double r) const;
+    [[nodiscard]] Real rStar_(Real r) const;
+    [[nodiscard]] Real phiSharp_(Real r) const;
     Real height_(Real sigma) const;
     Real OmegConf_(Real sigma) const;
     Real rho_(Real sigma) const;

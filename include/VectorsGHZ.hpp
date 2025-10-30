@@ -9,7 +9,7 @@
 #ifndef GHZ_NUMERIC_VECTORS_HPP
 #define GHZ_NUMERIC_VECTORS_HPP
 
-#include "TeukTypes.hpp"
+#include "GhzTypes.hpp"
 #include <array>
 #include <cassert>
 

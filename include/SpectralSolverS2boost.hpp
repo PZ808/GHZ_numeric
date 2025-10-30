@@ -7,19 +7,22 @@
 
 #include <vector>
 #include <complex>
-
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/operation.hpp>
+#include <boost/numeric/ublas/lu.hpp>
 #include "GhzTypes.hpp"
 #include "GHPScalars.hpp"
 
-#include <Eigen/Dense>
-#include <fftw3.h>
 
-namespace SpecS2 {
+namespace SpecS2boost {
 
-    using Complex = std::complex<double>;
-    using Real = double;
+    using Complex = teuk::Complex;
+    using Real = teuk::Real;
     using std::vector;
-    using Eigen::MatrixXd;
+    using std::pair;
+    using boost::numeric::ublas::matrix;
 
 /** \class  SpectralSolver
  *
@@ -32,20 +35,20 @@ namespace SpecS2 {
     private:
         int Nz_;       // Number of LGL nodes (θ)
         int Nphi_;     // Number of Fourier modes (φ)
+        bool use_fast_double_fft_; // whether to employ double FFT
 
         vector<Real> z_;      // LGL nodes [-1,1]
         vector<Real> w_;      // LGL quadrature weights
-        MatrixXd D_;            // Legendre differentiation matrix
-        //Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> D_; // spectral derivative in z
+        matrix<Real> D_;            // Legendre differentiation matrix
 
     public:
         // Constructor: build nodes, weights, D
-        SpectralSolver(int Nz, int Nphi);
+        SpectralSolver(int Nz, int Nphi, bool use_fast_double_fft);
 
         // Getters
         const vector<Real>& nodes() const { return z_; }  // nodes
         const vector<Real>& weights() const { return w_; } // weights
-        const MatrixXd& Dmatrix() const { return D_; }     // diff matrix
+        const matrix<Real>& Dmatrix() const { return D_; }     // diff matrix
         //const Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> & Dmatrix() const { return D_; }
 
         // Derivatives
@@ -78,7 +81,7 @@ namespace SpecS2 {
         // Utilities
         static std::pair<Real,Real> legendre_P_and_dP(int n, Real x);
         static vector<Real> legendre_gauss_lobatto(int N);
-        static MatrixXd legendre_diff_matrix(const vector<Real>& x);
+        static matrix<Real> legendre_diff_matrix(const vector<Real>& x);
 
         GHPField edth(const GHPField &f_in) const;
     };

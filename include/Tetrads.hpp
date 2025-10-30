@@ -7,7 +7,8 @@
 
 #pragma once
 //#include "Vectors.hpp"
-#include "TeukTypes.hpp"
+//#include "TeukTypes.hpp"
+#include "GhzTypes.hpp"
 #include "VectorsGHZ.hpp"
 #include "SpinCoeffsNP.hpp"
 #include "GHPScalars.hpp"

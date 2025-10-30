@@ -6,7 +6,7 @@
 #include "../include/KerrMetric.hpp"
 #include "../include/KerrMetricOutgoing.hpp"
 #include "../include/MathMacros.hpp"
-
+#include <iostream>
 using namespace  math;
 
 //
@@ -64,13 +64,12 @@ ghz::SymmetricMatrix4 KerrMetricOutgoing::g_tilde(const OutgoingCoordsCompact Xo
     Real r_of_sig = lambda_*rho0_/sigma;
     Real r = r_of_sig;
 
-
     Real g_uu   = (1.0-2.0*M_*r/sig_) * sqr(Om_);
     Real g_us   = 1.0 * sqr(Om_)*(-lambda_/sqr(sigma));
     Real g_uph  = (2.0*M_*a_*r*s2_/sig_) * sqr(Om_);
     Real g_sph  = -a_*s2_* sqr(Om_)*(-lambda_/sqr(sigma));
     Real g_zz = (-sig_/s2_)* sqr(Om_);
-    Real g_phph = (-( (sqr(r*r+a_*a_)-sqr(a_)*del_*s2_) * s2_)/sig_ ) * sqr(Om_);
+    Real g_phph = ( -( (sqr(r*r+a_*a_)-sqr(a_)*del_*s2_) * s2_ ) / sig_ ) * sqr(Om_);
 
     return { g_uu, g_us, 0.0, g_uph, 0.0, 0.0, g_sph, g_zz, 0.0, g_phph }  ;
 }

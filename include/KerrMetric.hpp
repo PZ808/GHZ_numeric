@@ -39,9 +39,9 @@ public:
     Real lambda_C() const;
     Real alpha_C () const;
 
-    virtual Real Sigma(double r, double theta) const;
-    virtual Real Delta(double r) const;
-    virtual Real Lambda(double r, double theta) const;
+    virtual Real Sigma(Real r, Real theta) const;
+    virtual Real Delta(Real r) const;
+    virtual Real Lambda(Real r, Real theta) const;
 
     Real Sigma_z(Real r, Real z) const;
 

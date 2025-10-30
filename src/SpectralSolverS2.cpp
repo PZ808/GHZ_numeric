@@ -2,16 +2,16 @@
 // Created by Peter Zimmerman on 26.10.25.
 //
 
-#include "../include/SpectralSolverS2.hpp"
 #include <cmath>
 #include <cassert>
+
+#include "../include/SpectralSolverS2.hpp"
 #include "../include/GHPScalars.hpp"
+using namespace teuk::literals;
 
 namespace SpecS2 {
 
-// ===========================================================
-// Constructor: build nodes, weights, differentiation matrix
-// ===========================================================
+
     SpectralSolver::SpectralSolver(int Nz, int Nphi)
             : Nz_(Nz), Nphi_(Nphi)
     {
@@ -26,8 +26,8 @@ namespace SpecS2 {
     void SpectralSolver::dz(const vector<vector<Complex>>& f,
                             vector<vector<Complex>>& df) const
     {
-        int Nphi = Nphi_;
-        int Nz = Nz_;
+        unsigned Nphi = Nphi_;
+        unsigned int Nz = Nz_;
         df.resize(Nz, vector<Complex>(Nphi));
 
         for(int j=0; j<Nphi; ++j) {
@@ -70,7 +70,7 @@ namespace SpecS2 {
             for(int m = 0; m < Nphi; ++m)
             {
                 int ms = (m <= Nphi / 2) ? m : m - Nphi; // handle negative frequencies
-                tmp_out[m] *= Complex(0.0, static_cast<double>(ms));
+                tmp_out[m] *= Complex(0.0, static_cast<Real>(ms));
             }
 
             // --- Step 3: Inverse FFT to φ-space ---
@@ -85,15 +85,15 @@ namespace SpecS2 {
 
             // --- Step 4: Normalize ---
             for(int k = 0; k < Nphi; ++k)
-                df_dphi[iz][k] /= static_cast<double>(Nphi);
+                df_dphi[iz][k] /= static_cast<Real>(Nphi);
         }
     }
 // ===========================================================
 // Barycentric weights
 // ===========================================================
-    vector<double> SpectralSolver::barycentric_weights() const {
+    vector<Real> SpectralSolver::barycentric_weights() const {
         int N = z_.size();
-        vector<double> w(N,1.0);
+        vector<Real> w(N,1.0);
         for(int j=0;j<N;++j){
             for(int k=0;k<N;++k) if(k!=j) w[j] /= (z_[j]-z_[k]);
         }
@@ -104,16 +104,16 @@ namespace SpecS2 {
 // Barycentric interpolation & derivative
 // ===========================================================
     std::pair<Complex,Complex> SpectralSolver::barycentric_interp_and_derivative(
-            const vector<Complex>& f, const vector<double>& w, double z0) const
+            const vector<Complex>& f, const vector<Real>& w, Real z0) const
     {
         int N = z_.size();
         Complex num(0,0), num_der(0,0);
-        double den=0.0;
+        Real den=0.0;
 
         for(int i=0;i<N;++i){
-            double dz = z0 - z_[i];
-            if(std::abs(dz)<1e-14) return {f[i], Complex(NAN,NAN)};
-            double wi_dz = w[i]/dz;
+            Real dz = z0 - z_[i];
+            if( std::abs(dz)<1e-14 ) return {f[i], Complex(NAN,NAN)};
+            Real wi_dz = w[i]/dz;
             num += wi_dz*f[i];
             num_der += wi_dz*f[i]/dz;
             den += wi_dz;
@@ -127,31 +127,31 @@ namespace SpecS2 {
 // ===========================================================
 // Legendre polynomial & derivative
 // ===========================================================
-    std::pair<double,double> SpectralSolver::legendre_P_and_dP(int n, double x){
+    std::pair<Real,Real> SpectralSolver::legendre_P_and_dP(int n, Real x){
         if(n==0) return {1.0,0.0};
         if(n==1) return {x,1.0};
-        double Pnm1=1.0, Pn=x;
+        Real Pnm1=1.0, Pn=x;
         for(int k=2;k<=n;++k){
-            double Pnp1 = ((2*k-1)*x*Pn-(k-1)*Pnm1)/k;
+            Real Pnp1 = ((2*k-1)*x*Pn-(k-1)*Pnm1)/k;
             Pnm1 = Pn; Pn = Pnp1;
         }
-        double dPn = n/(x*x-1)*(x*Pn-Pnm1);
+        Real dPn = n/(x*x-1)*(x*Pn-Pnm1);
         return {Pn,dPn};
     }
 
 // ===========================================================
 // Legendre Gauss-Lobatto nodes
 // ===========================================================
-    vector<double> SpectralSolver::legendre_gauss_lobatto(int N){
-        vector<double> x(N);
+    vector<Real> SpectralSolver::legendre_gauss_lobatto(int N){
+        vector<Real> x(N);
         x[0] = -1.0; x[N-1] = 1.0;
 
         for(int i=1;i<N-1;++i){
-            double xi=-cos(M_PI*i/(N-1));
+            Real xi=-cos(M_PI*i/(N-1));
             for(int it=0;it<20;++it){
                 auto [P,dP] = legendre_P_and_dP(N-1,xi);
-                double d2P = (2*xi*dP-(N-1)*N*P)/(1-xi*xi);
-                double dx=-dP/d2P;
+                Real d2P = (2*xi*dP-(N-1)*N*P)/(1-xi*xi);
+                Real dx=-dP/d2P;
                 xi+=dx;
                 if(std::abs(dx)<1e-15) break;
             }
@@ -163,49 +163,59 @@ namespace SpecS2 {
 // ===========================================================
 // Legendre differentiation matrix
 // ===========================================================
-    MatrixXd SpectralSolver::legendre_diff_matrix(const vector<double>& x){
+    MatrixXd SpectralSolver::legendre_diff_matrix(const vector<Real>& x){
         int N=x.size();
-        MatrixXd D=MatrixXd::Zero(N,N);
-        vector<double> Pnm1(N);
-        for(int i=0;i<N;++i) Pnm1[i]=legendre_P_and_dP(N-1,x[i]).first;
+        MatrixXd D = MatrixXd::Zero(N,N);
+        vector<Real> Pnm1(N);
+        for(int i=0; i<N; ++i) Pnm1[i]=legendre_P_and_dP(N-1,x[i]).first;
 
-        for(int i=0;i<N;++i){
-            for(int j=0;j<N;++j){
-                if(i!=j) D(i,j)=Pnm1[i]/(Pnm1[j]*(x[i]-x[j]));
+        for(int i=0; i<N; ++i){
+            for(int j=0; j<N; ++j){
+                if(i!=j) D(i,j) = Pnm1[i]/(Pnm1[j]*(x[i]-x[j]));
             }
         }
-        for(int i=0;i<N;++i){
-            double s=0.0;
-            for(int j=0;j<N;++j) if(i!=j) s+=D(i,j);
+        for(int i=0; i<N; ++i){
+            Real s=0.0;
+            for(int j=0; j<N; ++j) if(i!=j) s+=D(i,j);
             D(i,i)=-s;
         }
         return D;
     }
 
-// ============================================================
-// eth operator for a GHP scalar (spin-weighted derivative)
-// ===========================================================
-// @brief Computes the eth operator (spin-raising derivative) for a GHP scalar.
-//
-// Applies the spin-weighted derivative along the m-direction of the Newman-Penrose
-// tetrad. The returned GHP scalar has its spin weight raised by one:
-// (p,q) -> (p+1, q-1).
-//
-// @param f_in Input GHPScalar on the spectral grid (values stored in 2D vector).
-// @return GHPScalar The eth derivative of the input, with updated spin weights.
-//
+/** ======================================================================
+* \function edth
+*
+* \brief Computes the eth operator (spin-raising derivative) for a GHP scalar.
+*
+* Applies the spin-weighted derivative along the m-direction of the Newman-Penrose
+* tetrad. The returned GHP scalar has its spin weight raised by one:
+* (p,q) -> (p+1, q-1).
+*
+* @param f_in Input GHPScalar on the spectral grid (values stored in 2D vector).
+* @return GHPScalar The eth derivative of the input, with updated spin weights.
+*/
     GHPField SpectralSolver::edth(const GHPField& f_in) const
     {
         int Nz = Nz_;
         int Nphi = Nphi_;
 
         // Allocate derivative arrays
-        std::vector<std::vector<Complex>> df_dz(Nz, std::vector<Complex>(Nphi));
-        std::vector<std::vector<Complex>> df_dphi(Nz, std::vector<Complex>(Nphi));
+        std::vector<std::vector<Complex>> df_dz(Nz, std::vector<Complex>(Nphi)); // polar
+        std::vector<std::vector<Complex>> df_dphi(Nz, std::vector<Complex>(Nphi)); // azi
 
-        // Copy input values
+#if TEUK_PRECISION>1
+        // Temporary array for Eigen operations
+        std::vector<std::vector<teuk::eigenTypes::Complex>> f_cast(Nz, std::vector<teuk::eigenTypes::Complex>(Nphi));
+        // Cast multiprecision -> double
+        for (int i = 0; i < Nz; ++i)
+            for (int j = 0; j < Nphi; ++j)
+                f_cast[i][j] = static_cast<teuk::eigenTypes::Complex>(f_in.values()[i][j]);
+       // Copy input values
+       const auto& f = f_cast;
+#else
         const auto& f = f_in.values();
 
+#endif
         // Compute spectral derivatives
         dz(f, df_dz);         // ∂/∂z
         dphi_fft(f, df_dphi); // ∂/∂φ
@@ -213,8 +223,8 @@ namespace SpecS2 {
         // Compute eth combination
         std::vector<std::vector<Complex>> df_eth(Nz, std::vector<Complex>(Nphi));
         for(int i = 0; i < Nz; ++i) {
-            double z = nodes()[i];
-            double factor = std::sqrt(1.0 - z*z);
+            Real z = nodes()[i];
+            Real factor = std::sqrt(1.0 - z*z);
             for(int j = 0; j < Nphi; ++j) {
                 df_eth[i][j] = -factor * (df_dz[i][j] + Complex(0.0,1.0) * df_dphi[i][j] / factor);
             }
@@ -222,11 +232,11 @@ namespace SpecS2 {
 
         // Return new field with raised GHP weights
         // Allocate new GHPField of same size
-        GHPField out(Nz, Nphi, 0.0, f_in.p() + 1, f_in.q() - 1);
+        GHPField edth_f(Nz, Nphi, 0.0, f_in.p() + 1, f_in.q() - 1);
 
         // Fill in the computed values
-        out.set_values(df_eth);
-        return out;
+        edth_f.set_values(df_eth);
+        return edth_f;
     }
 
 } // namespace SpecS2
