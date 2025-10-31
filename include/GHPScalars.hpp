@@ -8,9 +8,10 @@
 #include <iomanip>
 #include "SpinCoeffsNP.hpp"
 
+template <typename ComplexT = teuk::Complex>
 class GHPScalar {
 public:
-    using Complex = teuk::Complex;
+    using Complex = ComplexT;
 
 private:
     Complex value_;
@@ -65,7 +66,7 @@ public:
 };
 
 struct SpinCoefficientsGHP {
-    GHPScalar kappa, kappap, sigma, sigmap, tau, taup, rho, rhop;
+    GHPScalar<Complex> kappa, kappap, sigma, sigmap, tau, taup, rho, rhop;
     Complex beta, betap, epsilon, epsilonp;
     SpinCoefficientsGHP() = default;
 

@@ -8,6 +8,22 @@
 
 #include "Tetrads.hpp"
 
+template <typename CoordT>
+class KinnersleyTetrad : public Tetrad {
+public:
+    using Tetrad::Tetrad;
+    using Real = teuk::Real;  // or from metric/coords if templated further
+
+    // Coordinate-dependent tetrad builder
+    void build_tetrad(const CoordT& X);
+
+    // Common build() signature (dispatches to correct one)
+    void build(Real t_or_u, Real r, Real theta, Real phi) {
+        CoordT X{t_or_u, r, theta, phi};
+        build_tetrad(X);
+    }
+};
+
 class KinnersleyTetradBL : public Tetrad {
 public:
     using Tetrad::Tetrad;

@@ -57,8 +57,11 @@ void KinnersleyTetradBL::build(Real time, Real r, Real theta, Real phi_azi) {
     weyls.set(WeylScalarType::Psi4,0.0);
 }
 
-
-void KinnersleyTetradBL::build_tetrad(const BLCoords& Xbl) {
+//
+// === Specialization for Boyer–Lindquist coordinates ===
+//
+template <>
+void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
 
     using namespace teuk::literals;
 
@@ -108,11 +111,10 @@ void KinnersleyTetradBL::build_tetrad(const BLCoords& Xbl) {
 }
 
 //void KinnersleyTetradBL::build_tetrad_compact(teuk::Real u, teuk::Real sigma, teuk::Real z, teuk::Real ph) {
-    // r direction compactified
-    // to be implemented
+// r direction compactified
+// to be implemented
 //}
-
-    void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
+void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
     (void)time; (void)phi_azi; // builds Kinnersley tetrad and derived quantities in  outgoing coordinates (u,r,z,phi)
 
     using teuk::I;
@@ -164,8 +166,9 @@ void KinnersleyTetradBL::build_tetrad(const BLCoords& Xbl) {
     weyls.set(WeylScalarType::Psi3,0.0);
     weyls.set(WeylScalarType::Psi4,0.0);
 }
+template <>
 
-void KinnersleyTetradOutgoing::build_tetrad_compact(const OutgoingCoordsCompact &Xout_C) {
+void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsCompact &Xout_C) {
     // sigma = \lambda rho0/r
     using teuk::I;
     using namespace teuk::literals;
