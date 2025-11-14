@@ -7,6 +7,9 @@
 #include <complex>
 #include <iomanip>
 #include "SpinCoeffsNP.hpp"
+#include "MathMacros.hpp"
+
+using namespace math;
 
 template <typename ComplexT = teuk::Complex>
 class GHPScalar {
@@ -19,7 +22,7 @@ private:
     int q_;
 
 public:
-    explicit GHPScalar(Complex val = 0.0, int p = 0, int q = 0)
+    explicit GHPScalar(Complex val = teuk::zeroC, int p = 0, int q = 0)
             : value_(val), p_(p), q_(q) {}
 
     [[nodiscard]] Complex value() const { return value_; }
@@ -89,7 +92,7 @@ private:
 
 public:
     // Constructor: create a Nz x Nphi field, optionally with an initial value
-    GHPField(int Nz, int Nphi, Complex init = 0.0, int p = 0, int q = 0)
+    GHPField(int Nz, int Nphi, Complex init = teuk::zeroC, int p = 0, int q = 0)
             : values_(Nz, std::vector<Complex>(Nphi, init)), p_(p), q_(q), Nz_(Nz), Nphi_(Nphi) {}
 
 
@@ -106,7 +109,7 @@ public:
 
     // Element-wise conjugation (swaps weights)
     [[nodiscard]] GHPField conj() const {
-        GHPField result(Nz_, Nphi_, 0.0, q_, p_);
+        GHPField result(Nz_, Nphi_, teuk::zeroC, q_, p_);
         for(int i = 0; i < Nz_; ++i)
             for(int j = 0; j < Nphi_; ++j)
                 result.values_[i][j] = std::conj(values_[i][j]);
@@ -116,7 +119,7 @@ public:
     // Prime operation (swaps tetrad roles, may optionally transform values)
     [[nodiscard]] GHPField prime() const {
         // Default: just swap weights
-        GHPField result(Nz_, Nphi_, 0.0, -p_, -q_);
+        GHPField result(Nz_, Nphi_, teuk::zeroC, -p_, -q_);
         for(int i = 0; i < Nz_; ++i)
             for(int j = 0; j < Nphi_; ++j)
                 result.values_[i][j] = values_[i][j]; // optionally add more rules here
@@ -127,7 +130,7 @@ public:
     [[nodiscard]] GHPField operator*(const GHPField& other) const {
         if(Nz_ != other.Nz_ || Nphi_ != other.Nphi_)
             throw std::runtime_error("GHPField dimensions mismatch in multiplication");
-        GHPField result(Nz_, Nphi_, 0.0, p_ + other.p_, q_ + other.q_);
+        GHPField result(Nz_, Nphi_, teuk::zeroC, p_ + other.p_, q_ + other.q_);
         for(int i = 0; i < Nz_; ++i)
             for(int j = 0; j < Nphi_; ++j)
                 result.values_[i][j] = values_[i][j] * other.values_[i][j];
@@ -140,7 +143,7 @@ public:
             throw std::runtime_error("GHPField dimensions mismatch in addition");
         if(p_ != other.p_ || q_ != other.q_)
             throw std::runtime_error("GHPField weights mismatch in addition");
-        GHPField result(Nz_, Nphi_, 0.0, p_, q_);
+        GHPField result(Nz_, Nphi_, teuk::zeroC, p_, q_);
         for(int i = 0; i < Nz_; ++i)
             for(int j = 0; j < Nphi_; ++j)
                 result.values_[i][j] = values_[i][j] + other.values_[i][j];
@@ -149,10 +152,10 @@ public:
 
     // Spin-boost transformation (element-wise)
     [[nodiscard]] GHPField transform(const Complex& lambda) const {
-        GHPField result(Nz_, Nphi_, 0.0, p_, q_);
+        GHPField result(Nz_, Nphi_, teuk::zeroC, p_, q_);
         for(int i = 0; i < Nz_; ++i)
             for(int j = 0; j < Nphi_; ++j)
-                result.values_[i][j] = std::pow(lambda, p_) * std::pow(std::conj(lambda), q_) * values_[i][j];
+                result.values_[i][j] = math::PowInt(lambda, p_) * math::PowInt(std::conj(lambda), q_) * values_[i][j];
         return result;
     }
 

@@ -23,45 +23,45 @@ namespace ghz {
     struct Vector4 {
         std::array<Real, 4> data{};
 
-        constexpr Vector4(Real V0 = 0, Real V1 = 0, Real V2 = 0, Real V3 = 0) noexcept
+        Vector4(Real V0 = teuk::zero, Real V1 = teuk::zero, Real V2 = teuk::zero, Real V3 = teuk::zero) noexcept
                 : data{V0, V1, V2, V3} {}
 
-        constexpr Real& operator[](std::size_t i) noexcept {
+         Real& operator[](std::size_t i) noexcept {
             assert(i < 4);
             return data[i];
         }
-        constexpr Real operator[](std::size_t i) const noexcept {
+        Real operator[](std::size_t i) const noexcept {
             assert(i < 4);
             return data[i];
         }
 
-        [[nodiscard]] constexpr Vector4 operator+(const Vector4& o) const noexcept {
+        [[nodiscard]] Vector4 operator+(const Vector4& o) const noexcept {
             return {data[0] + o.data[0], data[1] + o.data[1],
                     data[2] + o.data[2], data[3] + o.data[3]};
         }
 
-        [[nodiscard]] constexpr Vector4 operator-(const Vector4& o) const noexcept {
+        [[nodiscard]] Vector4 operator-(const Vector4& o) const noexcept {
             return {data[0] - o.data[0], data[1] - o.data[1],
                     data[2] - o.data[2], data[3] - o.data[3]};
         }
 
-        [[nodiscard]] constexpr Vector4 operator*(Real s) const noexcept {
+        [[nodiscard]] Vector4 operator*(Real s) const noexcept {
             return {s * data[0], s * data[1], s * data[2], s * data[3]};
         }
-        [[nodiscard]] constexpr Vector4 operator/(Real s) const noexcept {
+        [[nodiscard]] Vector4 operator/(Real s) const noexcept {
             return { data[0]/s,  data[1]/s,  data[2]/s,  data[3]/s};
         }
-        constexpr Vector4& operator+=(const Vector4& o) noexcept {
+        Vector4& operator+=(const Vector4& o) noexcept {
             for (int i = 0; i < 4; ++i) data[i] += o.data[i];
             return *this;
         }
 
-        constexpr Vector4& operator-=(const Vector4& o) noexcept {
+        Vector4& operator-=(const Vector4& o) noexcept {
             for (int i = 0; i < 4; ++i) data[i] -= o.data[i];
             return *this;
         }
 
-        constexpr Vector4& operator*=(Real s) noexcept {
+        Vector4& operator*=(Real s) noexcept {
             for (auto& x : data) x *= s;
             return *this;
         }
@@ -73,20 +73,20 @@ namespace ghz {
     struct CVector4 {
         std::array<Complex, 4> data{};
 
-        constexpr CVector4(Complex V0 = 0, Complex V1 = 0,
-                           Complex V2 = 0, Complex V3 = 0) noexcept
+        CVector4(Complex V0 = teuk::zeroC, Complex V1 = teuk::zeroC,
+                 Complex V2 = teuk::zeroC, Complex V3 = teuk::zeroC) noexcept
                 : data{V0, V1, V2, V3} {}
 
-        constexpr Complex& operator[](std::size_t i) noexcept {
+        Complex& operator[](std::size_t i) noexcept {
             assert(i < 4);
             return data[i];
         }
-        constexpr Complex operator[](std::size_t i) const noexcept {
+        Complex operator[](std::size_t i) const noexcept {
             assert(i < 4);
             return data[i];
         }
 
-        [[nodiscard]] constexpr CVector4 operator*(Complex s) const noexcept {
+        [[nodiscard]] CVector4 operator*(Complex s) const noexcept {
             return {s * data[0], s * data[1], s * data[2], s * data[3]};
         }
 
@@ -117,31 +117,31 @@ namespace ghz {
             return data[index(i, j)];
         }
 
-        constexpr Real operator()(int i, int j) const noexcept {
+        Real operator()(int i, int j) const noexcept {
             assert(i >= 0 && i < 4 && j >= 0 && j < 4);
             return data[index(i, j)];
         }
 
-        [[nodiscard]] constexpr SymmetricMatrix4 operator+(const SymmetricMatrix4& o) const noexcept {
+        [[nodiscard]] SymmetricMatrix4 operator+(const SymmetricMatrix4& o) const noexcept {
             SymmetricMatrix4 r;
             for (int k = 0; k < 10; ++k) r.data[k] = data[k] + o.data[k];
             return r;
         }
 
-        [[nodiscard]] constexpr SymmetricMatrix4 operator-(const SymmetricMatrix4& o) const noexcept {
+        [[nodiscard]] SymmetricMatrix4 operator-(const SymmetricMatrix4& o) const noexcept {
             SymmetricMatrix4 r;
             for (int k = 0; k < 10; ++k) r.data[k] = data[k] - o.data[k];
             return r;
         }
 
-        [[nodiscard]] constexpr SymmetricMatrix4 operator*(Real s) const noexcept {
+        [[nodiscard]] SymmetricMatrix4 operator*(Real s) const noexcept {
             SymmetricMatrix4 r;
             for (int k = 0; k < 10; ++k) r.data[k] = s * data[k];
             return r;
         }
 
         // Apply matrix to vector: v'ᵢ = gᵢⱼ vʲ
-        [[nodiscard]] constexpr Vector4 operator*(const Vector4& v) const noexcept {
+        [[nodiscard]] Vector4 operator*(const Vector4& v) const noexcept {
             Vector4 r;
             for (int i = 0; i < 4; ++i) {
                 Real sum = 0;
@@ -153,7 +153,7 @@ namespace ghz {
         }
 
         // Optional: return full 4×4 matrix view
-        [[nodiscard]] constexpr std::array<std::array<Real, 4>, 4> full() const noexcept {
+        [[nodiscard]] std::array<std::array<Real, 4>, 4> full() const noexcept {
             std::array<std::array<Real, 4>, 4> m{};
             for (int i = 0; i < 4; ++i)
                 for (int j = 0; j < 4; ++j)

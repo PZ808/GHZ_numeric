@@ -185,7 +185,7 @@ namespace SpecS2boost {
         const Real eps = std::numeric_limits<Real>::epsilon() * Real(1e3); // loosened eps for multiprecision
         for (int i = 0; i < N; ++i) {
             Real dz = z0 - z_[i];
-            if (std::abs(dz) < eps) { // exact or extremely close to node
+            if (abs(dz) < eps) { // exact or extremely close to node
                 return {f[i],
                         Complex(std::numeric_limits<Real>::quiet_NaN(),
                                 std::numeric_limits<Real>::quiet_NaN())};
@@ -301,7 +301,7 @@ namespace SpecS2boost {
         std::vector<std::vector<Complex>> df_eth(Nz, std::vector<Complex>(Nphi));
         for(int i = 0; i < Nz; ++i) {
             Real z = nodes()[i];
-            Real factor = std::sqrt(1.0 - z*z);
+            Real factor = sqrt(1.0 - z*z);
             for(int j = 0; j < Nphi; ++j) {
                 df_eth[i][j] = -factor * (df_dz[i][j] + Complex(0.0,1.0) * df_dphi[i][j] / factor);
             }
@@ -309,7 +309,7 @@ namespace SpecS2boost {
 
         // Return new field with raised GHP weights
         // Allocate new GHPField of same size
-        GHPField edth_f(Nz, Nphi, 0.0, f_in.p() + 1, f_in.q() - 1);
+        GHPField edth_f(Nz, Nphi, teuk::zeroC, f_in.p() + 1, f_in.q() - 1);
 
         // Fill in the computed values
         edth_f.set_values(df_eth);

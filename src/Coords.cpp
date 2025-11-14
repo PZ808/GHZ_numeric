@@ -9,8 +9,7 @@
 #include <sstream>
 #include "../include/MathMacros.hpp"
 
-using std::sqrt, std::log, std::abs;
-using math::sqr;
+using math::Sqrt, math::Log, math::Abs;
 using namespace teuk;
 
 CoordinateSystem::CoordinateSystem(const KerrMetric& g, CoordType type)
@@ -37,7 +36,7 @@ Real CoordinateSystem::rStar_(Real r) const {
     Real r_minus = metric.r_minus(); //M - sqrt(M*M-a*a);
 
     //
-    Real rpm_diff = std::sqrt(M*M-a*a);
+    Real rpm_diff = math::Sqrt(M*M-a*a);
     Real term1 = ( M*r_plus * log(abs(r/r_plus-1)) ) / rpm_diff;
     Real term2 = -( M*r_minus *  log(abs(r/r_minus-1)) ) / rpm_diff;
     return r + term1 + term2;
@@ -69,7 +68,7 @@ Real CoordinateSystem::height_(Real sigma) const {
     Real k2 = metric.k2_C();
     Real mu = metric.mu_C();
     Real rho0 = 1.0; // enforced by minimal gauge condition and choice of k2,mu,and lambda
-    return -2.0*rho0*(1.0/sigma-2.0*mu*std::log(sigma)/rho0);
+    return -2.0*rho0*(1.0/sigma-2.0*mu*Log(sigma)/rho0);
 }
 
 Real CoordinateSystem::Omeg_comf(teuk::Real sigma) const {
@@ -97,28 +96,28 @@ IngoingCoords CoordinateSystem::bl_to_ingoing(const BLCoords& bl) const {
 
 OutgoingCoords CoordinateSystem::bl_to_outgoing(const BLCoords& bl) const {
     // convert from bl to outgoing
-    double u_out  = bl.x0 - rStar_(bl.x1);
-    double r_out = bl.x1;
-    double z_out = std::cos(bl.x2);
-    double ph_out = bl.x3 - phiSharp_(bl.x1);
+    Real u_out  = bl.x0 - rStar_(bl.x1);
+    Real r_out = bl.x1;
+    Real z_out = math::Cos(bl.x2);
+    Real ph_out = bl.x3 - phiSharp_(bl.x1);
 
     return {u_out, r_out, z_out, ph_out};
 }
 
 BLCoords CoordinateSystem::ingoing_to_bl(const IngoingCoords &in) const {
     // convert from ingoing to bl
-    double t_bl  = in.x0 - rStar_(in.x1);
-    double r_bl = in.x1;
-    double th_bl = in.x2;
-    double ph_bl = in.x3 - phiSharp_(in.x1);
+    Real t_bl  = in.x0 - rStar_(in.x1);
+    Real r_bl = in.x1;
+    Real th_bl = in.x2;
+    Real ph_bl = in.x3 - phiSharp_(in.x1);
     return { t_bl, r_bl, th_bl, ph_bl };
 }
 
 [[maybe_unused]] BLCoords CoordinateSystem::outgoing_to_bl(const OutgoingCoords &out) const {
     // convert from outgoing to bl
-    double t_bl  = out.x0 + rStar_(out.x1);
-    double r_bl = out.x1;
-    double th_bl = std::acos(out.x2);
-    double ph_bl = out.x3 + phiSharp_(r_bl);
+    Real t_bl  = out.x0 + rStar_(out.x1);
+    Real r_bl = out.x1;
+    Real th_bl = acos(out.x2);
+    Real ph_bl = out.x3 + phiSharp_(r_bl);
     return { t_bl, r_bl, th_bl, ph_bl };
 }

@@ -129,7 +129,15 @@ namespace teuk {
     using Real     = typename ActivePrecision::Real;
     using Complex  = typename ActivePrecision::Complex;
 
-    inline constexpr Complex I{0, 1};
+    inline const Real twoPi = Real(2.0)*M_PI;
+    inline const Real half = Real(0.5);
+    inline const Real zero = Real(0.0);
+    inline const Complex zeroC = Complex(Real(0.0), Real(0.0));
+    inline const Real one = Real(1.0);
+    inline const Real two = Real(2.0);
+
+    inline const Complex I{Real(0.0), Real(1.0)};
+
 
 // ----------------------------------------------------------------------------
 // Utilities

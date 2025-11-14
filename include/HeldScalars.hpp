@@ -39,8 +39,8 @@ struct HeldCoefficients {
         Complex rhob = std::conj(rho);
 
         // Held Scalars in Kinnersely tetrad
-        rhopH     = GHPScalar<Complex>(-1.0/2.0, -2,-2);
-        rhopH_bar = GHPScalar<Complex>(-1.0/2.0, -2, -2);
+        rhopH     = GHPScalar<Complex>(-teuk::half, -2,-2);
+        rhopH_bar = GHPScalar<Complex>(-teuk::half, -2, -2);
         tauH      = GHPScalar<Complex>( sc_ghp.tau.value()/(rho*rhob), -1, -3);
         tauH_bar  = GHPScalar<Complex>( std::conj(tauH.value()), -3, -1);
         PsiH      = GHPScalar<Complex>( weyl_scs.get(WeylScalarType::Psi2)/math::cube(rho), -3, -3);

@@ -33,7 +33,7 @@ Real KerrMetric::alpha_C() const {return alpha_;}
 Real KerrMetric::lambda_C() const {return lambda_;}
 
 Real KerrMetric::Sigma(Real r, Real theta) const {
-    Real z = std::cos(theta);
+    Real z = math::Cos(theta);
     return sqr(r) + sqr(z*params.a);
 }
 Real KerrMetric::Sigma_z(Real r, Real z) const {
@@ -42,13 +42,13 @@ Real KerrMetric::Sigma_z(Real r, Real z) const {
 Real KerrMetric::Delta(Real r) const { return sqr(r)- 2.0*params.M*r +sqr(params.a); }
 
 Real KerrMetric::Lambda(Real r, Real theta) const {
-    Real z = std::cos(theta);
-    Real s2 = sqr(std::sin(theta));
-    Real del = sqr(r)- 2.0*params.M*r +sqr(params.a);
+    Real z = math::Cos(theta);
+    Real s2 = sqr(math::Sin(theta));
+    Real del = sqr(r)- two*params.M*r +sqr(params.a);
     return sqr(sqr(r)+sqr(params.a) )-sqr(params.a)*del*s2;
 }
 Real KerrMetric::Lambda_z(Real r, Real z) const {
-    Real s2 =  1.0 - sqr(z);
-    Real del = sqr(r)- 2.0*params.M*r +sqr(params.a);
+    Real s2 =  one - sqr(z);
+    Real del = sqr(r)- two*params.M*r +sqr(params.a);
     return sqr(sqr(r)+sqr(params.a) )-sqr(params.a)*del*s2;
 }

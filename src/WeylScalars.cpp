@@ -20,5 +20,5 @@ void WeylScalars::set(WeylScalarType type, Complex value) {
 Complex WeylScalars::get(WeylScalarType type) const {
     auto it = weyl_scalars.find(type);
     if(it != weyl_scalars.end()) return it->second;
-    return 0.0;
+    return teuk::zeroC;
 }

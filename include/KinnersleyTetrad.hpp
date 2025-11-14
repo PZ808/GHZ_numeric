@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Tetrads.hpp"
-
+// family of Kinnersly tetrad classes — one for every possible CoordT type.
 template <typename CoordT>
 class KinnersleyTetrad : public Tetrad {
 public:
@@ -18,8 +18,8 @@ public:
     void build_tetrad(const CoordT& X);
 
     // Common build() signature (dispatches to correct one)
-    void build(Real t_or_u, Real r, Real theta, Real phi) {
-        CoordT X{t_or_u, r, theta, phi};
+    void build(Real time, Real r, Real polar, Real phi) {
+        CoordT X{time, r, polar, phi};
         build_tetrad(X);
     }
 };

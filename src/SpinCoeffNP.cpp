@@ -11,5 +11,5 @@ void SpinCoefficients::set(SpinCoeffType type, Complex value) {
 Complex SpinCoefficients::get(SpinCoeffType type) const {
     auto it = coeffs.find(type);
     if(it != coeffs.end()) return it->second;
-    return 0.0;
+    return teuk::zeroC;
 }
