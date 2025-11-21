@@ -15,22 +15,22 @@ void ghz::KerrBoundOrbit::set_constants_of_motion() {
     const Real two = teuk::two;
 
     Real E2numer = Real(2.0)*dets.dg*dets.gh - dets.dh*dets.hf
-                   - Real(2.0)*chi_*math::sqrt(
+                   - Real(2.0)*chi_*sqrt(
             math::sqr(dets.dg*dets.gh)+dets.hd*dets.dg*dets.gh*dets.hf+dets.hd*dets.dh*dets.hg*dets.gf
     );
     Real E2denom = math::sqr(dets.fh) + Real(4.0)*dets.fg*dets.gh;
     E2_ = E2numer/E2denom;
-    E_ = math::sqrt(E2_);
+    E_ = sqrt(E2_);
 
     Lz_ = g_(rp_)*gKerr.M()*E_/h_(rp_) + gKerr.M()*chi_*math::sqr(
             math::sqr(g_(rp_)/h_(rp_))*E2_ + (f_(rp_)*E2_-d_(rp_))/h_(rp_)
     );
     gamma_ = teuk::one-E2_;
-    Q_ = math::sqrt(zmax_) * (
-            math::sqr(gKerr.a())*gamma_ + math::sqr(Lz_/math::cos(inc_))
+    Q_ = (zmax_*zmax_) * (
+            math::sqr(gKerr.a())*gamma_ + math::sqr(Lz_/cos(inc_))
     );
 
-    alpha_ = two*gKerr.M()/gamma_ - rp_ + ra_;
+    alpha_ = two*gKerr.M()/gamma_ - (rp_ + ra_);
     beta_  = math::sqr(gKerr.a())*Q_/(gamma_*rp_*ra_);
 }
 
@@ -41,7 +41,7 @@ void ghz::KerrBoundOrbit::compute_torus_frequencies() {
     const Real four = teuk::two*teuk::two;
 
 
-    Real kr = (ra_-rp_)/(ra_-r3_)*(r3_-r4_)*(rp_-r4_);
+    Real kr = (ra_-rp_)/(ra_-r3_)*(r3_-r4_)/(rp_-r4_);
     Real kz = math::sqr(zmax_/z1_);
     Real M = gKerr.M();
     Real a = gKerr.a();
@@ -49,9 +49,9 @@ void ghz::KerrBoundOrbit::compute_torus_frequencies() {
     Real rminus = gKerr.r_minus();
 
 
-    mino_torus_freqs.Ups_r = Real(M_PI)*math::sqrt(gamma_*(ra_-r3_)*(rp_-r4_)) /
+    mino_torus_freqs.Ups_r = Real(M_PI)*sqrt(gamma_*(ra_-r3_)*(rp_-r4_)) /
                  ( two*EllipticIntegrals::computeFirstKind(kr));
-    mino_torus_freqs.Ups_z = Real(M_PI)*z1_*math::sqrt(math::sqr(gKerr.a()*gamma_)) /
+    mino_torus_freqs.Ups_z = Real(M_PI)*z1_*sqrt(math::sqr(gKerr.a()*gamma_)) /
                  (two*EllipticIntegrals::computeFirstKind(kz));
 
     mino_torus_freqs.Ups_t = E_ /two * (
@@ -84,7 +84,7 @@ void ghz::KerrBoundOrbit::compute_torus_frequencies() {
  * @return T_r(r)
  */
 Real ghz::KerrBoundOrbit::get_T_r()  const {
-    Real r = p_*gKerr.M()/(one+e_*math::cos(phases_.psi_r));
+    Real r = p_*gKerr.M()/(one+e_*cos(phases_.psi_r));
     Real P = E_*(r*r+a_*a_)-a_*Lz_;
     //Real R = P*P - gKerr.Delta(r)*(r*r+math::sqr(a_*E_-Lz_)+Q_);
     return (r*r+a_*a_)/gKerr.Delta(r) * P;
@@ -95,7 +95,7 @@ Real ghz::KerrBoundOrbit::get_T_r()  const {
  * @return T_z(z)
  */
 Real ghz::KerrBoundOrbit::get_T_z()  const {
-    Real z = zmax_ * math::cos(phases_.psi_z);  // Kepler parametrize z(\psi_z)
+    Real z = zmax_ * cos(phases_.psi_z);  // Kepler parametrize z(\psi_z)
     return -a_*a_ * E_ * (one-z*z);
 }
 /**
@@ -104,7 +104,7 @@ Real ghz::KerrBoundOrbit::get_T_z()  const {
  * @return Phi_r(r)
  */
 Real ghz::KerrBoundOrbit::get_Phi_r() const {
-    Real r = p_*gKerr.M()/(one+e_*math::cos(phases_.psi_r));   // Kepler parametrize r(\psi_r)
+    Real r = p_*gKerr.M()/(one+e_*cos(phases_.psi_r));   // Kepler parametrize r(\psi_r)
     Real P = E_*(r*r+a_*a_)-a_*Lz_;
     return a_*P/gKerr.Delta(r);
 
@@ -115,7 +115,7 @@ Real ghz::KerrBoundOrbit::get_Phi_r() const {
  * @return Phi_z(z)
  */
 Real ghz::KerrBoundOrbit::get_Phi_z()  const {
-    Real z = zmax_ * math::cos(phases_.psi_z); // Kepler parametrize z(\psi_z)
+    Real z = zmax_ * cos(phases_.psi_z); // Kepler parametrize z(\psi_z)
     return Lz_/(one-z*z);
 }
 /**
@@ -132,13 +132,13 @@ void ghz::KerrBoundOrbit::compute_frequencies() {
     freqs_.f_t = get_T_r() + get_T_z() + a_*Lz_;  // Mino f_t = dt/d\lambda = Sigma dt/d\tau
     freqs_.f_phi = get_Phi_r() + get_Phi_z() - a_*Lz_;  // Mino f_phi = dphi/d\lambda = Sigma dphi/d\tau
 
-    Real term1 = p_ - p3 - e_*(p_+p3*math::cos(phases_.psi_r));
-    Real term2 = p_ - p4 + e_*(p_-p4*math::cos(phases_.psi_r));
-    freqs_.f_r = M_ * math::sqrt(gamma_*term1*term2)/(one-e_*e_);  // (216) Pound and Wardell
+    Real term1 = p_ - p3 - e_*(p_+p3*cos(phases_.psi_r));
+    Real term2 = p_ - p4 + e_*(p_-p4*cos(phases_.psi_r));
+    freqs_.f_r = M_ * sqrt(gamma_*term1*term2)/(one-e_*e_);  // (216) Pound and Wardell
 
-    freqs_.f_z = a_*math::sqrt(
+    freqs_.f_z = a_*sqrt(
             gamma_ *
-            (z1_*z1_-zmax_*zmax_*math::sqr(math::cos(phases_.psi_z)))
+            (z1_*z1_-zmax_*zmax_*math::sqr(cos(phases_.psi_z)))
     );
 }
 /**
@@ -322,7 +322,7 @@ void ghz::KerrBoundOrbit::compute_Delta_and_freq_modes(
     fftwl_destroy_plan(plan);
 
     // normalize
-    for(size_t k=0;k<N;k++) modes_out[k] = raw_modes[k] / Real(N);
+    for(size_t k=0;k<N;k++) modes_out[k] = raw_modes[k] / Complex(N,0.0L);
 
     // construct Δ using *actual* q-grid
     int kmax = int(N/2);
@@ -439,9 +439,9 @@ void ghz::KerrBoundOrbit::compute_Delta_psi_rz(size_t Nr, size_t Nz)
 // Radial
     for (size_t i = 0; i < Nr; ++i) {
         Real q_r = qr_vals[i]; // twoPi * i / Nr;
-        Complex sum = 0.0;
+        Complex sum = Complex(zero,zero);
         for (int k = 1; k < Nr/2; ++k) {   // exclude k=0
-            Complex kC = Complex(Real(k),0.0);
+            Complex kC = Complex(Real(k),zero);
             sum += f_r_modes[k] * std::exp(-I*kC*q_r) / (-I*kC*torus_freqs_.Omega_r);
             sum += std::conj(f_r_modes[k]) * std::exp(I*kC*q_r) / (I*kC*torus_freqs_.Omega_r);
         }
@@ -451,7 +451,7 @@ void ghz::KerrBoundOrbit::compute_Delta_psi_rz(size_t Nr, size_t Nz)
 // Polar
     for (size_t j = 0; j < Nz; ++j) {
         Real q_z = qz_vals[j]; // twoPi * j / Nz;
-        Complex sum = 0.0;
+        Complex sum = Complex(zero, zero);
         for (int k = 1; k < Nz/2; ++k) {
             Complex kC = Complex(Real(k),0.0);
             sum += f_z_modes[k] * std::exp(-I*kC*q_z) / (-I*kC*torus_freqs_.Omega_z);

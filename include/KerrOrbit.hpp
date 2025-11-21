@@ -10,6 +10,7 @@
 #include "MathMacros.hpp"
 #include "KerrMetric.hpp"
 #include "EllipticIntegrals.hpp"
+
 namespace ghz {
 
     using Real = teuk::Real;
@@ -89,7 +90,7 @@ namespace ghz {
         Real r3_, r4_;  // remaining roots of R(r) = 0
         Real inc_;      // inclination of the orbit relative to the equatorial plane
         Real zmax_;     // zmax = \sin(inc) where  \Theta(z) = 0
-        Real z1_;       // z1 = - zmax
+        Real z1_, z2_;       // z1 = - zmax
         signed int  chi_;   //  prograde or retrograde
         size_t Nz_, Nr_;
 
@@ -133,7 +134,7 @@ namespace ghz {
             return (r*(r-Real(2.0)*gKerr.M()) + zmax_*zmax_*gKerr.Delta(r)/(1-zmax_*zmax_)) / (gKerr.M()*gKerr.M()) ; }
 
         inline const Real r3() const {
-            return half*(alpha_+math::sqrt((math::sqr(alpha_))-Real(4.0)*beta_)) ; }
+            return half*(alpha_+sqrt((math::sqr(alpha_))-Real(4.0)*beta_)) ; }
         inline const Real r4() const {
             return beta_/r3() ;
         }
@@ -186,28 +187,29 @@ namespace ghz {
     public:
 
         KerrBoundOrbit(const KerrMetric& gKerr,
-                                       Real p, Real e, Real zmax,
+                                       Real p, Real e, Real inc,
                                        size_t Nr, size_t Nz)
-                : KerrOrbitBase(gKerr), p_(p), e_(e), inc_(inc_), Nr_(Nr), Nz_(Nz)
+                : KerrOrbitBase(gKerr), p_(p), e_(e), inc_(inc), Nr_(Nr), Nz_(Nz)
         {
             // compute turning points
-            zmax_  = math::abs(math::sin(inc_));
-            z1_ = - zmax; //  polar turning point
-            rp_ = p_ / (Real(1.0) + e_);  // periapsis radial turning point
-            ra_  = p_ / (Real(1.0) - e_); // apoapsis radial turning point
+            zmax_  = abs(sin(inc_));
+            z2_ =  zmax_; //  polar turning point
+            rp_ = p_ * M_ / (Real(1.0) + e_);  // periapsis radial turning point
+            ra_  = p_ * M_/ (Real(1.0) - e_); // apoapsis radial turning point
             // set constants of motion
             set_constants_of_motion(); // computes E_, Lz_, Q_, alpha_, beta_, gamma_;
             r3_ = r3();
             r4_ = r4();
+            z1_ = sqrt(Q_/(a_*a_*gamma_*zmax_*zmax_));
 
             // initialize
             torus_angles_ = {0.0, 0.0, 0.0, 0.0};
             phases_ = {0.0, 0.0, 0.0, 0.0};
 
 
-            compute_actions();
             compute_torus_frequencies(); // compute Upsilons and Omega (avg frequencies in mino and BL time)
             compute_frequencies(); // compute initial frequencies f_t, f_phi, f_r, f_z where f = d\psi/d\lambda
+            sample_frequencies_for_fft(Nr, Nz);
             compute_q_grids_from_samples(Nr, Nz, qr_vals, qz_vals); // fill the q grid values
             sample_T_and_Phi_for_fft(Nr, Nz);
             sample_frequencies_for_fft(Nr, Nz);
@@ -217,10 +219,11 @@ namespace ghz {
         // -------------------------------------------------
         // Computation methods (symbolic/numerical stubs)
         // -------------------------------------------------
-        void compute_actions();
         void set_constants_of_motion();
         void compute_torus_frequencies();
         void compute_frequencies();
+
+        inline FrequencyModes get_freq_modes() { return f_modes_; }
 
         void update_q_angles(Real mino_time_param);
 
