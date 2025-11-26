@@ -17,7 +17,54 @@ namespace ghz {
     using teuk::Real;
     using teuk::Complex;
 
-/**
+    template<std::size_t N, typename ComplexT>
+    struct CVectorN {
+        std::array<ComplexT, N> data{};
+
+        // Constructors
+        CVectorN() noexcept = default;
+
+        // Variadic constructor — allows CVectorN<4>(a,b,c,d)
+        template<typename... Args,
+                typename = std::enable_if_t<(sizeof...(Args) == N)>>
+        explicit CVectorN(Args... args) noexcept
+                : data{ ComplexT(args)... } {}
+
+        // Element access
+        ComplexT& operator[](std::size_t i) noexcept {
+            assert(i < N);
+            return data[i];
+        }
+
+        ComplexT operator[](std::size_t i) const noexcept {
+            assert(i < N);
+            return data[i];
+        }
+
+        // Scalar multiplication: vector * scalar
+        [[nodiscard]] CVectorN operator*(const ComplexT& s) const noexcept {
+            CVectorN out;
+            for (std::size_t i = 0; i < N; ++i)
+                out.data[i] = data[i] * s;
+            return out;
+        }
+
+        // Scalar multiplication: scalar * vector
+        friend CVectorN operator*(const ComplexT& s, const CVectorN& v) noexcept {
+            return v * s; // reuse above
+        }
+
+        // Conjugation
+        [[nodiscard]] CVectorN conj() const noexcept {
+            CVectorN out;
+            for (std::size_t i = 0; i < N; ++i)
+                out.data[i] = std::conj(data[i]);
+            return out;
+        }
+    };
+
+
+    /**
  * @brief 4-vector with scalar components (Real precision).
  */
     struct Vector4 {

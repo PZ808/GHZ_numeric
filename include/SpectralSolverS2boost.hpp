@@ -64,17 +64,12 @@ namespace SpecS2boost {
          */
         void dphi_fft(const vector<vector<Complex>>& f,
                       vector<vector<Complex>>& df_dphi) const;
+        void dphi_fft_direct(const vector<vector<Complex>>& f_hat,
+                             vector<vector<Complex>>& df_dphi_hat) const;
 
         // Barycentric weights & interpolation
         vector<Real> barycentric_weights() const;
-        /**
-         * \function barycentric_interp_and_derivative
-         * @param f :  input function
-         * @param w  : weights
-         * @param z0 : point to compute the function and its derivative
-         * @return pair (f(z0),f'(z0))
-         * \brief interpolation routine for f and f' at z=z0
-         */
+
         std::pair<Complex, Complex> barycentric_interp_and_derivative(
                 const vector<Complex>& f, const vector<Real>& w, Real z0) const;
 
@@ -83,7 +78,7 @@ namespace SpecS2boost {
         static vector<Real> legendre_gauss_lobatto(int N);
         static matrix<Real> legendre_diff_matrix(const vector<Real>& x);
 
-        GHPField edth(const GHPField &f_in) const;
+        std::vector<std::vector<teuk::Complex>>  edth(const vector<vector<Complex>>& f_in) const;
     };
 
 } // namespace SpecS2

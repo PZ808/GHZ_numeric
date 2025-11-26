@@ -22,29 +22,29 @@ public:
     explicit KerrMetric(const KerrParams& p);
     virtual ~KerrMetric() = default;
 
-    Real M() const;
-    Real a() const;
-
-    Real r_plus() const;
-    Real r_minus() const;
-
-    Real Om_plus() const;
-    Real Om_minus() const;
-
-    Real kappa_plus() const;
-    Real kappa_minus() const;
-
+    //
+    // background parameters
+    //
+    Real M() const; // mass
+    Real a() const; // spin
+    Real r_plus() const; // outer horizon
+    Real r_minus() const; // inner horizon
+    Real Om_plus() const; // outer horizon freq
+    Real Om_minus() const; // inner horizon rotn freq
+    Real kappa_plus() const; // outer horizon surf. grav.
+    Real kappa_minus() const; // inner horizon surf. grav.
+    // conformal paramaters
     Real k2_C() const;
     Real mu_C() const;
     Real lambda_C() const;
     Real alpha_C () const;
-
+    //
+    // metric functions
+    //
     virtual Real Sigma(Real r, Real theta) const;
     virtual Real Delta(Real r) const;
     virtual Real Lambda(Real r, Real theta) const;
-
     Real Sigma_z(Real r, Real z) const;
-
     Real Lambda_z(Real r, Real z) const;
 };
 

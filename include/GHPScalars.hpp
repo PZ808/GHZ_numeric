@@ -11,6 +11,26 @@
 
 using namespace math;
 
+/**
+ * @class GHPScalar
+ * @brief Represents a Geroch-Held-Penrose (GHP) scalar with spin-boost weights (p,q)
+ *
+ * This class wraps a complex number (or any ComplexT type) as a scalar in the GHP formalism.
+ * Each scalar carries spin-boost weights (p,q) which define its transformation properties under
+ * null tetrad rotations and boosts.
+ *
+ * Features:
+ * - Access and modify the underlying complex value.
+ * - Retrieve spin-boost weights and (p,q).
+ * - GHP conjugation: flips weights (p,q) -> (q,p) and complex conjugates the value.
+ * - Element-wise arithmetic operations that properly combine weights:
+ *     - Multiplication: weights add
+ *     - Division: weights subtract
+ *     - Addition/Subtraction: only allowed for matching weights
+ * - Spin-boost transformation: multiplies the value by λ^p * λ̄^q
+ *
+ * @tparam ComplexT Type of the underlying complex number (default: teuk::Complex) used for boost multi
+ */
 template <typename ComplexT = teuk::Complex>
 class GHPScalar {
 public:
@@ -18,174 +38,249 @@ public:
 
 private:
     Complex value_;
-    int p_;
-    int q_;
+    int p_; // weight
+    int q_; // weight
+    int spin_;
+    int boost_;
 
 public:
     explicit GHPScalar(Complex val = teuk::zeroC, int p = 0, int q = 0)
-            : value_(val), p_(p), q_(q) {}
+            : value_(val), p_(p), q_(q) { boost_ = (int)(p_+q_)/2; spin_ = (int)(p_-q_)/2; }
 
     [[nodiscard]] Complex value() const { return value_; }
     [[nodiscard]] int p() const { return p_; }
     [[nodiscard]] int q() const { return q_; }
+    [[nodiscard]] int s() const { return spin_; }
+    [[nodiscard]] int b() const { return boost_; }
 
     void setValue(Complex val) { value_ = val; }
 
     // conjugation flips weights (p,q) -> (q,p)
-    [[nodiscard]] GHPScalar conj() const {
-        return GHPScalar(std::conj(value_), q_, p_);
-    }
-    // Apply the GHP prime operation: swap tetrad roles
-    [[nodiscard]] GHPScalar prime() const;
-
+    GHPScalar conj() const { return GHPScalar(std::conj(value_), q_, p_); }
     // multiplication combines weights
-    [[nodiscard]] GHPScalar operator*(const GHPScalar& other) const {
+     GHPScalar operator*(const GHPScalar& other) const {
         return GHPScalar(value_ * other.value_, p_ + other.p_, q_ + other.q_);
     }
-
-    [[nodiscard]] GHPScalar operator/(const GHPScalar& other) const {
+    GHPScalar operator/(const GHPScalar& other) const {
         return GHPScalar(value_ / other.value_, p_ - other.p_, q_ - other.q_);
     }
-
-    [[nodiscard]] GHPScalar operator+(const GHPScalar& other) const {
+    GHPScalar operator+(const GHPScalar& other) const {
         // addition only makes sense if weights match
         if (p_ != other.p_ || q_ != other.q_) {
             throw std::runtime_error("Incompatible GHP weights in addition");
         }
         return GHPScalar(value_ + other.value_, p_, q_);
     }
+    GHPScalar operator-(const GHPScalar& other) const {
+        // addition only makes sense if weights match
+        if (p_ != other.p_ || q_ != other.q_) {
+            throw std::runtime_error("Incompatible GHP weights in addition");
+        }
+        return GHPScalar(value_ - other.value_, p_, q_);
+    }
+    // multiplying ordinary numbers
+    template<typename U> auto operator*(U a) const {
+        using R = decltype(value_ * a);
+        return GHPScalar<R>(value_ * a, p_, q_);
+    }
+    template<typename U> friend auto operator*(U a, const GHPScalar& x) { return x * a; }
 
     // spin-boost transformation
     [[nodiscard]] GHPScalar transform(const Complex& lambda) const {
-        Complex newVal = std::pow(lambda, p_) * std::pow(std::conj(lambda), q_) * value_;
+        Complex newVal = math::PowInt(lambda, p_) * math::PowInt(std::conj(lambda), q_) * value_;
+        //Complex newVal = pow((teuk::Real) lambda, p_) * pow(conj(lambda), q_) * value_;
         return GHPScalar(newVal, p_, q_);
     }
-
+    // debug string
     std::string str() const {
         return "val=" + std::to_string(value_.real()) +
                (value_.imag() >= 0 ? "+" : "") + std::to_string(value_.imag()) + "i"
                + " (p,q)=(" + std::to_string(p_) + "," + std::to_string(q_) + ")";
     }
-};
-
-struct SpinCoefficientsGHP {
-    GHPScalar<Complex> kappa, kappap, sigma, sigmap, tau, taup, rho, rhop;
-    Complex beta, betap, epsilon, epsilonp;
-    SpinCoefficientsGHP() = default;
-
-    explicit SpinCoefficientsGHP(const SpinCoefficients& sc_np);
-
-    // Apply the GHP prime operation: swap tetrad roles
-    // [[nodiscard]] SpinCoefficientsGHP prime() const;
-};
-
+}; // class GHPScalar
+/**
+ * @class GHPField
+ * @brief 2D spectral/storage container for a Geroch–Held–Penrose (GHP) scalar field.
+ *
+ * This class stores a rectangular grid of GHPScalar values representing a field
+ * Φ(r,z) with fixed GHP weights (p,q). It provides:
+ *
+ *  - element access via operator()(r,z)
+ *  - element-wise addition/multiplication of fields
+ *  - conjugation (GHP prime operation)
+ *  - spin/boost transformation
+ *  - initialization and callable-based filling
+ *
+ * The underlying data layout is:
+ *      values_[r][z]   where:
+ *          r = 0 ... Nr-1
+ *          z = 0 ... Nz-1
+ *
+ * Weights (p,q) track the GHP type of the field and propagate automatically
+ * through algebraic operations.
+ *
+ * Typical usage:
+ *
+ *      GHPField phi(Nr, Nz, Scalar(0, p, q), p, q);
+ *      phi.fill([](int r,int z){ return complex<double>(r+z,0); });
+ *      auto psi = phi.conj();   // GHP conjugation swaps (p,q)
+ *
+ * This class does not own any coordinate information — it only stores values.
+ * Coordinate grids (r,z nodes) are passed to the fill(...) overload if needed.
+ */
 class GHPField {
 public:
     using Complex = teuk::Complex;
+    using Scalar = GHPScalar<Complex>;
+    using RZBlockScalar = std::vector<std::vector<Scalar>>;
 
 private:
-    std::vector<std::vector<Complex>> values_; // [Nz][Nphi]
+    RZBlockScalar values_; //  Nr x Nz array
     int p_;
     int q_;
     int Nz_;
-    int Nphi_;
+    int Nr_;
+    Scalar zero_pq_;
 
 public:
-    // Constructor: create a Nz x Nphi field, optionally with an initial value
-    GHPField(int Nz, int Nphi, Complex init = teuk::zeroC, int p = 0, int q = 0)
-            : values_(Nz, std::vector<Complex>(Nphi, init)), p_(p), q_(q), Nz_(Nz), Nphi_(Nphi) {}
+    /**
+    * @brief Construct an Nr × Nz GHP field with fixed GHP weights (p,q).
+    *
+    * @param Nr   Number of radial points
+    * @param Nz   Number of z (angular/collocation) points
+    * @param init Initial scalar used to fill the field (value only; p,q overwritten)
+    * @param p    GHP weight p
+    * @param q    GHP weight q
+    *
+    * All entries are initialized as GHPScalar(init.value(), p, q).
+    */
+    GHPField(int Nr=0, int Nz=0,
+             Scalar init = Scalar(teuk::zeroC, 0, 0),
+             int p = 0, int q = 0)
+            : p_(p), q_(q), Nz_(Nz), Nr_(Nr)
+            {
+                zero_pq_ = Scalar(teuk::zeroC,0,0);
+                // resize outer vector
+                values_.resize(Nr_);
 
+                // initialize each r–row with Nz Scalars
+                for (int r = 0; r < Nr_; ++r) {
+                    values_[r].resize(Nz_);
+                    for (int z = 0; z < Nz_; ++z) {
+                        values_[r][z] = Scalar(init.value(), p_, q_);
+                    }
+                }
+            }
 
-    [[nodiscard]] const std::vector<std::vector<Complex>>& values() const { return values_; }
-    void set_values(const std::vector<std::vector<Complex>>& vals) { values_ = vals; }
+    /**
+      * @brief Fill the field with values computed from a callable f(r,z).
+      * @param func  Function taking (r_index, z_index) → Complex
+      * The returned Complex is wrapped into a GHPScalar with fixed (p,q).
+      */
+    void fill(std::function<Complex(int, int)> func) {
+        for (int r = 0; r < Nr(); ++r)
+            for (int z = 0; z < Nz(); ++z)
+                values_[r][z] = Scalar(func(r, z), p_, q_);
+    }
 
-    [[nodiscard]] Complex operator()(int iz, int jphi) const { return values_[iz][jphi]; }
-    void set(int iz, int jphi, Complex val) { values_[iz][jphi] = val; }
+    const RZBlockScalar& values() const { return values_; }
+    void set_values(const RZBlockScalar& vals) { values_ = vals; }
 
-    [[nodiscard]] int p() const { return p_; }
-    [[nodiscard]] int q() const { return q_; }
-    [[nodiscard]] int Nz() const { return Nz_; }
-    [[nodiscard]] int Nphi() const { return Nphi_; }
+    Scalar& operator()(int ir, int iz) { return values_[ir][iz]; }
+    const Scalar& operator()(int ir, int iz) const { return values_[ir][iz]; }
+    void set(int ir, int jz, Scalar val) { values_[ir][jz] = val; }
 
-    // Element-wise conjugation (swaps weights)
+    int p() const { return p_; }
+    int q() const { return q_; }
+    int Nz() const { return Nz_; }
+    int Nr() const { return Nr_; }
+
+    /**
+     * @brief GHP conjugation: swaps weights (p,q) → (q,p) and conjugates components.
+     * @return A new GHPField with weights (q,p).
+     */
     [[nodiscard]] GHPField conj() const {
-        GHPField result(Nz_, Nphi_, teuk::zeroC, q_, p_);
+        GHPField result(Nz_, Nr_, zero_pq_, q_, p_);
         for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nphi_; ++j)
-                result.values_[i][j] = std::conj(values_[i][j]);
+            for(int j = 0; j < Nr_; ++j)
+                result.values_[i][j] = values_[i][j].conj();
         return result;
     }
 
-    // Prime operation (swaps tetrad roles, may optionally transform values)
-    [[nodiscard]] GHPField prime() const {
-        // Default: just swap weights
-        GHPField result(Nz_, Nphi_, teuk::zeroC, -p_, -q_);
+    /**
+   * @brief Apply a GHP spin-boost transformation.
+   * @param lambda Complex spin-boost parameter
+   * @return New transformed GHPField
+   */
+    GHPField transform(const Complex& lambda) const {
+        GHPField result(Nz_, Nr_,zero_pq_, p_, q_);
         for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nphi_; ++j)
-                result.values_[i][j] = values_[i][j]; // optionally add more rules here
+            for(int j = 0; j < Nr_; ++j)
+                result.values_[i][j] = math::PowInt(lambda, p_) *
+                        math::PowInt(std::conj(lambda), q_) * values_[i][j];
         return result;
     }
-
+//
+// Operator overloads
+//
     // Element-wise multiplication
-    [[nodiscard]] GHPField operator*(const GHPField& other) const {
-        if(Nz_ != other.Nz_ || Nphi_ != other.Nphi_)
+     GHPField operator*(const GHPField& other) const {
+        if(Nz_ != other.Nz_ || Nr_ != other.Nr_)
             throw std::runtime_error("GHPField dimensions mismatch in multiplication");
-        GHPField result(Nz_, Nphi_, teuk::zeroC, p_ + other.p_, q_ + other.q_);
+        GHPField result(Nz_, Nr_, zero_pq_, p_ + other.p_, q_ + other.q_);
         for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nphi_; ++j)
+            for(int j = 0; j < Nr_; ++j)
                 result.values_[i][j] = values_[i][j] * other.values_[i][j];
         return result;
     }
-
     // Element-wise addition (weights must match)
     [[nodiscard]] GHPField operator+(const GHPField& other) const {
-        if(Nz_ != other.Nz_ || Nphi_ != other.Nphi_)
+        if(Nz_ != other.Nz_ || Nr_ != other.Nr_)
             throw std::runtime_error("GHPField dimensions mismatch in addition");
         if(p_ != other.p_ || q_ != other.q_)
             throw std::runtime_error("GHPField weights mismatch in addition");
-        GHPField result(Nz_, Nphi_, teuk::zeroC, p_, q_);
+        GHPField result(Nz_, Nr_,zero_pq_, p_, q_);
         for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nphi_; ++j)
+            for(int j = 0; j < Nr_; ++j)
                 result.values_[i][j] = values_[i][j] + other.values_[i][j];
         return result;
     }
 
-    // Spin-boost transformation (element-wise)
-    [[nodiscard]] GHPField transform(const Complex& lambda) const {
-        GHPField result(Nz_, Nphi_, teuk::zeroC, p_, q_);
-        for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nphi_; ++j)
-                result.values_[i][j] = math::PowInt(lambda, p_) * math::PowInt(std::conj(lambda), q_) * values_[i][j];
-        return result;
-    }
-
     // Convenience string representation for debugging
-    std::string str(int iz = -1, int jphi = -1) const {
+    std::string str(int ir = -1, int jz = -1) const {
         std::ostringstream oss;
-        oss << "GHPField(p,q)=(" << p_ << "," << q_ << "), size=(" << Nz_ << "," << Nphi_ << ")\n";
-        if(iz >= 0 && jphi >= 0) {
-            const auto& val = values_[iz][jphi];
-            oss << "values_[" << iz << "][" << jphi << "] = "
+        oss << "GHPField(p,q)=(" << p_ << "," << q_ << "), size=(" << Nz_ << "," << Nr_ << ")\n";
+        if(ir >= 0 && jz >= 0) {
+            const auto& val = values_[ir][jz].value();
+            oss << "values_[" << ir << "][" << jz << "] = "
                 << std::setprecision(6) << val << "\n";
         }
         return oss.str();
     }
 
     // Access the underlying 2D array (read-only)
-    [[nodiscard]] const std::vector<std::vector<Complex>>& data() const { return values_; }
+    const RZBlockScalar& data() const { return values_; }
 
-    // Optionally: fill field with a function of (z,phi)
-    void fill(std::function<Complex(double z, double phi)> func,
-              const std::vector<double>& z_nodes,
-              const std::vector<double>& phi_nodes)
+    // Optionally: fill field with a function of (z,r)
+    void fill(std::function<Complex(double r, double z)> func,
+              const std::vector<double>& r_nodes,
+              const std::vector<double>& z_nodes)
     {
-        for(int i = 0; i < Nz_; ++i) {
-            for(int j = 0; j < Nphi_; ++j) {
-                values_[i][j] = func(z_nodes[i], phi_nodes[j]);
+        for(int i = 0; i < Nr_; ++i) {
+            for(int j = 0; j < Nz_; ++j) {
+                values_[i][j].value() = func(r_nodes[i], z_nodes[j]);
             }
         }
     }
 };
 
+struct SpinCoefficientsGHP {
+    GHPScalar<Complex> kappa, kappap, sigma, sigmap, tau, taup, rho, rhop; //GHP Covariant coeffs
+    Complex beta, betap, epsilon, epsilonp;
+    SpinCoefficientsGHP() = default;
 
-#endif //GHZ_NUMERIC_GHPSCALARS_HPP
+    explicit SpinCoefficientsGHP(const SpinCoefficients& sc_np);
+
+};
+
+#endif // GHZ_NUMERIC_GHPSCALARS_HPP

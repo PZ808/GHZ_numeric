@@ -23,21 +23,32 @@ namespace SpecS2boost {
 // Constructor
 // -----------------------------
     SpectralSolver::SpectralSolver(int Nz, int Nphi, bool use_fast_double_fft /*=true*/)
-            : Nz_(Nz), Nphi_(Nphi), use_fast_double_fft_(use_fast_double_fft) {
-        z_ = legendre_gauss_lobatto(Nz_);
-        w_ = barycentric_weights();
-        D_ = legendre_diff_matrix(z_); // now returns ublas::matrix<Real>
+            : Nz_(Nz), //  number of polar collocation nodes
+            Nphi_(Nphi),  // number of Fourier modes (grid points in φ)
+            use_fast_double_fft_(use_fast_double_fft) {
+        z_ = legendre_gauss_lobatto(Nz_); // Legendre–Gauss–Lobatto nodes Collocation points z_i ∈ [−1,1]
+        w_ = barycentric_weights();  // barycentric interpolation weights (needed only if you do barycentric interpolation)
+        D_ = legendre_diff_matrix(z_); // Legendre spectral differentiation matrix   returns ublas::matrix<Real>
+        // D_{ij}=dℓ_j/dz(z_i)
     }
 
-    // ===========================================================
-// dz derivative (ublas multiprecision)
+
+/**
+ *
+ * Implements the standard Legendre collocation differentiation operator.
+ * For each phi column it extracts f(z_i,phi_j) for fixed phi_j and multiplies by the diff matrix D_ij
+ * pd_z f(z_i, phi_j) = sum_{k=0}^{N-1} D_{ik} f(z_k, phi_j)
+ * @param f and df
+ * @return
+ */
+
 // ===========================================================
     void SpectralSolver::dz(const vector<vector<Complex>> &f,
                             vector<vector<Complex>> &df) const {
         const int Nz = Nz_;
         const int Nphi = Nphi_;
 
-        df.assign(Nz, vector<Complex>(Nphi, Complex(0, 0)));
+        df.assign(Nz, vector<Complex>(Nphi, Complex(teuk::zero, teuk::zero)));
 
         // temporary uBLAS vectors
         ublas::vector<Complex> col(Nz), dcol(Nz);
@@ -282,7 +293,7 @@ namespace SpecS2boost {
 * @param f_in Input GHPScalar on the spectral grid (values stored in 2D vector).
 * @return GHPScalar The eth derivative of the input, with updated spin weights.
 */
-    GHPField SpectralSolver::edth(const GHPField& f_in) const
+    std::vector<std::vector<teuk::Complex>> SpectralSolver::edth(const vector<vector<Complex>>& f_in) const
     {
         int Nz = Nz_;
         int Nphi = Nphi_;
@@ -291,7 +302,7 @@ namespace SpecS2boost {
         std::vector<std::vector<Complex>> df_dz(Nz, std::vector<Complex>(Nphi)); // polar
         std::vector<std::vector<Complex>> df_dphi(Nz, std::vector<Complex>(Nphi)); // azi
 
-        const auto& f = f_in.values();
+        const auto& f = f_in;
 
         // Compute spectral derivatives
         dz(f, df_dz);         // ∂/∂z
@@ -309,11 +320,11 @@ namespace SpecS2boost {
 
         // Return new field with raised GHP weights
         // Allocate new GHPField of same size
-        GHPField edth_f(Nz, Nphi, teuk::zeroC, f_in.p() + 1, f_in.q() - 1);
+        //GHPField edth_f(Nz, Nphi, teuk::zeroC, f_in.p() + 1, f_in.q() - 1);
 
         // Fill in the computed values
-        edth_f.set_values(df_eth);
-        return edth_f;
+        //edth_f.set_values(df_eth);
+        return df_eth;
     } // edth
 
 } // specS2boost

@@ -1,42 +1,27 @@
 //
-// Created by Peter Zimmerman on 25.10.25.
+// Created by Peter Zimmerman on 25.11.25.
 //
 
-#pragma once
-#include <iostream>
-#include "../include/SpinCoeffsNP.hpp"
-#include "../include/GHPScalars.hpp"
-#include "../include/WeylScalars.hpp"
+#include "../include/KinnersleyTetrad.hpp"
 #include "../include/HeldScalars.hpp"
-#include <cmath>
+#include "../include/GHPScalars.hpp"
 
 
-void HeldScalars::set_HeldScalars_from_NP_SpinCoeffs(const SpinCoefficients& sc, const WeylScalars& ws) {
+HeldCoefficients::HeldCoefficients(const SpinCoefficientsGHP &sc_ghp,
+                                                   const WeylScalars &weyl_scs) {
+    // initialize weights according to GHP convention (p,q)
+    // (using Held’s sign conventions)
     using SCT = SpinCoeffType;
-    using WST = WeylScalarType;
-    using std::conj;
-    // Unprimed
-    Complex rho = sc.get(SCT::rho);
-    Complex rho_bar = conj(rho);
+    Complex rho = sc_ghp.rho.value();
+    Complex rhob = std::conj(rho);
 
-    tauH = sc.get(SCT::tau)/(rho*rho_bar);
-    tauH_bar = conj(tauH);
-
-    rhopH = -0.5;
-    rhopH_bar = -0.5;
-
-    PsiH = ws.get(WST::Psi2)/(rho*rho*rho);
-
-}
-
-void HeldScalars::print() const {
-    auto printC = [](std::string name, Complex c) {
-        std::cout << name << " = " << c << "\n";
-    };
-
-    printC("tauH", tauH);
-    printC("rhopH", rhopH);
-    printC("PsiH", PsiH);
-    printC("OmH", OmH);
-
-}
+    // Held Scalars in Kinnersely tetrad
+    rhopH     = HeldScalar(teuk::half, -2,-2);
+    rhopH_bar = HeldScalar(-teuk::half, -2, -2);
+    tauH      = HeldScalar( sc_ghp.tau.value()/(rho*rhob), -1, -3);
+    tauH_bar  = HeldScalar( std::conj(tauH.value()), -3, -1);
+    PsiH      = HeldScalar( weyl_scs.get(WeylScalarType::Psi2)/math::cube(rho), -3, -3);
+    PsiH_bar  = HeldScalar( std::conj(PsiH.value()), -3, -3);
+    OmH       = HeldScalar((rho-rhob)/(rho*rhob), -1, -1);
+    OmH_bar   = HeldScalar(std::conj(OmH.value()), -1,-1);
+};

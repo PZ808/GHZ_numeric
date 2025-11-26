@@ -305,14 +305,15 @@ void ghz::KerrBoundOrbit::compute_Delta_and_freq_modes(
     Delta_out.assign(N, Real(0));
     modes_out.assign(N, Complex(0,0));
 
-    // mean subtraction
+    // compute mean
     Complex mean = std::accumulate(samples_in.begin(), samples_in.end(),
                                    Complex(0.0L,0.0L)) / Real(N);
 
-    std::vector<Complex> osc(N);
-    for(size_t i=0;i<N;i++) osc[i] = samples_in[i] - mean;
+    std::vector<Complex> osc(N); // osc piece
+    // mean subtraction
+    for(size_t i=0; i<N;i ++) osc[i] = samples_in[i] - mean;
 
-    std::vector<Complex> raw_modes(N);
+    std::vector<Complex> raw_modes(N); // FFT modes
 
     fftwl_plan plan = fftwl_plan_dft_1d(int(N),
                                         reinterpret_cast<fftwl_complex*>(osc.data()),
@@ -320,29 +321,30 @@ void ghz::KerrBoundOrbit::compute_Delta_and_freq_modes(
                                         FFTW_FORWARD, FFTW_ESTIMATE);
     fftwl_execute(plan);
     fftwl_destroy_plan(plan);
-
     // normalize
     for(size_t k=0;k<N;k++) modes_out[k] = raw_modes[k] / Complex(N,0.0L);
 
     // construct Δ using *actual* q-grid
     int kmax = int(N/2);
-    for(size_t i=0;i<N;i++){
-        Real q = q_grid[i];
+    for(size_t i=0; i<N; i++) {
+        const Real& q = q_grid[i];
         Complex sum(0.0L,0.0L);
 
         for(int k=1; k<kmax; ++k){
-            Complex ck = modes_out[k];
-            Complex kC = Complex((Real)k,0.0L);
-
-            sum += ck * std::exp(-I*kC*q) / (-I*kC*Omega);
-            sum += std::conj(ck) * std::exp( I*kC*q) / ( I*kC*Omega);
+            Complex kC = Complex((Real)k,0.0L); // cast to appropriate type
+            sum += modes_out[k] * exp(-I*kC*q) / (-I*kC*Omega);
+            sum += conj(modes_out[k]) * exp(I*kC*q) / (I*kC*Omega); // k -> -k
         }
 
         Delta_out[i] = sum.real();
     }
 }
 
-// compute_Delta_psi_rz: build slices, call helper for f_r,f_z and for t,phi components
+/**
+*   \function compute_Deltas
+ *  computes the oscillating pieces (zero average) of the orbital phases
+ *  as inverse FFTs
+ */
 void ghz::KerrBoundOrbit::compute_Deltas(size_t Nr, size_t Nz)
 {
     const Real two_pi = teuk::twoPi;
@@ -371,14 +373,12 @@ void ghz::KerrBoundOrbit::compute_Deltas(size_t Nr, size_t Nz)
     Delta_t_r_.resize(Nr);   Delta_t_z_.resize(Nz);
     Delta_phi_r_.resize(Nr); Delta_phi_z_.resize(Nz);
 
-
-
-    // compute radial deltas and modes
+    // compute radial deltas and freq modes
     compute_Delta_and_freq_modes(slice_r, qr_vals,  torus_freqs_.Ups_r, Delta_psi_r_, f_modes_.f_r_modes);
     compute_Delta_and_freq_modes(slice_t_r, qr_vals, torus_freqs_.Ups_r, Delta_t_r_,   f_modes_.t_r_modes);
     compute_Delta_and_freq_modes(slice_phi_r,qr_vals, torus_freqs_.Omega_r, Delta_phi_r_, f_modes_.phi_r_modes);
 
-    // compute polar deltas and modes
+    // compute polar deltas and freq modes
     compute_Delta_and_freq_modes(slice_z, qz_vals,  torus_freqs_.Omega_z, Delta_psi_z_, f_modes_.f_z_modes);
     compute_Delta_and_freq_modes(slice_t_z, qz_vals, torus_freqs_.Omega_z, Delta_t_z_,   f_modes_.t_z_modes);
     compute_Delta_and_freq_modes(slice_phi_z, qz_vals, torus_freqs_.Omega_z, Delta_phi_z_, f_modes_.phi_z_modes);
@@ -459,4 +459,7 @@ void ghz::KerrBoundOrbit::compute_Delta_psi_rz(size_t Nr, size_t Nz)
         }
         delta_psi_z[j] = sum.real();
     }
+}
+
+std::vector<Real> ghz::KerrBoundOrbit::get_psi_z() const {
 }

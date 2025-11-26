@@ -11,6 +11,7 @@
 template <typename CoordT>
 class KinnersleyTetrad : public Tetrad {
 public:
+
     using Tetrad::Tetrad;
     using Real = teuk::Real;  // or from metric/coords if templated further
 
@@ -22,6 +23,12 @@ public:
         CoordT X{time, r, polar, phi};
         build_tetrad(X);
     }
+
+    SpinCoefficientsGHP get_spin_coeffs_at(const CoordT& X) const;
+    WeylScalars         get_weyl_scalars_at(const CoordT& X) const;
+    HeldCoefficients get_held_scalars_at(const CoordT& X) const;
+    Scalars get_scalars_at(const CoordT& X) const;
+    SpinCoefficientsGHP get_ghp_scalars_at(const OutgoingCoordsCompact &X) const;
 };
 
 class KinnersleyTetradBL : public Tetrad {
@@ -41,5 +48,6 @@ public:
     void build_tetrad(const OutgoingCoords& Xout) ;
     void build_tetrad_compact(const OutgoingCoordsCompact& Xout) ;
 };
+
 
 #endif //GHZ_NUMERIC_KINNERSLEYTETRAD_HPP

@@ -32,6 +32,11 @@ public:
     HeldCoefficients sc_held;
     WeylScalars weyls;
 
+    struct Scalars {
+        SpinCoefficientsGHP ghp_scalars;
+        HeldCoefficients held_scalars;
+    };
+
     explicit Tetrad(KerrMetric& gKerr, CoordinateSystem& c)
             : metric(gKerr), coords(c) {}
 

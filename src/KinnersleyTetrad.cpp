@@ -10,56 +10,6 @@
 
 using namespace math;
 
-void KinnersleyTetradBL::build(Real time, Real r, Real theta, Real phi_azi) {
-    (void)time; (void)phi_azi; // builds Kinnersley tetrad and derived quantities in BL coordinates
-    using namespace teuk::literals;
-    using teuk::I;
-
-    Real a = metric.a();
-    Real M = metric.M();
-    Real del = metric.Delta(r);
-    Real sig = metric.Sigma(r, theta);
-
-    // l.n = 1, m.mbar = -1
-    l = { (r*r + a*a)/del, one, zero, a/del }; // contravariant vector
-    n = { (r*r + a*a)/(2.0*sig), -del/(2.0*sig), zero, a/(2.0*sig) };
-    auto common =1.0_r / (math::Sqrt(Real(2.0))*(r + I*a*math::Cos(theta)));
-    m = ghz::CVector4{ I*a*math::Sin(theta), 0.0_r, 1.0_r, I/math::Sin(theta) } * common;
-    mbar = m.conj();
-
-    // Analytic spin coefficients
-    Complex rho = -Real(1.0)/(r - I*a*math::Cos(theta));
-    Complex rhobar = std::conj(rho);
-
-    // Kinnersley tetrad BL values taken from Teukolsky Eq. (4.5)
-    sc.set(SpinCoeffType::rho, rho);
-    sc.set(SpinCoeffType::mu, rhobar*math::sqr(rho)*del/2.0_r);
-    sc.set(SpinCoeffType::tau, -I*a*sin(theta)*rho*rhobar/math::Sqrt(2.0_r));
-    sc.set(SpinCoeffType::pi, I*a*sin(theta)*rho*rho/math::Sqrt(2.0_r));
-    sc.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu)+ rho*rhobar*(r-M)/2.0_r);
-    sc.set(SpinCoeffType::beta, -rhobar*math::Cos(theta)/(2.0*math::Sin(theta)*math::Sqrt(2.0_r)) );
-    sc.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta)) + sc.get(SpinCoeffType::pi));
-
-    sc.set(SpinCoeffType::kappa, 0.0_r);
-    sc.set(SpinCoeffType::sigma, 0.0_r);
-    sc.set(SpinCoeffType::lambda, 0.0_r);
-    sc.set(SpinCoeffType::nu, 0.0_r);
-    sc.set(SpinCoeffType::epsilon, 0.0_r);
-
-    //SpinCoefficientsGHP sc_ghp(sc);
-    sc_ghp = SpinCoefficientsGHP(sc);
-    sc_held = HeldCoefficients(sc_ghp, weyls);
-
-    weyls.set(WeylScalarType::Psi0,teuk::zeroC);
-    weyls.set(WeylScalarType::Psi1,teuk::zeroC);
-    weyls.set(WeylScalarType::Psi2,M*cube(rho));
-    weyls.set(WeylScalarType::Psi3,teuk::zeroC);
-    weyls.set(WeylScalarType::Psi4,teuk::zeroC);
-}
-
-//
-// === Specialization for Boyer–Lindquist coordinates ===
-//
 template <>
 void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
 
@@ -110,18 +60,16 @@ void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
     weyls.set(WeylScalarType::Psi4,teuk::zeroC);
 }
 
-//void KinnersleyTetradBL::build_tetrad_compact(teuk::Real u, teuk::Real sigma, teuk::Real z, teuk::Real ph) {
-// r direction compactified
-// to be implemented
-//}
-void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
-    (void)time; (void)phi_azi; // builds Kinnersley tetrad and derived quantities in  outgoing coordinates (u,r,z,phi)
+template <>
+void KinnersleyTetrad<OutgoingCoords>::build_tetrad(const OutgoingCoords & Xout) {
 
+    Real r = Xout.x1;
+    Real z = Xout.x2;
+    Real del = metric.Delta(r);
     using teuk::I;
     using namespace teuk::literals;
     Real a = metric.a();
     Real M = metric.M();
-    Real del = metric.Delta(r);
     Real sig = sqr(a*z)+sqr(r);
     Real s2 = 1.0_r - sqr(z); // sin^2(th)
     Real s1 = sqrt(1.0_r-z*z); // sin(th)
@@ -136,7 +84,6 @@ void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
 
     m = ghz::CVector4{ I*a*s1, 0.0_r, -s1 , I/s1 } * common;
     mbar = m.conj();
-
 
     Complex rho = -1.0_r/(r-I*a*z);
     Complex rhobar = std::conj(rho);
@@ -166,6 +113,7 @@ void KinnersleyTetradOutgoing::build(Real time, Real r, Real z, Real phi_azi) {
     weyls.set(WeylScalarType::Psi3,0.0_r);
     weyls.set(WeylScalarType::Psi4,0.0_r);
 }
+
 template <>
 void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsCompact &Xout_C) {
     // sigma = \lambda rho0/r
@@ -187,8 +135,6 @@ void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsC
     Real Ups = - Om_C; // Upsilon = Om_C^{-1} d\Omega_C/dr
     Real Delta_Ups = - del/(2.0*sig)*sqr(Om_C);
     Complex delta_Ups = zero;
-
-
 
     // contravariant NP null basis l.n = 1, m.mbar = -1
     l = {0,1,0,0} ;
@@ -230,6 +176,264 @@ void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsC
     weyls.set(WeylScalarType::Psi2,M*cube(rho)/cube(Om_C));
     weyls.set(WeylScalarType::Psi3,0.0_r);
     weyls.set(WeylScalarType::Psi4,0.0_r);
-
-
 }
+
+template <>
+Tetrad::Scalars KinnersleyTetrad<BLCoords>::get_scalars_at(
+        const BLCoords& Xbl) const {
+    using namespace teuk::literals;
+
+    Real r = Xbl.x1;
+    Real theta = Xbl.x2;
+
+    Real a = metric.a();
+    Real M = metric.M();
+    Real del = metric.Delta(r);
+    Real sig = metric.Sigma(r, theta);
+
+    // --- Build the coefficients exactly as in build_tetrad() ---
+    SpinCoefficients sc_local;
+    // Analytic spin coefficients
+    Complex rho = -1.0_r / (r - I * a * cos(theta));
+    Complex rhobar = std::conj(rho);
+
+    // Kinnersley tetrad BL values taken from Teukolsky Eq. (4.5)
+    sc_local.set(SpinCoeffType::rho, rho);
+    sc_local.set(SpinCoeffType::mu, rhobar * sqr(rho) * del / 2.0_r);
+    sc_local.set(SpinCoeffType::tau, -I * a * math::Sin(theta) * rho * rhobar / math::Sqrt(2.0_r));
+    sc_local.set(SpinCoeffType::pi, I * a * math::Sin(theta) * rho * rho / math::Sqrt(2.0_r));
+    sc_local.set(SpinCoeffType::kappa, teuk::zeroC);
+    sc_local.set(SpinCoeffType::sigma, teuk::zeroC);
+    sc_local.set(SpinCoeffType::lambda, teuk::zeroC);
+    sc_local.set(SpinCoeffType::nu, teuk::zeroC);
+    sc_local.set(SpinCoeffType::epsilon, teuk::zeroC);
+    sc_local.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu) + rho * rhobar * (r - M) / 2.0_r);
+    sc_local.set(SpinCoeffType::beta, -rhobar * math::Cos(theta) / (two * math::Sin(theta) * math::Sqrt(two)));
+    sc_local.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta)) + sc.get(SpinCoeffType::pi));
+
+    //SpinCoefficientsGHP sc_ghp(sc);
+    auto sc_ghp_local = SpinCoefficientsGHP(sc_local);
+    WeylScalars W_local;
+
+    W_local.set(WeylScalarType::Psi0, teuk::zeroC);
+    W_local.set(WeylScalarType::Psi1, teuk::zeroC);
+    W_local.set(WeylScalarType::Psi2, M * cube(rho));
+    W_local.set(WeylScalarType::Psi3, teuk::zeroC);
+    W_local.set(WeylScalarType::Psi4, teuk::zeroC);
+    auto sc_held_local = HeldCoefficients(sc_ghp_local, W_local);
+
+    Tetrad::Scalars scalars;
+    scalars.ghp_scalars = sc_ghp_local;
+    scalars.held_scalars = sc_held_local;
+
+    return scalars;
+}
+
+template <>
+Tetrad::Scalars KinnersleyTetrad<OutgoingCoords>::get_scalars_at(
+        const OutgoingCoords& Xout) const
+{
+    using namespace teuk::literals;
+
+    Tetrad::Scalars scalars;
+    Real r = Xout.x1;
+    Real z = Xout.x2;
+    Real del = metric.Delta(r);
+    using teuk::I;
+    using namespace teuk::literals;
+    Real a = metric.a();
+    Real M = metric.M();
+    Real sig = sqr(a*z)+sqr(r);
+    Real s2 = 1.0_r - sqr(z); // sin^2(th)
+    Real s1 = sqrt(1.0_r-z*z); // sin(th)
+
+    // --- Build the coefficients exactly as in build_tetrad() ---
+    SpinCoefficients sc_local;
+
+    Complex rho = -1.0_r/(r-I*a*z);
+    Complex rhobar = std::conj(rho);
+
+    // Kinnersley tetrad BL values taken from Teukolsky Eq. (4.5)
+    sc_local.set(SpinCoeffType::rho, rho);
+    sc_local.set(SpinCoeffType::mu, rhobar*sqr(rho)*del/2.0_r);
+    sc_local.set(SpinCoeffType::tau, -I*a*s1/(math::Sqrt(2.0_r)*sig));
+    sc_local.set(SpinCoeffType::pi, I*a*s1*sqr(rho)/math::Sqrt(2.0_r));
+    sc_local.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu)+ rho*rhobar*(r-M)/2.0_r);
+    sc_local.set(SpinCoeffType::beta, -rhobar*z/(two*s1*math::Sqrt(two)) );
+    sc_local.set(SpinCoeffType::alpha, sc.get(SpinCoeffType::beta) + sc.get(SpinCoeffType::pi));
+
+    sc_local.set(SpinCoeffType::kappa, teuk::zeroC);
+    sc_local.set(SpinCoeffType::sigma, teuk::zeroC);
+    sc_local.set(SpinCoeffType::lambda, teuk::zeroC);
+    sc_local.set(SpinCoeffType::nu, teuk::zeroC);
+    sc_local.set(SpinCoeffType::epsilon, teuk::zeroC);
+
+    WeylScalars weyls_local;
+    weyls_local.set(WeylScalarType::Psi0,0.0_r);
+    weyls_local.set(WeylScalarType::Psi1,0.0_r);
+    weyls_local.set(WeylScalarType::Psi2,M*cube(rho));
+    weyls_local.set(WeylScalarType::Psi3,0.0_r);
+    weyls_local.set(WeylScalarType::Psi4,0.0_r);
+
+    auto sc_ghp_local = SpinCoefficientsGHP(sc_local);
+    HeldCoefficients sc_held_local = HeldCoefficients(sc_ghp_local, weyls_local);
+    scalars.ghp_scalars = sc_ghp_local;
+    scalars.held_scalars = sc_held_local;
+
+    return scalars;
+}
+
+template <>
+Tetrad::Scalars KinnersleyTetrad<OutgoingCoordsCompact>::get_scalars_at(
+        const OutgoingCoordsCompact& XoutC) const
+{
+    using namespace teuk::literals;
+    Tetrad::Scalars scalars;
+
+    Real a  = metric.a();
+    Real M  = metric.M();
+    Real r  = coords.r_from_sigma(XoutC.x1);
+    Real z  = XoutC.x2;
+
+    Real del = metric.Delta(r);
+    Real sig = sqr(a*z)+sqr(r);
+    Real Om_C = XoutC.x1/metric.lambda_C();
+    Real s1 = sqrt(1.0_r-z*z);
+
+    Real rho0_C = (metric.r_plus()/metric.lambda_C());
+    Real dsigma_dr = -metric.lambda_C()*rho0_C/(r*r);
+    Real dOm_dr = 1.0_r/metric.lambda_C()*dsigma_dr;
+
+    Real Delta_Ups = - del/(2.0*sig)*sqr(Om_C);
+    Complex rho = -1.0_r/(r - I*a*z);
+    Complex rhobar = std::conj(rho);
+
+    // --- Build the coefficients exactly as in build_tetrad() ---
+    SpinCoefficients sc_local;
+
+    sc_local.set(SpinCoeffType::rho, rho/sqr(Om_C));
+    sc_local.set(SpinCoeffType::mu, rhobar*sqr(rho)*del/2.0_r + dOm_dr/Om_C);
+    sc_local.set(SpinCoeffType::tau, -I*a*s1/(sqrt(2)*sig)/Om_C);
+    sc_local.set(SpinCoeffType::pi, I*a*s1*sqr(rho)/sqrt(2.0_r)/Om_C);
+
+    sc_local.set(SpinCoeffType::gamma,
+                 sc_local.get(SpinCoeffType::mu) + rho*rhobar*(r-M)/2.0_r - Delta_Ups);
+
+    sc_local.set(SpinCoeffType::beta, -(rhobar*z/(2.0_r*s1*sqrt(2.0_r)))/Om_C);
+    sc_local.set(SpinCoeffType::alpha,
+                 (sc_local.get(SpinCoeffType::beta)
+                  + sc_local.get(SpinCoeffType::pi)) / Om_C);
+
+    sc_local.set(SpinCoeffType::kappa, 0.0_r);
+    sc_local.set(SpinCoeffType::sigma, 0.0_r);
+    sc_local.set(SpinCoeffType::lambda, 0.0_r);
+    sc_local.set(SpinCoeffType::nu, 0.0_r);
+    sc_local.set(SpinCoeffType::epsilon, 0.0_r);
+
+    WeylScalars W;
+    W.set(WeylScalarType::Psi0, 0.0_r);
+    W.set(WeylScalarType::Psi1, 0.0_r);
+    W.set(WeylScalarType::Psi2, M*cube(-1.0_r/(r))*cube(1.0/Om_C)); // same as your code
+    W.set(WeylScalarType::Psi3, 0.0_r);
+    W.set(WeylScalarType::Psi4, 0.0_r);
+    auto sc_ghp_local = SpinCoefficientsGHP(sc_local);
+    HeldCoefficients sc_held_local = HeldCoefficients(sc_ghp_local, W);
+    scalars.ghp_scalars = sc_ghp_local;
+    scalars.held_scalars = sc_held;
+    return scalars;
+}
+
+template <>
+SpinCoefficientsGHP KinnersleyTetrad<OutgoingCoordsCompact>::get_ghp_scalars_at(
+        const OutgoingCoordsCompact& X) const
+{
+    using namespace teuk::literals;
+
+    Real a  = metric.a();
+    Real M  = metric.M();
+    Real r  = coords.r_from_sigma(X.x1);
+    Real z  = X.x2;
+
+    Real del = metric.Delta(r);
+    Real sig = sqr(a*z)+sqr(r);
+    Real Om_C = X.x1/metric.lambda_C();
+    Real s1 = sqrt(1.0-z*z);
+
+    Real rho0_C = (metric.r_plus()/metric.lambda_C());
+    Real dsigma_dr = -metric.lambda_C()*rho0_C/(r*r);
+    Real dOm_dr = 1.0/metric.lambda_C()*dsigma_dr;
+
+    Real Delta_Ups = - del/(2.0*sig)*sqr(Om_C);
+    Complex rho = -1.0_r/(r - I*a*z);
+    Complex rhobar = std::conj(rho);
+
+    // --- Build the coefficients exactly as in build_tetrad() ---
+    SpinCoefficients sc_local;
+
+    sc_local.set(SpinCoeffType::rho, rho/sqr(Om_C));
+    sc_local.set(SpinCoeffType::mu, rhobar*sqr(rho)*del/2.0_r + dOm_dr/Om_C);
+    sc_local.set(SpinCoeffType::tau, -I*a*s1/(sqrt(2)*sig)/Om_C);
+    sc_local.set(SpinCoeffType::pi, I*a*s1*sqr(rho)/sqrt(2.0_r)/Om_C);
+
+    sc_local.set(SpinCoeffType::gamma,
+                 sc_local.get(SpinCoeffType::mu) + rho*rhobar*(r-M)/2.0_r - Delta_Ups);
+
+    sc_local.set(SpinCoeffType::beta, -(rhobar*z/(2.0*s1*sqrt(2.0)))/Om_C);
+    sc_local.set(SpinCoeffType::alpha,
+                 (sc_local.get(SpinCoeffType::beta)
+                  + sc_local.get(SpinCoeffType::pi)) / Om_C);
+
+    sc_local.set(SpinCoeffType::kappa, 0.0_r);
+    sc_local.set(SpinCoeffType::sigma, 0.0_r);
+    sc_local.set(SpinCoeffType::lambda, 0.0_r);
+    sc_local.set(SpinCoeffType::nu, 0.0_r);
+    sc_local.set(SpinCoeffType::epsilon, 0.0_r);
+
+    return SpinCoefficientsGHP(sc_local); // generate GHP coefficients from NP ones
+}
+
+template <>
+WeylScalars
+KinnersleyTetrad<OutgoingCoordsCompact>::get_weyl_scalars_at(
+        const OutgoingCoordsCompact& X) const
+{
+    using namespace teuk::literals;
+
+    Real r = coords.r_from_sigma(X.x1);
+    Real Om_C = X.x1 / metric.lambda_C();
+    Real M = metric.M();
+
+    WeylScalars W;
+    W.set(WeylScalarType::Psi0, 0.0_r);
+    W.set(WeylScalarType::Psi1, 0.0_r);
+    W.set(WeylScalarType::Psi2, M*cube(-1.0_r/(r))*cube(1.0/Om_C)); // same as your code
+    W.set(WeylScalarType::Psi3, 0.0_r);
+    W.set(WeylScalarType::Psi4, 0.0_r);
+
+    return W;
+}
+
+/**
+ * @brief Compute the full Held coefficients at coordinates X.
+ *
+ * This templated implementation works for *any* coordinate chart for which the
+ * tetrad provides:
+ *    - get_spin_coeffs_at(X)
+ *    - get_weyl_scalars_at(X)
+ *
+ * This avoids redundant explicit template specializations for each coordinate
+ * system (BLCoords, OutgoingCoords, OutgoingCoordsCompact, etc.).
+ *
+ * @tparam CoordT  The coordinate type
+ * @param  X       Coordinates where the coefficients are evaluated
+ * @return HeldCoefficients  Combined spin coefficients + Weyl scalars
+*/
+template <typename CoordT>
+HeldCoefficients KinnersleyTetrad<CoordT>::get_held_scalars_at(const CoordT &X) const {
+
+    return HeldCoefficients(get_spin_coeffs_at(X),
+                            get_weyl_scalars_at(X));
+}
+
+// for any CoordT you actually use:
+//template class KinnersleyTetrad<OutgoingCoordsCompact>;

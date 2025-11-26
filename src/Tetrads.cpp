@@ -1,7 +1,7 @@
 //
 // Created by Peter Zimmerman on 27.10.25.
 //
-#include "../include/TeukTypes.hpp"
+#include "../sand/TeukTypes.hpp"
 #include "../include/VectorsGHZ.hpp"
 #include "../include/Tetrads.hpp"
 

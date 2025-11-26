@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project(GHZ_numeric)
 set(CMAKE_CXX_STANDARD 17)
 
-add_compile_definitions(TEUK_PRECISION=3)
+add_compile_definitions(TEUK_PRECISION=4)
 find_package(Eigen3 REQUIRED)
 find_package(FFTW3 REQUIRED)
 
@@ -10,7 +10,6 @@ include_directories(
         /opt/homebrew/include
         /opt/homebrew/include/eigen3
 )
-
 link_directories(
         /opt/homebrew/lib
 )
@@ -25,10 +24,10 @@ add_executable(GHZ_numeric main.cpp include/GhzTypes.hpp include/EigenTeukNumTra
         include/WeylScalars.hpp src/WeylScalars.cpp
         include/GHPScalars.hpp src/GHPScalars.cpp include/VectorsGHZ.hpp
         include/KerrMetric.hpp
-        # src/KerrOrbit.cpp
        # include/SpectralSolverS2.hpp src/SpectralSolverS2.cpp
-        include/SpectralSolverS2boost.hpp src/SpectralSolverS2boost.cpp include/EllipticIntegrals.hpp)
+        include/SpectralSolverS2boost.hpp src/SpectralSolverS2boost.cpp
+        # include/EllipticIntegrals.hpp  include/KerrOrbit.hpp src/KerrOrbit.cpp
+        include/SpectralGHPField.hpp src/SpectralDiffer.cpp src/HeldScalars.cpp)
 
 
-target_link_libraries(GHZ_numeric PRIVATE fftw3 m)
-
+target_link_libraries(GHZ_numeric PRIVATE fftw3l fftw3 m)

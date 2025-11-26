@@ -255,6 +255,12 @@ namespace ghz {
         Real get_Phi_r() const;
         Real get_Phi_z() const;
 
+        std::vector<Real> get_psi_r() const;
+        std::vector<Real> get_psi_z() const;
+        std::vector<Real> get_psi_t() const;
+        std::vector<Real> get_psi_phi() const;
+
+
         void compute_Delta_and_freq_modes(const std::vector<Complex> &samples_in,
                                           const std::vector<Real>& q_grid,
                                           Real Omega, std::vector<Real> &Delta_out,
