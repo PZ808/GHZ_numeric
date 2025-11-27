@@ -25,3 +25,4 @@ HeldCoefficients::HeldCoefficients(const SpinCoefficientsGHP &sc_ghp,
     OmH       = HeldScalar((rho-rhob)/(rho*rhob), -1, -1);
     OmH_bar   = HeldScalar(std::conj(OmH.value()), -1,-1);
 };
+

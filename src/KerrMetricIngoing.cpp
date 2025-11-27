@@ -11,12 +11,12 @@ using namespace  math;
 
 KerrMetricIngoing::KerrMetricIngoing(const KerrParams& p, const KerrMetric& km) : params(p) , kerr_metric(km) {
 }
-void KerrMetricIngoing::build(const OutgoingCoords Xout) {
+void KerrMetricIngoing::build(const IngoingCoords Xin) {
     M_ = params.M;
     a_ = params.a;
-    del_= kerr_metric.Delta(Xout.x1);
-    sig_ = sqr(Xout.x1)+sqr(a_*Xout.x2);
-    s2_ = 1.0-sqr(Xout.x2);
+    del_= kerr_metric.Delta(Xin.x1);
+    sig_ = sqr(Xin.x1)+sqr(a_*Xin.x2);
+    s2_ = 1.0-sqr(Xin.x2);
     s1_ = sqrt(s1_);
 }
 

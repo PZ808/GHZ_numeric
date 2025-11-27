@@ -30,15 +30,30 @@ finite difference methods
 ```mermaid
 flowchart TD
     subgraph Geometry
-        A[Metric] --> B[KerrMetric] 
-        C[CoordinateSystem] --> D[KerrCharts]
-        C --> E[KinnersleyTetrad]
+        A[Metric]  -->   B[KerrMetric] 
+        P[KerrParams] --> B[KerrMetric]  --> C[CoordinateSystem] 
+        C--> D[KerrCharts] 
+        C --> T[Tetrad] --> KT[KinnersleyTetrad]
+        
     end
     subgraph Scalars
-        E --> F[GHPScalar]
+        KT --> F[GHPScalar]
         F --> G[GHPField]
-        G --> H[SpectralField] --> I[GHPSpectralField]
-        J[HeldField]  --> K[SpectralDiffer]
+        G --> H[HeldField] 
+      end
+     subgraph Spectral 
+        I[GHPSpectralField] --> K[SpectralDiffer]
+        H --> K
+     end
+    end
+    subgraph Orbit
+     B --> O[KerrOrbit] 
+     O --> BO[KerrBoundOrbit]
+     D --> BO
+    end
+    subgraph 
+    
+        
     end
 ```  
 
@@ -78,45 +93,46 @@ Constructs quantities in and provides functions to transforms between:
 Provides:
 
 - Metric construction in each coordinate chart
-- Transformation Jacobians
+- Transformations between charts
 - Useful geometric quantities for tetrads and scalars
-
+- 
 ---
 
 ## 3. `KinnersleyTetrad<Coordtype T>?`
-Builds the Kinnersley tetrad in all supported coordinates.
+Builds the Kinnersley tetrad and derived bkg quantities in all supported coordinates.
 
 Computes:
 
+- Basis vectors 
 - Newman–Penrose spin coefficients
-- GHP spin/boost weights
+- GHP coefficients
+- Weyl scalars
 - Held coefficients
-- Basis vectors for acting with GHP operators
 
 ---
 
 ## 4. `GHPScalar<Complex T>`
 Complex scalar with GHP weights \((p,q)\).
 
-- Operator overloads: `+, -, *, /`
-- Correct GHP transformation behavior
+- Operator overloads: `+, -, *, / with correct GHP transformation behavior
 - Type-safe representation of weighted scalars
 
 This is the basic algebraic object used everywhere.
 
 ---
 
-## 5. `GHPField`a
+## 5. `GHPField`
 Represents a field of 
 Geroch-Held-Penrose (GHP) scalars with spin-boost weights (p,q)
-on an \(N_r \times N_z\)   grid of \((r,z)\) values.
+on an $$N_r \times N_z$$   grid of $$r,z$$ values.
 
 - Stored as a 2D grid `[r][z]`
 - Arithmetic operator overloads which handle GHP weights 
 - accessors and views
 - lambda functions which fill the values given a function of r,z
-- GHP covariant tranformations inc as conjugation and spin-boosts
+- GHP covariant tranformations inc. as conjugation and spin-boosts
 - Used for background quantities such as GHP spin coefficients
+- Used for spectral r,z 
 
 ---
 

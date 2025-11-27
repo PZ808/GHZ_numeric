@@ -33,7 +33,7 @@ void KerrMetricOutgoing::build_compact_from_outgoing(const OutgoingCoords Xout) 
     Real sigma = lambda_*rho0_/Xout.x1;
     Real r_of_sig = lambda_*rho0_/sigma;
     del_= kerr_metric.Delta(r_of_sig)*sqr(Om_);
-    sig_ = sqr(Om_)*kerr_metric.Sigma_z(r_of_sig,Xout.x2);
+    sig_ = sqr(Om_)*kerr_metric.Sigma_z(r_of_sig, Xout.x2);
     s2_ = one-sqr(Xout.x2);
     s1_ = sqrt(s1_);
 }

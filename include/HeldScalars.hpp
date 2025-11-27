@@ -72,7 +72,7 @@ HeldBackgroundFields build_held_fields(TetradType& tetrad,
     HeldBackgroundFields held_fields(Nz);
 
     for (int iz = 0; iz < Nz; ++iz) {
-        X.x2 = z_nodes[iz];       // set current z
+        X.x2 = z_nodes[iz];       // set current z to LGL collocation point
 
         tetrad.build_tetrad(X);   // build tetrad at this point
 

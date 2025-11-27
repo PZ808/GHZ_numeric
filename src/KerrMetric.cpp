@@ -10,23 +10,31 @@ using std::sqrt;
 using std::pow;
 using namespace math;
 
+/*
+ *
+ */
 KerrMetric::KerrMetric(const KerrParams& p) : params(p) {
+    //
     // set the conformal params
-    k2_ = r_minus()/r_plus();
-    lambda_ = r_plus();
-    mu_ = (1.0+k2_)/2.0;
-    alpha_ = k2_;
+    // (see https://arxiv.org/pdf/1910.13452)
+    k2_ = r_minus()/r_plus(); // \kappa^2 := r_-/r_+ , \kappa := j/(1+\sqrt{1-j^2}) j = a/M
+    lambda_ = r_plus();  // preferred length scale
+    // dimensionless mass and spin parameters
+    mu_ = (1.0+k2_)/2.0; // \mu := M /\lambda
+    alpha_ = k2_;        // \alpha := a/\lambda
 }
-
-Real KerrMetric::M() const { return params.M; }
-Real KerrMetric::a() const { return params.a; }
-Real KerrMetric::r_plus() const { return params.M+sqrt(params.M*params.M-params.a*params.a); }
-Real KerrMetric::r_minus() const { return params.M-sqrt(params.M*params.M-params.a*params.a); }
-Real KerrMetric::Om_plus() const { return params.a/( sqr(params.M+sqrt(params.M*params.M-params.a*params.a))+ sqr(params.a) );  }
+//
+// Kerr param getters
+//
+Real KerrMetric::M() const { return params.M; } // mass
+Real KerrMetric::a() const { return params.a; } // spin
+Real KerrMetric::r_plus() const { return params.M+sqrt(params.M*params.M-params.a*params.a); } // outter horizon
+Real KerrMetric::r_minus() const { return params.M-sqrt(params.M*params.M-params.a*params.a); } // inner horizon
+Real KerrMetric::Om_plus() const { return params.a/(sqr(params.M+sqrt(params.M*params.M-params.a*params.a))+ sqr(params.a) );  }
 Real KerrMetric::Om_minus() const { return params.a / ( sqr(params.M-sqrt(params.M*params.M-params.a*params.a)) + sqr(params.a) );  }
 Real KerrMetric::kappa_plus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M+sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ); }
 Real KerrMetric::kappa_minus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M-sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ) ; }
-// conformal quantity getters
+// conformal param getters
 Real KerrMetric::k2_C() const {return k2_;}
 Real KerrMetric::mu_C() const {return mu_;}
 Real KerrMetric::alpha_C() const {return alpha_;}

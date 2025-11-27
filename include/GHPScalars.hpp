@@ -4,11 +4,15 @@
 
 #ifndef GHZ_NUMERIC_GHPSCALARS_HPP
 #define GHZ_NUMERIC_GHPSCALARS_HPP
-#include <complex>
-#include <iomanip>
+
 #include "SpinCoeffsNP.hpp"
 #include "MathMacros.hpp"
 
+#include <complex>
+#include <iomanip>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 using namespace math;
 
 /**
@@ -98,6 +102,7 @@ public:
                + " (p,q)=(" + std::to_string(p_) + "," + std::to_string(q_) + ")";
     }
 }; // class GHPScalar
+
 /**
  * @class GHPField
  * @brief 2D spectral/storage container for a Geroch–Held–Penrose (GHP) scalar field.

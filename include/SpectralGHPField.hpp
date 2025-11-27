@@ -33,7 +33,7 @@ namespace spectral {
 
 // -----------------------------------------------------------------------------
 // SpectralField<T>
-// Generic container storing data_[omega][m][r][z] where each scalar is type T
+// Generic container storing data_[r][z]
 // -----------------------------------------------------------------------------
     template<typename T>
     class SpectralField {
@@ -110,10 +110,10 @@ namespace spectral {
 /**
 * \class GHPSpectralField
 * \parameters
- * w = omega, m = azimode #,
- * Nz = numbers of polar points, Nr = number of radial grid points
- * values = array of initial values
- *  p = GHP weight, q = GHP weight
+* w = omega, m = azimode #,
+* Nz = numbers of polar points, Nr = number of radial grid points
+* values = array of initial values
+*  p = GHP weight, q = GHP weight
 */
     class GHPSpectralField {
     public:
@@ -223,7 +223,10 @@ namespace spectral {
                 throw std::runtime_error("GHPSpectralField mismatch in addition");
             if (p_ != other.p_ || q_ != other.q_)
                 throw std::runtime_error("GHPSpectralField spin-weights mismatch in addition");
-            GHPSpectralField out(w_, m_, Nr(), Nz(), Scalar(teuk::zeroC, p_, q_), p_, q_);
+            GHPSpectralField out(w_, m_,
+                                 Nr(), Nz(),
+                                 Scalar(teuk::zeroC, p_, q_),
+                                 p_, q_);
             for (int r = 0; r < Nr(); ++r)
                 for (int z = 0; z < Nz(); ++z)
                     out.at(r, z) = this->at(r, z) + other.at(r, z);
@@ -231,7 +234,10 @@ namespace spectral {
         }
 
         GHPSpectralField transform(const Complex &lambda) const {
-            GHPSpectralField out(w_, m_, Nr(), Nz(), Scalar(teuk::zeroC, p_, q_), p_, q_);
+            GHPSpectralField out(w_, m_,
+                                 Nr(), Nz(),
+                                 Scalar(teuk::zeroC, p_, q_),
+                                 p_, q_);
             for (int r = 0; r < Nr(); ++r)
                 for (int z = 0; z < Nz(); ++z)
                     out.at(r, z) = this->at(r, z).transform(lambda);
@@ -258,8 +264,6 @@ namespace spectral {
             return oss.str();
         }
     };
-
-
 
 // -----------------------------------------------------------------------------
 // SpectralDiffer: operates on Z-slices for a given block (fixed w,m)
@@ -309,6 +313,7 @@ namespace spectral {
         GHPSpectralField::ZSlice edth(const GHPSpectralField::ZSlice &f) const;
 
 
+        void dphi_fft_single_w(const GHPSpectralField::ZSlice &f_slice, GHPSpectralField::ZSlice &df_dphi_slice) const;
     };
 
 }

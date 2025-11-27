@@ -306,6 +306,19 @@ namespace spectral {
 
         for (int z=0; z<Nz; ++z) df_dphi_slice[z] = f_slice[z] * im_scalar;
     }
+    // ---------------------------
+    // t-derivative via FFT for a single ZSlice
+    // ---------------------------
+    void SpectralDiffer::dphi_fft_single_w(const GHPSpectralField::ZSlice &f_slice,
+                                           GHPSpectralField::ZSlice &df_dt_slice) const
+    {
+        int w = f_slice.w();  // <-- now it's stored inside
+        int Nz = f_slice.size();
+
+        GHPScalar<Complex> iw_scalar(Complex(0, -w), 0, 0);
+
+        for (int z=0; z<Nz; ++z) df_dt_slice[z] = f_slice[z] * iw_scalar;
+    }
 
     // ---------------------------
     // Edth operator on a single ZSlice
@@ -316,12 +329,14 @@ namespace spectral {
 
 
         // Compute spectral derivatives
-        dz_Dmatrix(f, df);         // ∂/∂z
+        dz_Dmatrix(f, df);               // ∂/∂z using Legendre matrix
         dphi_fft_single_m(f, df); // ∂/∂φ
+        dphi_fft_single_w(f, df); // ∂/∂t
         GHPSpectralField::ZSlice df_eth(df.data_ptr, f.size(), f.w(), f.m(), f.r() );
 
 
         GHPScalar<Complex> m_scalar(Complex(f.m(), teuk::zero), 0, 0);
+        // compute derivative
         for(int i = 0; i < Nz_; ++i) {
             Real z = nodes()[i];
             Real factor = sqrt(1.0 - z*z);

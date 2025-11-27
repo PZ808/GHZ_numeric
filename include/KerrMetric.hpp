@@ -33,7 +33,7 @@ public:
     Real Om_minus() const; // inner horizon rotn freq
     Real kappa_plus() const; // outer horizon surf. grav.
     Real kappa_minus() const; // inner horizon surf. grav.
-    // conformal paramaters
+    // conformal paramaters see https://arxiv.org/pdf/1910.13452
     Real k2_C() const;
     Real mu_C() const;
     Real lambda_C() const;
@@ -46,6 +46,7 @@ public:
     virtual Real Lambda(Real r, Real theta) const;
     Real Sigma_z(Real r, Real z) const;
     Real Lambda_z(Real r, Real z) const;
+
 };
 
 #endif //GHZ_NUMERIC_KERRMETRIC_HPP

@@ -82,6 +82,8 @@ public:
 
     Real sigma_from_r_(Real r) const;
 
+    inline Real get_rstar(Real r) const {return rStar_(r); }
+
     Real r_from_sigma(Real r) const;
 
     Real Omeg_comf(Real sigma) const;
