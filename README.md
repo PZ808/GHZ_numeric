@@ -50,10 +50,6 @@ flowchart TD
      O --> BO[KerrBoundOrbit]
      D --> BO
     end
-    subgraph 
-    
-        
-    end
 ```  
 
 Each class is independent and documented internally.  
