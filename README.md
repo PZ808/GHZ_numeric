@@ -45,7 +45,6 @@ flowchart TD
         I[GHPSpectralField] --> K[SpectralDiffer]
         H --> K
      end
-    end
     subgraph Orbit
      B --> O[KerrOrbit] 
      O --> BO[KerrBoundOrbit]
