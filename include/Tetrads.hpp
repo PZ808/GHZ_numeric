@@ -22,7 +22,7 @@ using namespace teuk;
 class Tetrad {
 protected:
     const KerrMetric& metric;
-    const CoordinateSystem& coords;
+    const CoordinateHelper& coord_helper;
 
 public:
     ghz::Vector4 l, n;
@@ -37,11 +37,10 @@ public:
         HeldCoefficients held_scalars;
     };
 
-    explicit Tetrad(KerrMetric& gKerr, CoordinateSystem& c)
-            : metric(gKerr), coords(c) {}
+    explicit Tetrad(KerrMetric& gKerr, CoordinateHelper& ch)
+            : metric(gKerr), coord_helper(ch) {}
 
     virtual ~Tetrad() = default;
-    virtual void build(Real tBL_u_or_v, Real r, Real theta, Real phiBL_in_or_out) = 0;
 
 };
 

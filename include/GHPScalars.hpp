@@ -7,6 +7,7 @@
 
 #include "SpinCoeffsNP.hpp"
 #include "MathMacros.hpp"
+#include "SpinCoeffsNP.hpp"
 
 #include <complex>
 #include <iomanip>
@@ -278,6 +279,29 @@ public:
         }
     }
 };
+
+
+enum class GHPCoefficientType {
+    kappa, kappap, sigma, sigmap,
+    tau, taup, rho, rhop //GHP Covariant coeffs
+};
+
+// GHP spin coefficient container
+class GHPCoefficients {
+private:
+    std::unordered_map<GHPCoefficientType, GHPScalar<Complex>> coeffs;  // creates key value pairs
+
+public:
+    GHPCoefficients() = default;
+
+    void set(GHPCoefficientType type,  GHPScalar<Complex> value);
+    [[nodiscard]]  GHPScalar<Complex> get(GHPCoefficientType type) const;
+
+    // Optional: print all coefficients
+    std::string toString() const;
+};
+
+
 
 struct SpinCoefficientsGHP {
     GHPScalar<Complex> kappa, kappap, sigma, sigmap, tau, taup, rho, rhop; //GHP Covariant coeffs

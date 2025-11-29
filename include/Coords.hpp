@@ -23,7 +23,16 @@ struct Coords {
 
     Coords(Real x0_, Real x1_, Real x2_, Real x3_)
             : x0(x0_), x1(x1_), x2(x2_), x3(x3_) {}
-};;
+
+    // Epsilon-based equality for floating-point comparison
+    bool operator==(const Coords& other) const {
+        Real eps = 1e-14;
+        return abs(x0 - other.x0) < eps
+               && abs(x1 - other.x1) < eps
+               && abs(x2 - other.x2) < eps
+               && abs(x3 - other.x3) < eps;
+    };
+};
 
 
 struct BLCoords : Coords {
@@ -51,7 +60,7 @@ struct HyperboloidalCoords : Coords {
     // double tau, sigma, z, phi
 };
 
-class CoordinateSystem {
+class CoordinateHelper {
 private:
     const KerrMetric& metric;
     CoordType currentType;
@@ -64,7 +73,7 @@ private:
     Real rho_(Real sigma) const;
 
 public:
-    explicit CoordinateSystem(const KerrMetric& g, CoordType type = CoordType::BoyerLindquist);
+    explicit CoordinateHelper(const KerrMetric& g, CoordType type = CoordType::BoyerLindquist);
 
     CoordType type() const { return currentType; }
     void setType(CoordType type);

@@ -4,16 +4,22 @@
 
 #ifndef GHZ_NUMERIC_KERRORBIT_HPP
 #define GHZ_NUMERIC_KERRORBIT_HPP
-#include <cstddef>
+
 #include "GhzTypes.hpp"
 #include "KerrParams.hpp"
 #include "MathMacros.hpp"
 #include "KerrMetric.hpp"
+#include "Coords.hpp"
 #include "EllipticIntegrals.hpp"
+#include "Splines.hpp"
+#include <cstddef>
+#include <ranges>
 
 namespace ghz {
 
     using Real = teuk::Real;
+    using vectorR = std::vector<Real>;
+    using vectorC = std::vector<Complex>;
 
     class KerrOrbitBase {
     protected:
@@ -44,20 +50,21 @@ namespace ghz {
             Real J_r;      // radial action
             Real J_z;      // polar action
         };
+        // uniform advance angles dq/d\lambda = constant
         struct TorusAngles {
             Real q_t, q_phi;
             Real q_r, q_z;
         };
+        // non-uniform advance angles d\psi/d\lambda = non constant f
         struct Phases {
             Real psi_t, psi_phi;
             Real psi_r, psi_z;
         };
-        // averaged frequencies
         struct TorusFrequencies {
-            Real Ups_t, Ups_phi, Ups_r, Ups_z;
-            Real Omega_t, Omega_phi, Omega_r, Omega_z;
+            Real Ups_t, Ups_phi, Ups_r, Ups_z; // avg frequencies dq_\mu/d\lambda
+            Real Omega_t, Omega_phi, Omega_r, Omega_z; // avg frequencies dq_\mu/dt
         };
-        // instantaneous frequencies
+        // instantaneous frequencies a = r,z
         struct Frequencies_fa {
             Real f_r;
             Real f_z;
@@ -69,18 +76,23 @@ namespace ghz {
             Real f_r;
             Real f_z;
         };
+        // corresponding Fourier coefficients (after 1-d FFT)
         struct FrequencyModes {
-            // corresponding Fourier coefficients (after FFT)
-            std::vector<Complex> f_r_modes;
-            std::vector<Complex> f_z_modes;
-            std::vector<Complex> t_r_modes;
-            std::vector<Complex> t_z_modes;
-            std::vector<Complex> phi_r_modes;
-            std::vector<Complex> phi_z_modes;
+            // f_a (k-modes)
+            vectorC f_r_modes;
+            vectorC f_z_modes;
+            // f_t = T_r + T_z + a L_z (k-modes)
+            vectorC T_r_modes;
+            vectorC T_z_modes;
+            // f_phi = Phi_r + Phi_z - a E (k-modes)
+            vectorC Phi_r_modes;
+            vectorC Phi_z_modes;
         };
 
-        std::vector<Real> qr_vals;
-        std::vector<Real> qz_vals;
+        vectorR qr_vals;
+        vectorR qz_vals;
+        vectorR psi_r_vals;
+        vectorR psi_z_vals;
 
 
     private:
@@ -96,10 +108,10 @@ namespace ghz {
 
         std::vector<Frequencies> f_samples_;
         std::vector<Phases> psi_samples_;
-        std::vector<Real> T_r_samples_, T_z_samples_, Phi_r_samples_, Phi_z_samples_;
+        vectorR T_r_samples_, T_z_samples_, Phi_r_samples_, Phi_z_samples_;
         // modes containers (store normalized modes c_k = raw/N)
-        std::vector<Complex> psi_r_modes_, psi_z_modes_, t_r_modes_, t_z_modes_, phi_r_modes_, phi_z_modes_;
-        std::vector<Real> Delta_psi_r_, Delta_psi_z_, Delta_t_r_, Delta_t_z_, Delta_phi_r_, Delta_phi_z_;
+        vectorC psi_r_modes_, psi_z_modes_, t_r_modes_, t_z_modes_, phi_r_modes_, phi_z_modes_;
+        vectorR Delta_psi_r_, Delta_psi_z_, Delta_t_r_, Delta_t_z_, Delta_phi_r_, Delta_phi_z_;
 
         Actions actions_;
         TorusFrequencies mino_torus_freqs, torus_freqs_; // averaged frequencies
@@ -121,36 +133,40 @@ namespace ghz {
         };
 
         // helpers
-        inline const Real d_(Real r) const {
-            return (gKerr.Delta(r)*(r*r + gKerr.a()*gKerr.a()*zmax_)) / (gKerr.M()*gKerr.M()* gKerr.M()*gKerr.M()); }
-
-        inline const Real f_(Real r) const {
-            return (r*r*r*r + gKerr.a()*gKerr.a() * (r*(r+Real(2.0)) + zmax_*zmax_*gKerr.Delta(r))) / (gKerr.M()*gKerr.M()* gKerr.M()*gKerr.M()); }
-
-        inline const Real g_(Real r) const {
-            return (Real(2.0)*gKerr.a()*r) / (gKerr.M()*gKerr.M()); }
-
-        inline const Real h_(Real r) const {
-            return (r*(r-Real(2.0)*gKerr.M()) + zmax_*zmax_*gKerr.Delta(r)/(1-zmax_*zmax_)) / (gKerr.M()*gKerr.M()) ; }
-
         inline const Real r3() const {
-            return half*(alpha_+sqrt((math::sqr(alpha_))-Real(4.0)*beta_)) ; }
-        inline const Real r4() const {
-            return beta_/r3() ;
+            return half*(alpha_+sqrt((math::sqr(alpha_))-Real(4.0)*beta_)) ;
         }
+        inline const Real r4() const { return beta_/r3(); }
 
-        inline const Real G_(Real ka) const {
+        inline const Real d_(Real r) const {
+            return (gKerr.Delta(r)*(r*r + gKerr.a()*gKerr.a()*zmax_)) /
+                   (gKerr.M()*gKerr.M()* gKerr.M()*gKerr.M());
+        }
+        inline const Real f_(Real r) const {
+            return ( r*r*r*r + gKerr.a()*gKerr.a() * (r*(r+Real(2.0)) + zmax_*zmax_*gKerr.Delta(r)) ) /
+                   (gKerr.M()*gKerr.M()* gKerr.M()*gKerr.M());
+        }
+        inline const Real g_(Real r) const { return (Real(2.0)*gKerr.a()*r) / (gKerr.M()*gKerr.M());
+        }
+        inline const Real h_(Real r) const {
+            return ( r*(r-Real(2.0)*gKerr.M()) + zmax_*zmax_*gKerr.Delta(r)/(1-zmax_*zmax_) ) /
+                   (gKerr.M()*gKerr.M()) ;
+        }
+        // helper functions appearing the mino frequencies \Upsilon_\mu
+        inline const Real G_(const Real& ka) const {
             return EllipticIntegrals::computeSecondKind(ka)/EllipticIntegrals::computeFirstKind(ka);
         }
-        inline const Real F_pm_(Real r_plus_or_minus, Real kr) const {
+        inline const Real F_pm_(const Real & r_plus_or_minus, const Real& kr) const {
             Real h = (ra_-rp_)*(r3_-r_plus_or_minus)/((ra_-r3_)*(rp_-r_plus_or_minus));
-            return (rp_-r3_)*EllipticIntegrals::computeThirdKind(h,kr)/EllipticIntegrals::computeFirstKind(kr);
+            return (rp_-r3_)*EllipticIntegrals::computeThirdKind(h,kr)
+                   /EllipticIntegrals::computeFirstKind(kr);
         }
-        inline const Real Fr_(Real kr) const {
+        inline const Real Fr_(const Real& kr) const {
             Real h =(ra_-rp_)/(ra_-r3_);
-            return (rp_-r3_)*EllipticIntegrals::computeThirdKind(h,kr)/EllipticIntegrals::computeFirstKind(kr);
+            return (rp_-r3_)*EllipticIntegrals::computeThirdKind(h,kr)
+                   /EllipticIntegrals::computeFirstKind(kr);
         }
-        inline Determinants_ computeDeterminants_(Real rp, Real ra) const {
+        inline Determinants_ computeDeterminants_(const Real& rp, const Real& ra) const {
             Determinants_ det{};
 
             // Evaluate functions at both radii
@@ -158,9 +174,8 @@ namespace ghz {
             Real da = d_(ra), fa = f_(ra), ga = g_(ra), ha = h_(ra);
             // Determinants for system solving (example structure)
 
-            auto det2 = [](Real x1, Real x2, Real y1, Real y2) {
-                return x1 * y2 - x2 * y1;
-            };
+            auto det2 = [](const Real& x1, const Real& x2,
+                           const Real& y1, const Real& y2) { return x1 * y2 - x2 * y1; };
             det.dg = det2(dp, da, gp, ga);
             det.gd = -det.dg;
             det.dh = det2(dp, da, hp, ha);
@@ -172,7 +187,22 @@ namespace ghz {
             det.fg = det2(fp, fa, gp, ga);
             det.gf = -det.fg;
             return det;
+        } //computeDeterminants
+
+        // --- helper: build all splines ---
+        void build_splines() {
+            interp_psi_r   = PeriodicSpline(qr_vals, psi_r_vals);
+            interp_dpsi_r  = PeriodicSpline(qr_vals, Delta_psi_r_);
+            interp_phi_r   = PeriodicSpline(qr_vals, Delta_phi_r_);
+            interp_t_r     = PeriodicSpline(qr_vals, Delta_t_r_);
+
+            interp_psi_z   = PeriodicSpline(qz_vals, psi_z_vals);
+            interp_dpsi_z  = PeriodicSpline(qz_vals, Delta_psi_z_);
+            interp_phi_z   = PeriodicSpline(qz_vals, Delta_phi_z_);
+            interp_t_z     = PeriodicSpline(qz_vals, Delta_t_z_);
         }
+
+    public:
 
         // Constructor
         /*
@@ -181,17 +211,16 @@ namespace ghz {
          *   phases. This is what sample_frequencies_for_fft() does
          * 2. Use FFT to extract the 1D fourier coefficients f_z^{k}, f_r^{k}, T_r^_{k}, T_z^{k}, Phi_r^{k}, Phi_z^{k}
          * where T_r(r) is the separated part of the f_t frequency depending on r etc,
-         * 3. Use (251) to (253) to compute the oscillating pieces Delta psi_alpha using the FFTs and mean frequencies Upsilon
+         * 3. Use (251) to (253) to compute the oscillating pieces
+         * Delta psi_alpha using the FFTs and mean frequencies Upsilon
          * 4. Construct the oscillating part of phases and the mean angles q(psi)
          */
-    public:
-
         KerrBoundOrbit(const KerrMetric& gKerr,
-                                       Real p, Real e, Real inc,
-                                       size_t Nr, size_t Nz)
-                : KerrOrbitBase(gKerr), p_(p), e_(e), inc_(inc), Nr_(Nr), Nz_(Nz)
+                       Real p, Real e, Real inc,
+                       size_t Nr, size_t Nz)
+                : KerrOrbitBase(gKerr), p_(p), e_(e), inc_(inc), Nr_(Nr), Nz_(Nz), psi_r_vals(Nr), psi_z_vals(Nz)
         {
-            // compute turning points
+            // compute turning points in Keplerian parametrization
             zmax_  = abs(sin(inc_));
             z2_ =  zmax_; //  polar turning point
             rp_ = p_ * M_ / (Real(1.0) + e_);  // periapsis radial turning point
@@ -206,16 +235,15 @@ namespace ghz {
             torus_angles_ = {0.0, 0.0, 0.0, 0.0};
             phases_ = {0.0, 0.0, 0.0, 0.0};
 
+            for (size_t i = 0; i < Nr; ++i)
+                psi_r_vals[i] = 2.0 * M_PI * i / Nr;
 
-            compute_torus_frequencies(); // compute Upsilons and Omega (avg frequencies in mino and BL time)
-            compute_frequencies(); // compute initial frequencies f_t, f_phi, f_r, f_z where f = d\psi/d\lambda
-            sample_frequencies_for_fft(Nr, Nz);
-            compute_q_grids_from_samples(Nr, Nz, qr_vals, qz_vals); // fill the q grid values
-            sample_T_and_Phi_for_fft(Nr, Nz);
-            sample_frequencies_for_fft(Nr, Nz);
-            compute_Deltas(Nr, Nz);
+            for (size_t j = 0; j < Nz; ++j)
+                psi_z_vals[j] = 2.0 * M_PI * j / Nz;
 
-        }
+        } // constructor KerrBoundOrbit
+
+        void init();
         // -------------------------------------------------
         // Computation methods (symbolic/numerical stubs)
         // -------------------------------------------------
@@ -225,19 +253,15 @@ namespace ghz {
 
         inline FrequencyModes get_freq_modes() { return f_modes_; }
 
-        void update_q_angles(Real mino_time_param);
+        void update_q_angles(const Real& mino_time_param);
+        BLCoords eval_at_Mino(const Real& lambda) const;
 
         void sample_T_and_Phi_for_fft(size_t Nr, size_t Nz); // for f_t and f_phi
         void sample_frequencies_for_fft(size_t Nr, size_t Nz); // f_a
-        void compute_q_grids_from_samples(size_t Nr, size_t Nz, std::vector<Real> &qr_vals, std::vector<Real> &qz_vals);
-        void compute_Delta_psi_rz(size_t Nr, size_t Nz);
+        void compute_q_grids_from_samples(const size_t& Nr, const size_t& Nz,
+                                          std::vector<Real> &qr_vals, std::vector<Real> &qz_vals);
         void compute_Deltas(size_t Nr, size_t Nz);
-
         void compute_q_from_psi(const std::vector<Real>& f, std::vector<Real>& q);
-        // Conversion: (p,e,zmax) → (E,L_z,Q)
-        void compute_constants_of_motion();
-        // Conversion: (E,L_z,Q) → (p,e,zmax)
-        void compute_orbital_elements();
 
         // -------------------------------------------------
         // Accessors
@@ -246,8 +270,6 @@ namespace ghz {
         [[nodiscard]] const Frequencies& freqs() const { return freqs_; }
         [[nodiscard]] const Phases& angles() const { return phases_; }
 
-        [[nodiscard]] std::array<Real, 4> four_position(Real lambda) const;
-        [[nodiscard]] std::array<Real, 4> four_velocity(Real lambda) const;
 
         Real get_T_r() const;
         Real get_T_z() const;
@@ -260,13 +282,18 @@ namespace ghz {
         std::vector<Real> get_psi_t() const;
         std::vector<Real> get_psi_phi() const;
 
+        // --- splines ---
+        PeriodicSpline interp_psi_r, interp_dpsi_r, interp_phi_r, interp_t_r;
+        PeriodicSpline interp_psi_z, interp_dpsi_z, interp_phi_z, interp_t_z;
+
+
 
         void compute_Delta_and_freq_modes(const std::vector<Complex> &samples_in,
                                           const std::vector<Real>& q_grid,
                                           Real Omega, std::vector<Real> &Delta_out,
                                           std::vector<Complex> &modes_out);
 
-    };
+    };  //  class KerrBoundOrbit
 
 // =====================================================
 //  Circular Orbit specialization (Jr=Jθ=0)

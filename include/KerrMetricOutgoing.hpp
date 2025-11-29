@@ -37,6 +37,7 @@ public:
     void build_compact(const OutgoingCoordsCompact Xout);
 
     ghz::SymmetricMatrix4 g_tilde(const OutgoingCoordsCompact Xout) const;
+
 };
 
 #endif //GHZ_NUMERIC_KERRMETRICOUTGOING_HPP

@@ -37,7 +37,8 @@ add_executable(GHZ_numeric main.cpp include/GhzTypes.hpp include/EigenTeukNumTra
        # include/SpectralSolverS2.hpp src/SpectralSolverS2.cpp
         include/SpectralSolverS2boost.hpp src/SpectralSolverS2boost.cpp
          include/EllipticIntegrals.hpp  include/KerrOrbit.hpp src/KerrOrbit.cpp
-        include/SpectralGHPField.hpp src/SpectralDiffer.cpp src/HeldScalars.cpp include/KerrCharts.hpp)
+        include/SpectralGHPField.hpp src/SpectralDiffer.cpp src/HeldScalars.cpp include/KerrCharts.hpp
+        include/SpectralDiffer.hpp include/SpectralGHPFieldVectorized.hpp include/Splines.hpp)
 
 target_compile_options(GHZ_numeric PRIVATE ${OpenMP_CXX_FLAGS})
 target_link_libraries(GHZ_numeric PRIVATE ${OpenMP_CXX_LIBRARIES})

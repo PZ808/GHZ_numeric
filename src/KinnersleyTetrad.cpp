@@ -9,11 +9,22 @@
 #include <cmath>
 
 using namespace math;
+using namespace teuk::literals;
+
+template <>
+Complex KinnersleyTetrad<OutgoingCoords>::rho_f(const Real&  r, const Real& z) const {
+    return -1.0_r/(r-I*z);
+}
 
 template <>
 void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
 
+    using teuk::I;
     using namespace teuk::literals;
+
+    // save cached coords for safety and consistency
+    X_cached_ = Xbl;
+    cache_valid_ = true;
 
     Real r = Xbl.x1;
     Real theta = Xbl.x2;
@@ -23,6 +34,7 @@ void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
     Real del = metric.Delta(r);
     Real sig = metric.Sigma(r, theta);
 
+    // ... compute tetrad members ...
     // l.n = 1, m.mbar = -1
     l = { (r*r + a*a)/del, 1.0_r, 0.0_r, a/del }; // contravariant vector
     n = { (r*r + a*a)/(2.0_r*sig), -del/(2.0_r*sig), 0.0_r, a/(2.0_r*sig) };
@@ -63,25 +75,30 @@ void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
 template <>
 void KinnersleyTetrad<OutgoingCoords>::build_tetrad(const OutgoingCoords & Xout) {
 
-    Real r = Xout.x1;
-    Real z = Xout.x2;
-    Real del = metric.Delta(r);
     using teuk::I;
     using namespace teuk::literals;
+
+    // save cached coords for safety and consistency
+    X_cached_ = Xout;
+    cache_valid_ = true;
+
+
     Real a = metric.a();
     Real M = metric.M();
+
+    Real r = Xout.x1;
+    Real z = Xout.x2;
+
+    Real del = metric.Delta(r);
     Real sig = sqr(a*z)+sqr(r);
     Real s2 = 1.0_r - sqr(z); // sin^2(th)
     Real s1 = sqrt(1.0_r-z*z); // sin(th)
-
 
     // contravariant NP null basis l.n = 1, m.mbar = -1
     l = { 0,1,0,0};
     n = { (r*r + a*a)/sig, -del/(2.0*sig), 0.0, a/sig };
 
-
     auto common = 1.0_r / (sqrt(2.0_r)*(r + I*a*z));
-
     m = ghz::CVector4{ I*a*s1, 0.0_r, -s1 , I/s1 } * common;
     mbar = m.conj();
 
@@ -116,13 +133,18 @@ void KinnersleyTetrad<OutgoingCoords>::build_tetrad(const OutgoingCoords & Xout)
 
 template <>
 void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsCompact &Xout_C) {
-    // sigma = \lambda rho0/r
+
     using teuk::I;
     using namespace teuk::literals;
 
+    // save cached coords for safety and consistency
+    X_cached_ = Xout_C;
+    cache_valid_ = true;
+
+
     Real a = metric.a();
     Real M = metric.M();
-    Real r = coords.r_from_sigma(Xout_C.x1);  // r(\sigma) = \lambda/\sigma
+    Real r = coord_helper.r_from_sigma(Xout_C.x1);  // r(\sigma) = \lambda/\sigma
     Real z = Xout_C.x2;
     Real del = metric.Delta(r);
     Real sig = sqr(a*z)+sqr(r);
@@ -181,6 +203,11 @@ void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsC
 template <>
 Tetrad::Scalars KinnersleyTetrad<BLCoords>::get_scalars_at(
         const BLCoords& Xbl) const {
+
+    assert(cache_valid_ && "KinnersleyTetrad: build() must be called first");
+    assert(X_cached_.has_value());
+    assert(*X_cached_ == Xbl && "Mismatch: tetrad cached at different coordinates");
+
     using namespace teuk::literals;
 
     Real r = Xbl.x1;
@@ -233,7 +260,13 @@ template <>
 Tetrad::Scalars KinnersleyTetrad<OutgoingCoords>::get_scalars_at(
         const OutgoingCoords& Xout) const
 {
+
+    assert(cache_valid_ && "KinnersleyTetrad: build() must be called first");
+    assert(X_cached_.has_value());
+    assert(*X_cached_ == Xout && "Mismatch: tetrad cached at different coordinates");
+
     using namespace teuk::literals;
+
 
     Tetrad::Scalars scalars;
     Real r = Xout.x1;
@@ -292,7 +325,7 @@ Tetrad::Scalars KinnersleyTetrad<OutgoingCoordsCompact>::get_scalars_at(
 
     Real a  = metric.a();
     Real M  = metric.M();
-    Real r  = coords.r_from_sigma(XoutC.x1);
+    Real r  = coord_helper.r_from_sigma(XoutC.x1);
     Real z  = XoutC.x2;
 
     Real del = metric.Delta(r);
@@ -351,7 +384,7 @@ SpinCoefficientsGHP KinnersleyTetrad<OutgoingCoordsCompact>::get_ghp_scalars_at(
 
     Real a  = metric.a();
     Real M  = metric.M();
-    Real r  = coords.r_from_sigma(X.x1);
+    Real r  = coord_helper.r_from_sigma(X.x1);
     Real z  = X.x2;
 
     Real del = metric.Delta(r);
@@ -399,7 +432,7 @@ KinnersleyTetrad<OutgoingCoordsCompact>::get_weyl_scalars_at(
 {
     using namespace teuk::literals;
 
-    Real r = coords.r_from_sigma(X.x1);
+    Real r = coord_helper.r_from_sigma(X.x1);
     Real Om_C = X.x1 / metric.lambda_C();
     Real M = metric.M();
 

@@ -23,7 +23,7 @@ enum class SpinCoeffType {
 // NP spin coefficient container
 class SpinCoefficients {
 private:
-    std::map<SpinCoeffType, Complex> coeffs;
+    std::unordered_map<SpinCoeffType, Complex> coeffs;  // creates key value pairs
 
 public:
     SpinCoefficients() = default;
@@ -34,5 +34,6 @@ public:
     // Optional: print all coefficients
     std::string toString() const;
 };
+
 
 #endif //GHZ_NUMERIC_SPINCOEFFSNP_HPP

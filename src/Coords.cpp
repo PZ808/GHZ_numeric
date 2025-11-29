@@ -12,12 +12,12 @@
 using math::Sqrt, math::Log, math::Abs;
 using namespace teuk;
 
-CoordinateSystem::CoordinateSystem(const KerrMetric& g, CoordType type)
+CoordinateHelper::CoordinateHelper(const KerrMetric& g, CoordType type)
         : metric(g), currentType(type) {}
 
-void CoordinateSystem::setType(CoordType type) { currentType = type; }
+void CoordinateHelper::setType(CoordType type) { currentType = type; }
 
-std::string CoordinateSystem::typeName() const {
+std::string CoordinateHelper::typeName() const {
     switch (currentType) {
         case CoordType::BoyerLindquist: return "BoyerLindquist";
         case CoordType::IngoingKerr:    return "IngoingKerr";
@@ -29,7 +29,7 @@ std::string CoordinateSystem::typeName() const {
 }
 
 // Analytic expression for r_*(r) from Poisson's toolkit pp. 193
-Real CoordinateSystem::rStar_(Real r) const {
+Real CoordinateHelper::rStar_(Real r) const {
     Real M = metric.M();
     Real a = metric.a();
     Real r_plus  = metric.r_plus(); // M + sqrt(M*M-a*a);
@@ -43,7 +43,7 @@ Real CoordinateSystem::rStar_(Real r) const {
 }
 
 // Analytic expression for phi_sharp(r) from Poisson's toolkit pp. 193
-Real CoordinateSystem::phiSharp_(Real r) const {
+Real CoordinateHelper::phiSharp_(Real r) const {
     Real M = metric.M();
     Real a = metric.a();
     Real r_plus  = metric.r_plus(); // M + sqrt(M*M-a*a);
@@ -54,14 +54,14 @@ Real CoordinateSystem::phiSharp_(Real r) const {
     return (a/(2.*rpm_diff)) * log(abs((r-r_plus)/(r-r_minus)));
 }
 
-Real CoordinateSystem::sigma_from_r_(Real r) const {
+Real CoordinateHelper::sigma_from_r_(Real r) const {
     return metric.lambda_C()/r;
 }
-Real CoordinateSystem::r_from_sigma(Real r) const {
+Real CoordinateHelper::r_from_sigma(Real r) const {
     return r/metric.lambda_C();
 }
 
-Real CoordinateSystem::height_(Real sigma) const {
+Real CoordinateHelper::height_(Real sigma) const {
     // minimal gauge
     Real M = metric.M();
     Real lambda = metric.lambda_C();
@@ -71,14 +71,14 @@ Real CoordinateSystem::height_(Real sigma) const {
     return -2.0*rho0*(1.0/sigma-2.0*mu*Log(sigma)/rho0);
 }
 
-Real CoordinateSystem::Omeg_comf(teuk::Real sigma) const {
+Real CoordinateHelper::Omeg_comf(teuk::Real sigma) const {
     Real lambda = metric.r_plus();
     return sigma/lambda;
 }
 // ---------------------------
 // Transformation definitions
 // ---------------------------
-IngoingCoords CoordinateSystem::bl_to_ingoing(const BLCoords& bl) const {
+IngoingCoords CoordinateHelper::bl_to_ingoing(const BLCoords& bl) const {
     // convert from bl to ingoing
 
     Real t = bl.x0;
@@ -94,7 +94,7 @@ IngoingCoords CoordinateSystem::bl_to_ingoing(const BLCoords& bl) const {
     return {v_in, r_in, th_in, ph_in};
 }
 
-OutgoingCoords CoordinateSystem::bl_to_outgoing(const BLCoords& bl) const {
+OutgoingCoords CoordinateHelper::bl_to_outgoing(const BLCoords& bl) const {
     // convert from bl to outgoing
     Real u_out  = bl.x0 - rStar_(bl.x1);
     Real r_out = bl.x1;
@@ -104,7 +104,7 @@ OutgoingCoords CoordinateSystem::bl_to_outgoing(const BLCoords& bl) const {
     return {u_out, r_out, z_out, ph_out};
 }
 
-BLCoords CoordinateSystem::ingoing_to_bl(const IngoingCoords &in) const {
+BLCoords CoordinateHelper::ingoing_to_bl(const IngoingCoords &in) const {
     // convert from ingoing to bl
     Real t_bl  = in.x0 - rStar_(in.x1);
     Real r_bl = in.x1;
@@ -113,7 +113,7 @@ BLCoords CoordinateSystem::ingoing_to_bl(const IngoingCoords &in) const {
     return { t_bl, r_bl, th_bl, ph_bl };
 }
 
-[[maybe_unused]] BLCoords CoordinateSystem::outgoing_to_bl(const OutgoingCoords &out) const {
+[[maybe_unused]] BLCoords CoordinateHelper::outgoing_to_bl(const OutgoingCoords &out) const {
     // convert from outgoing to bl
     Real t_bl  = out.x0 + rStar_(out.x1);
     Real r_bl = out.x1;

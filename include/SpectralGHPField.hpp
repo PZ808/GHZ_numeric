@@ -265,56 +265,5 @@ namespace spectral {
         }
     };
 
-// -----------------------------------------------------------------------------
-// SpectralDiffer: operates on Z-slices for a given block (fixed w,m)
-// -----------------------------------------------------------------------------
-    class SpectralDiffer {
-    private:
-        int Nz_;                       // Number of LGL nodes (theta)
-        bool use_fast_double_fft_;      // Whether to use double FFT
-
-        std::vector<Real> z_;           // LGL nodes [-1,1]
-        std::vector<Real> w_;           // LGL quadrature weights
-        matrix<Real> D_;                // Legendre differentiation matrix
-
-    public:
-        // Constructor: build nodes, weights, differentiation matrix
-        SpectralDiffer(int Nz, bool use_fast_double_fft = true)
-                : Nz_(Nz), use_fast_double_fft_(use_fast_double_fft) {
-            z_ = build_legendre_gauss_lobatto_nodes(Nz_); // generate nodes z[i]
-            w_ = build_barycentric_weights();
-            D_ = build_legendre_diff_matrix(z_);
-        }
-
-        // Getters
-        const std::vector<Real> &nodes() const { return z_; }
-        const std::vector<Real> &weights() const { return w_; }
-        const matrix<Real> &Dmatrix() const { return D_; }
-
-        // Barycentric utilities (declare; implement elsewhere or below)
-        std::vector<Real> build_barycentric_weights() const;
-        std::pair<Complex, Complex> barycentric_interp_and_derivative(
-                const std::vector<Complex> &f, const std::vector<Real> &w, Real z0) const;
-
-        static std::pair<Real, Real> legendre_P_and_dP(int n, Real x);
-        static std::vector<Real> build_legendre_gauss_lobatto_nodes(int N);
-        static matrix<Real> build_legendre_diff_matrix(const std::vector<Real> &x);
-
-        // dz on a single ZSlice (in-place into df_dz)
-        void dz_Dmatrix(const GHPSpectralField::ZSlice &f, GHPSpectralField::ZSlice &df_dz) const;
-        GHPSpectralField::ZSlice dz_barycentric(const GHPSpectralField::ZSlice &f, GHPSpectralField::ZSlice &df_dz,
-                                                const std::vector<Real> &w) const;
-
-        // d/dphi for a single slice
-        void dphi_fft_single_m(const GHPSpectralField::ZSlice &f_slice,
-                               GHPSpectralField::ZSlice &df_dphi_slice) const;
-
-        // edth operator on a single slice -> returns a new ZSlice-owned buffer (or you can provide out)
-        GHPSpectralField::ZSlice edth(const GHPSpectralField::ZSlice &f) const;
-
-
-        void dphi_fft_single_w(const GHPSpectralField::ZSlice &f_slice, GHPSpectralField::ZSlice &df_dphi_slice) const;
-    };
-
 }
 #endif // SPECTRAL_GHPFIELD_HPP

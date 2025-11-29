@@ -4,6 +4,7 @@
 
 #include "../include/GHPScalars.hpp"
 
+
 SpinCoefficientsGHP::SpinCoefficientsGHP(const SpinCoefficients &sc_np) {
     // initialize weights according to GHP convention (p,q)
     // (using Held’s sign conventions)
@@ -24,4 +25,14 @@ SpinCoefficientsGHP::SpinCoefficientsGHP(const SpinCoefficients &sc_np) {
     betap = -sc_np.get(SCT::alpha);
     epsilon = sc_np.get(SCT::epsilon);
     epsilonp = -sc_np.get(SCT::gamma);
+}
+
+void GHPCoefficients::set(GHPCoefficientType type, GHPScalar<Complex> value) {
+    coeffs[type] = value;
+}
+
+GHPScalar<Complex> GHPCoefficients::get(GHPCoefficientType type) const {
+    auto it = coeffs.find(type);
+    if (it != coeffs.end()) return it->second;
+    return GHPScalar(teuk::zeroC,0,0);
 }

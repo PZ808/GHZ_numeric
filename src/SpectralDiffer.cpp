@@ -7,6 +7,7 @@
 
 #include "../include/GHPScalars.hpp"
 #include "../include/SpectralGHPField.hpp"
+#include "../include/SpectralDiffer.hpp"
 #include "../include/HeldScalars.hpp"
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
@@ -147,7 +148,19 @@ namespace spectral {
 
         return df_dz;
     }
-/**
+    vector<Real> SpectralDiffer::build_chebyshev_lobatto_nodes(int N) {
+        vector<Real> x(N);
+
+        // Chebyshev–nodes of the second kind:
+        // x_j = cos(pi * j / (N - 1))
+        for (int j = 0; j < N; ++j)
+            x[j] = Real( -cos(M_PI * Real(j) / Real(N - teuk::one)) );
+
+        return x;
+    }
+
+
+    /**
  * @name legendre_P_and_dP
  * @param n  Polynomial degree (n ≥ 0).
  * @param x  Evaluation point.
@@ -338,11 +351,111 @@ namespace spectral {
         GHPScalar<Complex> m_scalar(Complex(f.m(), teuk::zero), 0, 0);
         // compute derivative
         for(int i = 0; i < Nz_; ++i) {
-            Real z = nodes()[i];
+            Real z = lgl_nodes()[i];
             Real factor = sqrt(1.0 - z*z);
             df_eth[i]= -factor * df[i] - m_scalar * f[i] ;
         }
         return df;
+    }
+/**
+   * @brief Differentiation along z using the precomputed D-matrix.
+    *
+    * df_dz[i] = sum_j D_[i,j] * f[j]
+    */
+    inline void SpectralDiffer::dz_Dmatrix_slice(const std::span<GHPScalar<Complex>>& f_slice,
+                                                 std::span<GHPScalar<Complex>>& df_dz) const
+    {
+        if (f_slice.size() != static_cast<size_t>(Nz_) || df_dz.size() != static_cast<size_t>(Nz_))
+            throw std::runtime_error("Slice size mismatch in dz_Dmatrix");
+
+#pragma omp parallel for
+        for (int i = 0; i < Nz_; ++i) {
+            Complex sum = Complex(0.0, 0.0);
+            for (int j = 0; j < Nz_; ++j)
+                sum += D_(i,j) * f_slice[j].value();
+            df_dz[i].value() = sum;
+            // Spin weights remain unchanged
+        }
+    }
+/**
+ * @brief Differentiation using barycentric formula.
+ *
+ * df_dz[i] = sum_{j != i} w[j] / w[i] / (z[i]-z[j]) * (f[j]-f[i])
+ */
+    inline void SpectralDiffer::dz_barycentric_slice(const std::span<GHPScalar<Complex>>& f_slice,
+                                               std::span<GHPScalar<Complex>>& df_dz,
+                                               const std::vector<Real>& w) const
+    {
+        if (f_slice.size() != static_cast<size_t>(Nz_) || df_dz.size() != static_cast<size_t>(Nz_))
+            throw std::runtime_error("Slice size mismatch in dz_barycentric");
+
+#pragma omp parallel for
+        for (int i = 0; i < Nz_; ++i) {
+            Complex sum = Complex(0.0,0.0);
+            for (int j = 0; j < Nz_; ++j) {
+                if (i == j) continue;
+                sum += w[j] / w[i] * (f_slice[j].value() - f_slice[i].value()) / (z_[i] - z_[j]);
+            }
+            df_dz[i].value() = sum;
+        }
+    }
+
+/**
+ * @brief FFT-based derivative along phi for a single m-mode.
+ *
+ * This is a placeholder: the actual implementation depends on your
+ * FFT library (FFTW, MKL, etc.).
+ */
+    inline void SpectralDiffer::dphi_fft_single_m_slice(const std::span<GHPScalar<Complex>>& f_slice,
+                                                  std::span<GHPScalar<Complex>>& df_dphi_slice,
+                                                  const int& m) const
+    {
+        if (f_slice.size() != df_dphi_slice.size())
+            throw std::runtime_error("Slice size mismatch in dphi_fft_single_m");
+
+        // Example: assume f_slice is already Fourier transformed, multiply by i*m
+        int Nz_local = static_cast<int>(f_slice.size());
+#pragma omp parallel for
+        for (int i = 0; i < Nz_local; ++i) {
+            df_dphi_slice[i].value() = Complex(0,1) * f_slice[i].value() * static_cast<Real>(m);
+        }
+    }
+
+    inline void SpectralDiffer::dphi_fft_single_w_slice(const std::span<GHPScalar<Complex>>& f_slice,
+                                                  std::span<GHPScalar<Complex>>& df_dphi_slice,
+                                                  const int &w) const
+    {
+        // Same as above; could include w-dependent scaling if needed
+        dphi_fft_single_m_slice(f_slice, df_dphi_slice, -w);
+    }
+
+/**
+ * @brief Apply edth operator to a single slice (eth = dz + i*dphi).
+ *
+ * Returns a new vector with the result.
+ */
+    inline std::vector<GHPScalar<Complex>> SpectralDiffer::edth_slice(
+            const std::span<GHPScalar<Complex>>& f_slice, int m) const
+    {
+        std::vector<GHPScalar<Complex>> out(f_slice.size(),
+                                            GHPScalar<Complex>(Complex(0,0),
+                                                               f_slice[0].p()+1,
+                                                               f_slice[0].q()-1));
+
+        std::vector<GHPScalar<Complex>> df_dz(f_slice.size(), GHPScalar<Complex>(Complex(0,0), 0, 0));
+        auto df_dz_span = std::span(df_dz.data(), df_dz.size());
+        dz_Dmatrix_slice(f_slice, df_dz_span);
+
+        std::vector<GHPScalar<Complex>> df_dphi(f_slice.size(), GHPScalar<Complex>(Complex(0,0), 0, 0));
+        auto df_dphi_span = std::span(df_dphi.data(), df_dphi.size());
+        dphi_fft_single_m_slice(f_slice, df_dphi_span, m);
+
+#pragma omp parallel for
+        for (size_t i = 0; i < f_slice.size(); ++i) {
+            out[i].value() = df_dz[i].value() + Complex(0,1) * df_dphi[i].value();
+        }
+
+        return out;
     }
 
 

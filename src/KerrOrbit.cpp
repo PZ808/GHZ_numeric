@@ -3,29 +3,56 @@
 //
 #include "../include/KerrMetric.hpp"
 #include "../include/KerrOrbit.hpp"
-#include "../include/EllipticIntegrals.hpp"
+#include "../include/Splines.hpp"
+#include "../include/Coords.hpp"
 #include <fftw3.h>
 
 
+void ghz::KerrBoundOrbit::init() {
+    // workflow to get the orbital data
+    compute_torus_frequencies(); // compute Upsilons and Omega (avg frequencies in mino and BL time)
+    compute_frequencies(); // compute initial frequencies f_t, f_phi, f_r, f_z where f = d\psi/d\lambda
+    sample_frequencies_for_fft(Nr_, Nz_);
+    compute_q_grids_from_samples(Nr_, Nz_, qr_vals, qz_vals); // fill the q grid values
+    sample_T_and_Phi_for_fft(Nr_, Nz_);
+    sample_frequencies_for_fft(Nr_, Nz_);
+    compute_Deltas(Nr_, Nz_);
+
+    // build periodic splines
+    build_splines();
+}
+
+//  evaluate orbit at Mino time lambda
+BLCoords ghz::KerrBoundOrbit::eval_at_Mino(const Real& lambda) const {
+    // linear torus angles
+    Real q_r = torus_freqs_.Ups_r * lambda;
+    Real q_z = torus_freqs_.Ups_z * lambda;
+    // total phases
+    Real psi_r = interp_psi_r.eval(q_r) + interp_dpsi_r.eval(q_r);
+    Real psi_z = interp_psi_z.eval(q_z) + interp_dpsi_z.eval(q_z);
+
+    return BLCoords{torus_freqs_.Omega_t*lambda+interp_t_r.eval(q_r)+interp_t_z.eval(q_z),
+                    p_*M_/(1.0L+e_*cos(psi_r)),
+                    acos(zmax_*cos(psi_z)),
+                    torus_freqs_.Omega_phi*lambda+interp_phi_r.eval(q_r)+interp_phi_z.eval(q_z)
+    };
+}
 
 void ghz::KerrBoundOrbit::set_constants_of_motion() {
+
     auto dets = computeDeterminants_(rp_, ra_);
 
-    const Real one = teuk::one;
-    const Real two = teuk::two;
-
-    Real E2numer = Real(2.0)*dets.dg*dets.gh - dets.dh*dets.hf
-                   - Real(2.0)*chi_*sqrt(
-            math::sqr(dets.dg*dets.gh)+dets.hd*dets.dg*dets.gh*dets.hf+dets.hd*dets.dh*dets.hg*dets.gf
-    );
+    Real E2numer = two*dets.dg*dets.gh - dets.dh*dets.hf -two*chi_*sqrt(
+            math::sqr(dets.dg*dets.gh)+dets.hd*dets.dg*dets.gh*dets.hf+dets.hd*dets.dh*dets.hg*dets.gf );
     Real E2denom = math::sqr(dets.fh) + Real(4.0)*dets.fg*dets.gh;
     E2_ = E2numer/E2denom;
     E_ = sqrt(E2_);
 
-    Lz_ = g_(rp_)*gKerr.M()*E_/h_(rp_) + gKerr.M()*chi_*math::sqr(
-            math::sqr(g_(rp_)/h_(rp_))*E2_ + (f_(rp_)*E2_-d_(rp_))/h_(rp_)
-    );
-    gamma_ = teuk::one-E2_;
+    Lz_ = g_(rp_)*gKerr.M()*E_/h_(rp_) + gKerr.M()*chi_ *
+            math::sqr(
+                    math::sqr(g_(rp_)/h_(rp_))*E2_ + (f_(rp_)*E2_-d_(rp_))/h_(rp_)
+            );
+    gamma_ = one-E2_;
     Q_ = (zmax_*zmax_) * (
             math::sqr(gKerr.a())*gamma_ + math::sqr(Lz_/cos(inc_))
     );
@@ -147,7 +174,7 @@ void ghz::KerrBoundOrbit::compute_frequencies() {
  *
  * - updates the private internal action angles q_alpha = Upsilon_alpha * lambda + q_alpha^0
  */
-void ghz::KerrBoundOrbit::update_q_angles(ghz::Real mino_time_param) {
+void ghz::KerrBoundOrbit::update_q_angles(ghz::Real const& mino_time_param) {
     torus_angles_.q_r = torus_angles_.q_r + torus_freqs_.Omega_r*mino_time_param;
     torus_angles_.q_z = torus_angles_.q_z + torus_freqs_.Omega_z*mino_time_param;
     torus_angles_.q_t = torus_angles_.q_t + torus_freqs_.Omega_t*mino_time_param;
@@ -224,7 +251,6 @@ void ghz::KerrBoundOrbit::sample_frequencies_for_fft(size_t Nr, size_t Nz) {
     phases_.psi_z = psi_z_saved;
 }
 
-
 // Input: f_r[i] and f_z[j] extracted from f_samples_
 // Output: q_r_uniform[i] and q_z_uniform[j] ∈ [0,2π)
 
@@ -232,20 +258,23 @@ void ghz::KerrBoundOrbit::compute_q_from_psi(const std::vector<Real>& f, std::ve
     size_t N = f.size();
 
     std::vector<Real> invf(N), cum(N+1,0.0L);
-    for (size_t i=0;i<N;i++) invf[i] = 1.0L / f[i];
+    for (size_t i=0;i<N;i++)
+        invf[i] = 1.0L / f[i]; //  invf tells how much affine parameter λ changes per unit ψ
 
-    // cumulative integral
+    // cumulative integral cum = the cumulative λ along the orbit
     for (size_t i=0;i<N;i++){
         Real dpsi = twoPi / N; // because ψ-grid is uniform
         cum[i+1] = cum[i] + 0.5L*(invf[i] + invf[(i+1)%N])*dpsi; // crude trapezoidal rule
+        // Notice the modulo (i+1)%N makes it periodic
     }
     // Normalize to get q = Upsilon * cum, rescaled to [0,2π)
-    Real scale = twoPi / cum[N]; // = Upsilon / <f> automatically
+    Real scale = twoPi / cum[N]; // = Upsilon / <f> automatically since cum[N] is the total "affine length" over one cycle of ψ
     q.resize(N);
-    for (size_t i=0;i<N;i++) q[i] = scale * cum[i]; // set q
+    for (size_t i=0;i<N;i++)
+        q[i] = scale * cum[i]; // set q[i] s.t. it increases uniformly in torus phase advance
 }
 
-void ghz::KerrBoundOrbit::compute_q_grids_from_samples(size_t Nr, size_t Nz,
+void ghz::KerrBoundOrbit::compute_q_grids_from_samples(const size_t& Nr, const size_t& Nz,
                                                        std::vector<Real>& q_r,
                                                        std::vector<Real>& q_z)
 {
@@ -265,7 +294,7 @@ void ghz::KerrBoundOrbit::compute_q_grids_from_samples(size_t Nr, size_t Nz,
         f_z_slice[j] = f_samples_[idx].f_z;
     }
 
-    // Now compute q_r(ψ_r) and q_z(ψ_z) using your function:
+    // Now compute q_r(ψ_r) and q_z(ψ_z)
     compute_q_from_psi(f_r_slice, q_r);
     compute_q_from_psi(f_z_slice, q_z);
 }
@@ -298,46 +327,84 @@ void ghz::KerrBoundOrbit::compute_Delta_and_freq_modes(
         divide by -i (k_r Ω_r) or  - i (k_z Ω_z)
         inverse FFT back
     */
+    using LD = long double;
+    using LC = std::complex<long double>;
 
     size_t N = samples_in.size();
-    const Complex I(0.0L, 1.0L);
 
-    Delta_out.assign(N, Real(0));
-    modes_out.assign(N, Complex(0,0));
+    Delta_out.assign(N, 0);
+    modes_out.assign(N, LC(0,0));
+    const LC Ilc(0, 1);
+
+    //Delta_out.assign(N, Real(0));
+    //modes_out.assign(N, Complex(0,0));
 
     // compute mean
     Complex mean = std::accumulate(samples_in.begin(), samples_in.end(),
-                                   Complex(0.0L,0.0L)) / Real(N);
+                                   Complex(0.,0.)) /Complex(N);
+
 
     std::vector<Complex> osc(N); // osc piece
     // mean subtraction
     for(size_t i=0; i<N;i ++) osc[i] = samples_in[i] - mean;
 
-    std::vector<Complex> raw_modes(N); // FFT modes
+    // Allocate FFTW buffers
+    fftwl_complex* in  = (fftwl_complex*)fftwl_malloc(sizeof(fftwl_complex) * N);
+    fftwl_complex* out = (fftwl_complex*)fftwl_malloc(sizeof(fftwl_complex) * N);
 
-    fftwl_plan plan = fftwl_plan_dft_1d(int(N),
-                                        reinterpret_cast<fftwl_complex*>(osc.data()),
-                                        reinterpret_cast<fftwl_complex*>(raw_modes.data()),
-                                        FFTW_FORWARD, FFTW_ESTIMATE);
-    fftwl_execute(plan);
-    fftwl_destroy_plan(plan);
+// Fill input
+    for(size_t i=0;i<N;i++) {
+        in[i][0] = LD(samples_in[i].real() - mean.real());
+        in[i][1] = LD(samples_in[i].imag() - mean.imag());
+    }
+
+// Create plan
+    fftwl_plan p = fftwl_plan_dft_1d(
+            (int)N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+
+// Execute FFT
+    fftwl_execute(p);
+
+    //std::vector<Complex> raw_modes(N); // FFT modes
+    //fftwl_plan plan = fftwl_plan_dft_1d(int(N), reinterpret_cast<fftwl_complex*>(osc.data()), reinterpret_cast<fftwl_complex*>(raw_modes.data()), FFTW_FORWARD, FFTW_ESTIMATE);
+    //fftwl_execute(plan);
+    //fftwl_destroy_plan(plan);
+
+
     // normalize
-    for(size_t k=0;k<N;k++) modes_out[k] = raw_modes[k] / Complex(N,0.0L);
+    // Copy result
+    for(size_t k=0; k<N; k++) {
+        modes_out[k] = LC(out[k][0], out[k][1])/LD(N);
+    }
+
+    //for(size_t k=0;k<N;k++) modes_out[k] = raw_modes[k];
 
     // construct Δ using *actual* q-grid
     int kmax = int(N/2);
     for(size_t i=0; i<N; i++) {
-        const Real& q = q_grid[i];
-        Complex sum(0.0L,0.0L);
+        const LD& q = (LD)q_grid[i];
+        LC sum(0.0L,0.0L);
 
-        for(int k=1; k<kmax; ++k){
-            Complex kC = Complex((Real)k,0.0L); // cast to appropriate type
-            sum += modes_out[k] * exp(-I*kC*q) / (-I*kC*Omega);
-            sum += conj(modes_out[k]) * exp(I*kC*q) / (I*kC*Omega); // k -> -k
+        for (int k = 1; k < kmax; ++k) {
+
+            LC kC = LC((LD)k, 0.0L);
+
+            // promote FFTW mode to long double
+            LC mk = LC((LD)modes_out[k].real(), (LD)modes_out[k].imag());
+
+            sum += mk * exp(-Ilc * kC * q)
+                   / (-Ilc * kC * (LD)Omega);
+
+            sum += std::conj(mk) * exp(Ilc * kC * q)
+                   / ( Ilc * kC * (LD)Omega);
         }
 
         Delta_out[i] = sum.real();
     }
+    // Cleanup
+    fftwl_destroy_plan(p);
+    fftwl_free(in);
+    fftwl_free(out);
 }
 
 /**
@@ -352,7 +419,7 @@ void ghz::KerrBoundOrbit::compute_Deltas(size_t Nr, size_t Nz)
     std::vector<Complex> slice_r(Nr), slice_t_r(Nr), slice_phi_r(Nr);
     std::vector<Complex> slice_z(Nz), slice_t_z(Nz), slice_phi_z(Nz);
 
-    // radial slice (choose j=0)
+    // radial slice (j=0)
     for (size_t i = 0; i < Nr; ++i) {
         size_t idx = i * Nz + 0; // j=0 slice
         slice_r[i]     = Complex(f_samples_[idx].f_r, 0.0L);
@@ -368,98 +435,25 @@ void ghz::KerrBoundOrbit::compute_Deltas(size_t Nr, size_t Nz)
         slice_phi_z[j] = Complex(f_samples_[idx].f_phi, 0.0L);
     }
 
-    // Prepare outputs (members public)
+    // Prepare outputs
     Delta_psi_r_.resize(Nr); Delta_psi_z_.resize(Nz);
     Delta_t_r_.resize(Nr);   Delta_t_z_.resize(Nz);
     Delta_phi_r_.resize(Nr); Delta_phi_z_.resize(Nz);
 
     // compute radial deltas and freq modes
-    compute_Delta_and_freq_modes(slice_r, qr_vals,  torus_freqs_.Ups_r, Delta_psi_r_, f_modes_.f_r_modes);
-    compute_Delta_and_freq_modes(slice_t_r, qr_vals, torus_freqs_.Ups_r, Delta_t_r_,   f_modes_.t_r_modes);
-    compute_Delta_and_freq_modes(slice_phi_r,qr_vals, torus_freqs_.Omega_r, Delta_phi_r_, f_modes_.phi_r_modes);
+    compute_Delta_and_freq_modes(slice_r, qr_vals, torus_freqs_.Ups_r,
+                                 Delta_psi_r_, f_modes_.f_r_modes);
+    compute_Delta_and_freq_modes(slice_t_r, qr_vals, torus_freqs_.Ups_r,
+                                 Delta_t_r_,   f_modes_.T_r_modes);
+    compute_Delta_and_freq_modes(slice_phi_r,qr_vals, torus_freqs_.Omega_r,
+                                 Delta_phi_r_, f_modes_.Phi_r_modes);
 
     // compute polar deltas and freq modes
-    compute_Delta_and_freq_modes(slice_z, qz_vals,  torus_freqs_.Omega_z, Delta_psi_z_, f_modes_.f_z_modes);
-    compute_Delta_and_freq_modes(slice_t_z, qz_vals, torus_freqs_.Omega_z, Delta_t_z_,   f_modes_.t_z_modes);
-    compute_Delta_and_freq_modes(slice_phi_z, qz_vals, torus_freqs_.Omega_z, Delta_phi_z_, f_modes_.phi_z_modes);
+    compute_Delta_and_freq_modes(slice_z, qz_vals,  torus_freqs_.Omega_z,
+                                 Delta_psi_z_, f_modes_.f_z_modes);
+    compute_Delta_and_freq_modes(slice_t_z, qz_vals, torus_freqs_.Omega_z,
+                                 Delta_t_z_,   f_modes_.T_z_modes);
+    compute_Delta_and_freq_modes(slice_phi_z, qz_vals, torus_freqs_.Omega_z,
+                                 Delta_phi_z_, f_modes_.Phi_z_modes);
 }
 
-
-
-void ghz::KerrBoundOrbit::compute_Delta_psi_rz(size_t Nr, size_t Nz)
-{
-    // FFT input arrays (real -> complex, you can also use complex input directly)
-    // allocate 1D arrays for slices
-    std::vector<Complex> f_r_samples(Nr);
-    std::vector<Complex> f_z_samples(Nz);
-    std::vector<Complex> f_r_modes(Nz);
-    std::vector<Complex> f_z_modes(Nz);
-    // Radial slice (i=0..Nr-1, pick j=0 slice for separable function using flattened index )
-    for (size_t i = 0; i < Nr; ++i) {
-        f_r_samples[i] = Complex(f_samples_[i*Nz].f_r, 0.0);
-    }
-
-// Subtract mean (oscillatory part)
-    Real f_r_mean = 0.0;
-    for (auto &v : f_r_samples) f_r_mean += v.real();
-    f_r_mean /= Nr;
-    for (auto &v : f_r_samples) v -= f_r_mean;
-
-// Polar slice
-    for (size_t j = 0; j < Nz; ++j) {
-        f_z_samples[j] = Complex(f_samples_[j].f_z, 0.0);
-    }
-
-    // Subtract mean (oscillatory part)
-    Real f_z_mean = 0.0;
-    for (auto &v : f_z_samples) f_z_mean += v.real(); // add up all the samples
-    f_z_mean /= Nz; // compute avg.
-    for (auto &v : f_z_samples) v -= f_z_mean; // subtract mean from each sample
-
-    fftwl_plan plan_r = fftwl_plan_dft_1d(Nr,
-                                          reinterpret_cast<fftwl_complex*>(f_r_samples.data()),
-                                          reinterpret_cast<fftwl_complex*>(f_r_modes.data()),
-                                          FFTW_FORWARD, FFTW_ESTIMATE);
-
-    fftwl_plan plan_z = fftwl_plan_dft_1d(Nz,
-                                          reinterpret_cast<fftwl_complex*>(f_z_samples.data()),
-                                          reinterpret_cast<fftwl_complex*>(f_z_modes.data()),
-                                          FFTW_FORWARD, FFTW_ESTIMATE);
-
-// execute plan
-    fftwl_execute(plan_r);
-    fftwl_execute(plan_z);
-// Destroy plans
-    fftwl_destroy_plan(plan_r);
-    fftwl_destroy_plan(plan_z);
-
-    std::vector<Real> delta_psi_r(Nr);
-    std::vector<Real> delta_psi_z(Nz);
-
-// Radial
-    for (size_t i = 0; i < Nr; ++i) {
-        Real q_r = qr_vals[i]; // twoPi * i / Nr;
-        Complex sum = Complex(zero,zero);
-        for (int k = 1; k < Nr/2; ++k) {   // exclude k=0
-            Complex kC = Complex(Real(k),zero);
-            sum += f_r_modes[k] * std::exp(-I*kC*q_r) / (-I*kC*torus_freqs_.Omega_r);
-            sum += std::conj(f_r_modes[k]) * std::exp(I*kC*q_r) / (I*kC*torus_freqs_.Omega_r);
-        }
-        delta_psi_r[i] = sum.real();
-    }
-
-// Polar
-    for (size_t j = 0; j < Nz; ++j) {
-        Real q_z = qz_vals[j]; // twoPi * j / Nz;
-        Complex sum = Complex(zero, zero);
-        for (int k = 1; k < Nz/2; ++k) {
-            Complex kC = Complex(Real(k),0.0);
-            sum += f_z_modes[k] * std::exp(-I*kC*q_z) / (-I*kC*torus_freqs_.Omega_z);
-            sum += std::conj(f_z_modes[k]) * std::exp(I*kC*q_z) / (I*kC*torus_freqs_.Omega_z);
-        }
-        delta_psi_z[j] = sum.real();
-    }
-}
-
-std::vector<Real> ghz::KerrBoundOrbit::get_psi_z() const {
-}
