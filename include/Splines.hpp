@@ -13,7 +13,8 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
-namespace ghz {
+
+namespace orbit {
 
     using Real = teuk::Real;
 
@@ -113,5 +114,5 @@ namespace ghz {
         }
     };
 
-} // namespace ghz
+} // namespace orbit
 #endif //GHZ_NUMERIC_SPLINES_HPP

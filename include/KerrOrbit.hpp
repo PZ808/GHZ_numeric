@@ -12,10 +12,11 @@
 #include "Coords.hpp"
 #include "EllipticIntegrals.hpp"
 #include "Splines.hpp"
+#include <fftw3.h>
 #include <cstddef>
 #include <ranges>
 
-namespace ghz {
+namespace orbit {
 
     using Real = teuk::Real;
     using vectorR = std::vector<Real>;
@@ -101,8 +102,8 @@ namespace ghz {
         Real rp_, ra_;  // apoapsis and periaspsis where R(r) = 0
         Real r3_, r4_;  // remaining roots of R(r) = 0
         Real inc_;      // inclination of the orbit relative to the equatorial plane
-        Real zmax_;     // zmax = \sin(inc) where  \Theta(z) = 0
-        Real z1_, z2_;       // z1 = - zmax
+        Real zmax_, zmin_;   // zmax = \sin(inc) where  \Theta(z) = 0
+        Real z1_, z2_;       // unphysical roots z2 =  zmax
         signed int  chi_;   //  prograde or retrograde
         size_t Nz_, Nr_;
 
@@ -134,8 +135,7 @@ namespace ghz {
 
         // helpers
         inline const Real r3() const {
-            return half*(alpha_+sqrt((math::sqr(alpha_))-Real(4.0)*beta_)) ;
-        }
+            return half*( alpha_+sqrt(math::sqr(alpha_)-Real(4.0)*beta_) ) ; }
         inline const Real r4() const { return beta_/r3(); }
 
         inline const Real d_(Real r) const {
@@ -202,6 +202,17 @@ namespace ghz {
             interp_t_z     = PeriodicSpline(qz_vals, Delta_t_z_);
         }
 
+    protected:
+        fftwl_plan fft_plan_r_{nullptr}; // for Nr
+        fftwl_plan fft_plan_z_{nullptr}; // for Nz
+        fftwl_complex* fft_in_r_{nullptr};
+        fftwl_complex* fft_out_r_{nullptr};
+        fftwl_complex* fft_in_z_{nullptr};
+        fftwl_complex* fft_out_z_{nullptr};
+
+        size_t fft_size_r_{};
+        size_t fft_size_z_{};
+
     public:
 
         // Constructor
@@ -216,22 +227,48 @@ namespace ghz {
          * 4. Construct the oscillating part of phases and the mean angles q(psi)
          */
         KerrBoundOrbit(const KerrMetric& gKerr,
-                       Real p, Real e, Real inc,
+                       Real p, Real e, Real inc, signed int chi,
                        size_t Nr, size_t Nz)
-                : KerrOrbitBase(gKerr), p_(p), e_(e), inc_(inc), Nr_(Nr), Nz_(Nz), psi_r_vals(Nr), psi_z_vals(Nz)
+                : KerrOrbitBase(gKerr),
+                  p_(p), e_(e), inc_(inc), chi_(chi),
+                  Nr_(Nr), Nz_(Nz),
+                  psi_r_vals(Nr), psi_z_vals(Nz)
         {
+            assert((e_ >= 0.0L && e_ < 1.0L) &&
+                   "Error: Eccentricity must be in [0,1) for bound orbits!");
+            assert((inc_ >= 0.0L && inc_ <= M_PI) &&
+                   "Error: Inclination must be in [0, pi]!");
+            assert((std::abs(chi_) == 1) &&
+                   "Error: chi must be +1 (prograde) or -1 (retrograde)!");
+
+            // physical roots and turning points
             // compute turning points in Keplerian parametrization
             zmax_  = abs(sin(inc_));
+            zmin_ = -zmax_;
             z2_ =  zmax_; //  polar turning point
             rp_ = p_ * M_ / (Real(1.0) + e_);  // periapsis radial turning point
             ra_  = p_ * M_/ (Real(1.0) - e_); // apoapsis radial turning point
+
             // set constants of motion
             set_constants_of_motion(); // computes E_, Lz_, Q_, alpha_, beta_, gamma_;
-            r3_ = r3();
-            r4_ = r4();
+
+            // roots (unphysical, but needed for freq computations)
             z1_ = sqrt(Q_/(a_*a_*gamma_*zmax_*zmax_));
 
-            // initialize
+            r3_ = r3();
+            r4_ = r4();
+            assert(r4_ < r3_ && r3_ < rp_ && rp_ < ra_ &&
+                   "Error: Root ordering violation!");
+            assert(z2_ < z1_ &&
+                   "Error: Polar root ordering violation!");
+
+            // print out roots for debugging
+            std::cout << "KerrBoundOrbit initialized with roots: \n"
+                      << " rp = " << rp_ << ", ra = " << ra_
+                      << ", r3 = " << r3_ << ", r4 = " << r4_ << "\n"
+                      << " z1 = " << z1_ << ", z2 = " << z2_ << ", zmax = " << zmax_ << "\n";
+
+            // initialize to periapsis
             torus_angles_ = {0.0, 0.0, 0.0, 0.0};
             phases_ = {0.0, 0.0, 0.0, 0.0};
 
@@ -241,9 +278,22 @@ namespace ghz {
             for (size_t j = 0; j < Nz; ++j)
                 psi_z_vals[j] = 2.0 * M_PI * j / Nz;
 
+            prepare_fft_plans();
+
         } // constructor KerrBoundOrbit
 
+        ~KerrBoundOrbit() {
+            if (fft_plan_r_) fftwl_destroy_plan(fft_plan_r_);
+            if (fft_in_r_)  fftwl_free(fft_in_r_);
+            if (fft_out_r_) fftwl_free(fft_out_r_);
+
+            if (fft_plan_z_) fftwl_destroy_plan(fft_plan_z_);
+            if (fft_in_z_)  fftwl_free(fft_in_z_);
+            if (fft_out_z_) fftwl_free(fft_out_z_);
+        }
         void init();
+        void prepare_fft_plans();
+        void free_fft();                     // cleanup fft
         // -------------------------------------------------
         // Computation methods (symbolic/numerical stubs)
         // -------------------------------------------------
@@ -288,24 +338,23 @@ namespace ghz {
 
 
 
+        void compute_Delta_and_freq_modes_SIMD(const std::vector<Complex> &samples_in,
+                                          const std::vector<Real>& q_grid,
+                                          const Real& Omega,
+                                          std::vector<Real> &Delta_out,
+                                          std::vector<Complex> &modes_out);
+
         void compute_Delta_and_freq_modes(const std::vector<Complex> &samples_in,
                                           const std::vector<Real>& q_grid,
-                                          Real Omega, std::vector<Real> &Delta_out,
+                                          const Real& Omega,
+                                          std::vector<Real> &Delta_out,
                                           std::vector<Complex> &modes_out);
+
+        void export_trajectory_stream(const std::string& filename, const Real& lambda_max,
+                                      const Real& dlambda, size_t output_stride = 1);
 
     };  //  class KerrBoundOrbit
 
-// =====================================================
-//  Circular Orbit specialization (Jr=Jθ=0)
-// =====================================================
-    class KerrCircularEquatorialOrbit : public KerrBoundOrbit {
-    public:
-        explicit KerrCircularEquatorialOrbit(const KerrMetric& gKerr, Real r0)
-                : KerrBoundOrbit(gKerr, r0/gKerr.M(), 0.0, 0.0, 1024, 1024) {
-
-        }
-    };
-
-} // namespace ghz
+} // namespace orbit
 
 #endif //GHZ_NUMERIC_KERRORBIT_HPP
