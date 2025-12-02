@@ -3,11 +3,11 @@
 //
 
 #include "../include/Coords.hpp"
+#include "../include/MathMacros.hpp"
 
 #include <complex>
 #include <cmath>
 #include <sstream>
-#include "../include/MathMacros.hpp"
 
 using math::Sqrt, math::Log, math::Abs;
 using namespace teuk;
@@ -83,15 +83,15 @@ IngoingCoords CoordinateHelper::bl_to_ingoing(const BLCoords& bl) const {
 
     Real t = bl.x0;
     Real r = bl.x1;
-    Real th = bl.x2;
+    Real z = bl.x2;
     Real ph = bl.x3;
 
     Real v_in = t + rStar_(r);
     Real r_in = r;
-    Real th_in = th;
+    Real z_in = z;
     Real ph_in = ph + phiSharp_(r); // optional correction term
 
-    return {v_in, r_in, th_in, ph_in};
+    return {v_in, r_in, z_in, ph_in};
 }
 
 OutgoingCoords CoordinateHelper::bl_to_outgoing(const BLCoords& bl) const {
@@ -108,16 +108,16 @@ BLCoords CoordinateHelper::ingoing_to_bl(const IngoingCoords &in) const {
     // convert from ingoing to bl
     Real t_bl  = in.x0 - rStar_(in.x1);
     Real r_bl = in.x1;
-    Real th_bl = in.x2;
+    Real z_bl = in.x2;
     Real ph_bl = in.x3 - phiSharp_(in.x1);
-    return { t_bl, r_bl, th_bl, ph_bl };
+    return { t_bl, r_bl, z_bl, ph_bl };
 }
 
 [[maybe_unused]] BLCoords CoordinateHelper::outgoing_to_bl(const OutgoingCoords &out) const {
     // convert from outgoing to bl
     Real t_bl  = out.x0 + rStar_(out.x1);
     Real r_bl = out.x1;
-    Real th_bl = acos(out.x2);
+    Real z_bl = acos(out.x2);
     Real ph_bl = out.x3 + phiSharp_(r_bl);
-    return { t_bl, r_bl, th_bl, ph_bl };
+    return { t_bl, r_bl, z_bl, ph_bl };
 }

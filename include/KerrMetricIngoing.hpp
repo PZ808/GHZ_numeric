@@ -19,10 +19,10 @@ private:
 
 public:
     explicit KerrMetricIngoing(const KerrParams& p, const KerrMetric& km);
-    void build(const IngoingCoords Xout);
+    void build_at(const IngoingCoords Xout);
 
-    [[nodiscard]] ghz::SymmetricMatrix4 g(const IngoingCoords Xin) const ;
-    [[nodiscard]] ghz::SymmetricMatrix4 ginv(const IngoingCoords Xin) const ;
+    [[nodiscard]] teuk::SymmetricMatrix4 g(const IngoingCoords Xin) const ;
+    [[nodiscard]] teuk::SymmetricMatrix4 ginv(const IngoingCoords Xin) const ;
 
 };
 

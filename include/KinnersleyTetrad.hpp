@@ -22,7 +22,7 @@ public:
     using Real = teuk::Real;  // or from metric/coords if templated further
 
     // Coordinate-dependent tetrad builder
-    void build_tetrad(const CoordT& X); // builds tetrad at the point X
+    void build_tetrad_at(const CoordT& X); // builds tetrad at the point X
 
     SpinCoefficientsGHP get_spin_coeffs_at(const CoordT& X) const;
     WeylScalars         get_weyl_scalars_at(const CoordT& X) const;
@@ -30,9 +30,8 @@ public:
     Scalars get_scalars_at(const CoordT& X) const;
     SpinCoefficientsGHP get_ghp_scalars_at(const OutgoingCoordsCompact &X) const;
 
-    Complex rho_f(const Real& r, const Real& z) const;
+    Complex rho_at(const Real& r, const Real& z) const;
 };
-
 
 
 #endif //GHZ_NUMERIC_KINNERSLEYTETRAD_HPP

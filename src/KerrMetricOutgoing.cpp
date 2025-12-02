@@ -13,6 +13,7 @@ using namespace  math;
 // Xout = u,r,z,phi_out or compacitified u,sigma, z, phi_out
 //
 KerrMetricOutgoing::KerrMetricOutgoing(const KerrParams& p, const KerrMetric& km) : params(p) , kerr_metric(km) {
+    // set constant params
     M_ = params.M;
     a_ = params.a;
     lambda_ = kerr_metric.lambda_C();
@@ -21,7 +22,7 @@ KerrMetricOutgoing::KerrMetricOutgoing(const KerrParams& p, const KerrMetric& km
 
 // construct local values of the metric in outgoing
 // Kerr coordinates
-void KerrMetricOutgoing::build(const OutgoingCoords Xout) {
+void KerrMetricOutgoing::build_at(const OutgoingCoords Xout) {
     del_= kerr_metric.Delta(Xout.x1);
     sig_ = sqr(Xout.x1)+sqr(a_*Xout.x2);
     s2_ = one-sqr(Xout.x2);
@@ -48,7 +49,7 @@ void KerrMetricOutgoing::build_compact(const OutgoingCoordsCompact Xout_C) {
     s1_ = sqrt(s1_);
 }
 // metric g in outgoing coordinates
-ghz::SymmetricMatrix4 KerrMetricOutgoing::g(const OutgoingCoords Xout) const {
+teuk::SymmetricMatrix4 KerrMetricOutgoing::g(const OutgoingCoords Xout) const {
     Real r = Xout.x1;
 
     Real g_uu   = (one-two*M_*r/sig_);
@@ -61,7 +62,7 @@ ghz::SymmetricMatrix4 KerrMetricOutgoing::g(const OutgoingCoords Xout) const {
     return { g_uu, g_ur, 0.0, g_uph, 0.0, 0.0, g_rph, g_zz, 0.0, g_phph };
 }
 // conformal metric in compactified outgoing coordinates
-ghz::SymmetricMatrix4 KerrMetricOutgoing::g_tilde(const OutgoingCoordsCompact Xout_C) const {
+teuk::SymmetricMatrix4 KerrMetricOutgoing::g_tilde(const OutgoingCoordsCompact Xout_C) const {
     Real sigma = Xout_C.x1;
     Real r_of_sig = lambda_*rho0_/sigma;
     Real r = r_of_sig;
@@ -76,7 +77,7 @@ ghz::SymmetricMatrix4 KerrMetricOutgoing::g_tilde(const OutgoingCoordsCompact Xo
     return { g_uu, g_us, 0.0, g_uph, 0.0, 0.0, g_sph, g_zz, 0.0, g_phph }  ;
 }
 
-ghz::SymmetricMatrix4 KerrMetricOutgoing::ginv(const OutgoingCoords Xout) const {
+teuk::SymmetricMatrix4 KerrMetricOutgoing::ginv(const OutgoingCoords Xout) const {
     Real r = Xout.x1;
     Real z = Xout.x2;
 

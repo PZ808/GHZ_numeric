@@ -46,11 +46,11 @@ public:
 
     /// Precompute all BL-dependent quantities at a point.
     /// Must be called before g(), ginv(), rho() with the same coordinates.
-    void build(const BLCoords Xbl);
+    void build_at(const BLCoords Xbl);
 
-    [[nodiscard]] ghz::SymmetricMatrix4 g(const BLCoords Xbl) const; // metric components g_{\mu\nu}
-    [[nodiscard]] ghz::SymmetricMatrix4 ginv(const BLCoords Xbl) const; // inverse metric components g^{\mu\nu}
-    [[nodiscard]] ghz::Complex rho(const Real &r, const Real& z) const; // Newman–Penrose quantity rho(r,z) in BL coords
+    [[nodiscard]] teuk::SymmetricMatrix4 g(const BLCoords Xbl) const; // metric components g_{\mu\nu}
+    [[nodiscard]] teuk::SymmetricMatrix4 ginv(const BLCoords Xbl) const; // inverse metric components g^{\mu\nu}
+    [[nodiscard]] teuk::Complex rho(const Real &r, const Real& z) const; // Newman–Penrose quantity rho(r,z) in BL coords
 };
 
 #endif //  //GHZ_NUMERIC_KERRMETRICBL_HPP

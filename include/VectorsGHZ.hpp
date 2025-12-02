@@ -6,16 +6,12 @@
 #define GHZ_NUMERIC_VECTORSGHZ_HPP
 
 #pragma once
-#ifndef GHZ_NUMERIC_VECTORS_HPP
-#define GHZ_NUMERIC_VECTORS_HPP
 
 #include "GhzTypes.hpp"
 #include <array>
 #include <cassert>
 
-namespace ghz {
-    using teuk::Real;
-    using teuk::Complex;
+namespace teuk {
 
     template<std::size_t N, typename ComplexT>
     struct CVectorN {
@@ -54,12 +50,48 @@ namespace ghz {
             return v * s; // reuse above
         }
 
+        // vector + vector
+        friend CVectorN operator+(const CVectorN& a, const CVectorN& b) noexcept {
+            CVectorN out;
+            for (std::size_t i=0; i<N; ++i) out[i] = a[i] + b[i];
+            return out;
+        }
+
+// vector - vector
+        friend CVectorN operator-(const CVectorN& a, const CVectorN& b) noexcept {
+            CVectorN out;
+            for (std::size_t i=0; i<N; ++i) out[i] = a[i] - b[i];
+            return out;
+        }
+
+// in-place +=
+        CVectorN& operator+=(const CVectorN& other) noexcept {
+            for (std::size_t i=0; i<N; ++i) data[i] += other.data[i];
+            return *this;
+        }
+
+// in-place -=
+        CVectorN& operator-=(const CVectorN& other) noexcept {
+            for (std::size_t i=0; i<N; ++i) data[i] -= other.data[i];
+            return *this;
+        }
+
+// in-place scalar *
+        CVectorN& operator*=(const ComplexT& s) noexcept {
+            for (auto& el : data) el *= s;
+            return *this;
+        }
+
+
         // Conjugation
         [[nodiscard]] CVectorN conj() const noexcept {
             CVectorN out;
             for (std::size_t i = 0; i < N; ++i)
                 out.data[i] = std::conj(data[i]);
             return out;
+        }
+        int size() const noexcept {
+            return N;
         }
     };
 
@@ -222,9 +254,6 @@ namespace ghz {
         }
     };
 
-} // namespace ghz
-
-#endif // GHZ_NUMERIC_VECTORS_HPP
-
+} // namespace teuk
 
 #endif //GHZ_NUMERIC_VECTORSGHZ_HPP

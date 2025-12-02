@@ -19,7 +19,7 @@ KerrMetricBL::KerrMetricBL(const KerrParams& p, const KerrMetric& km)
         // No cached values yet
         cache_valid_ = false;
 }
-void KerrMetricBL::build(const BLCoords Xbl) {
+void KerrMetricBL::build_at(const BLCoords Xbl) {
 
 
     // Cache the coordinate point and mark valid
@@ -34,7 +34,7 @@ void KerrMetricBL::build(const BLCoords Xbl) {
     s1_ = sqrt(s1_);
 }
 
-ghz::SymmetricMatrix4 KerrMetricBL::g(const BLCoords Xbl) const {
+teuk::SymmetricMatrix4 KerrMetricBL::g(const BLCoords Xbl) const {
 
     assert(cache_valid_ && "KerrMetricBL::g() called before build()");
     // Kerr BL metric in mostly minus
@@ -52,7 +52,7 @@ ghz::SymmetricMatrix4 KerrMetricBL::g(const BLCoords Xbl) const {
     return { g_tt, 0, 0, g_tphi, g_rr, 0, 0, g_zz, 0, g_phiphi };
 }
 
-ghz::SymmetricMatrix4 KerrMetricBL::ginv(const BLCoords Xbl) const {
+teuk::SymmetricMatrix4 KerrMetricBL::ginv(const BLCoords Xbl) const {
 
     assert(cache_valid_ && "KerrMetricBL::g() called before build()");
 

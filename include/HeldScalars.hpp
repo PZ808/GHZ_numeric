@@ -141,19 +141,20 @@ namespace ghp {
     template<typename TetradType, typename CoordType>
     HeldBackgroundFieldsVectorized build_held_fields_vectorized(TetradType &tetrad,
                                                                 const std::span<const teuk::Real> z_nodes,
-                                                                CoordType &X) {
+                                                                CoordType &X)
+    {
         const int Nz = static_cast<int>(z_nodes.size());
         HeldBackgroundFieldsVectorized held_fields(Nz);
 
         // Use OpenMP to parallelize over z-nodes
-#pragma omp parallel for
+#pragma omp parallel for default(none) firstprivate(tetrad, X, Nz) shared(z_nodes, held_fields)
         for (int iz = 0; iz < Nz; ++iz) {
+
             CoordType X_local = X;   // make a local copy for thread safety
+            TetradType tetrad_local = tetrad; // copy tetrad for this thread
             X_local.x2 = z_nodes[iz]; // set current z to collocation point
-
-            tetrad.build_tetrad(X_local);   // build tetrad at this point
-
-            auto scalars = tetrad.get_scalars_at(X_local); // get all scalars
+            tetrad_local.build_tetrad_at(X_local);   // build tetrad at this point
+            auto scalars = tetrad_local.get_scalars_at(X_local); // get all scalars
 
             // assign directly to HeldFieldVectorized
             held_fields.rhopH(iz) = scalars.held_scalars.rhopH;

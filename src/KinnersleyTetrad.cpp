@@ -12,12 +12,20 @@ using namespace math;
 using namespace teuk::literals;
 
 template <>
-Complex KinnersleyTetrad<OutgoingCoords>::rho_f(const Real&  r, const Real& z) const {
+Complex KinnersleyTetrad<OutgoingCoords>::rho_at(const Real&  r, const Real& z) const {
+    return -1.0_r/(r-I*z);
+}
+template <>
+Complex KinnersleyTetrad<IngoingCoords>::rho_at(const Real&  r, const Real& z) const {
+    return -1.0_r/(r-I*z);
+}
+template <>
+Complex KinnersleyTetrad<BLCoords>::rho_at(const Real&  r, const Real& z) const {
     return -1.0_r/(r-I*z);
 }
 
 template <>
-void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
+void KinnersleyTetrad<BLCoords>::build_tetrad_at(const BLCoords& Xbl) {
 
     using teuk::I;
     using namespace teuk::literals;
@@ -27,33 +35,37 @@ void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
     cache_valid_ = true;
 
     Real r = Xbl.x1;
-    Real theta = Xbl.x2;
+    Real z = Xbl.x2; // z = \cos\theta
 
     Real a = metric.a();
     Real M = metric.M();
     Real del = metric.Delta(r);
-    Real sig = metric.Sigma(r, theta);
+    Real sig = metric.Sigma_z(r,z);
+    Real s1 = math::Sqrt(1.0_r - z*z); // sin(th)
+    Real s2 = 1.0_r - z*z; // sin^2(th)
 
     // ... compute tetrad members ...
     // l.n = 1, m.mbar = -1
     l = { (r*r + a*a)/del, 1.0_r, 0.0_r, a/del }; // contravariant vector
     n = { (r*r + a*a)/(2.0_r*sig), -del/(2.0_r*sig), 0.0_r, a/(2.0_r*sig) };
-    auto common = 1.0_r / (sqrt(2.0_r)*(r + I*a*cos(theta)));
-    m = ghz::CVector4{ I*a*math::Sin(theta), 0.0_r, 1.0_r, I/math::Sin(theta) } * common;
+    auto common = 1.0_r / (sqrt(2.0_r)*(r + I*a*z));
+
+    m = teuk::CVector4{I*a*s1, 0.0_r, -s1, I/s1} * common;
     mbar = m.conj();
 
     // Analytic spin coefficients
-    Complex rho = -1.0_r/(r - I*a*cos(theta));
+    Complex rho = -1.0_r/(r-I*a*z);
     Complex rhobar = std::conj(rho);
 
     // Kinnersley tetrad BL values taken from Teukolsky Eq. (4.5)
     sc.set(SpinCoeffType::rho, rho);
     sc.set(SpinCoeffType::mu, rhobar*sqr(rho)*del/2.0_r);
-    sc.set(SpinCoeffType::tau, -I*a*math::Sin(theta)*rho*rhobar/math::Sqrt(2.0_r));
-    sc.set(SpinCoeffType::pi, I*a*math::Sin(theta)*rho*rho/math::Sqrt(2.0_r));
+    sc.set(SpinCoeffType::tau, -I*a*s1*rho*rhobar/math::Sqrt(2.0_r));
+    sc.set(SpinCoeffType::pi, I*a*s1*rho*rho/math::Sqrt(2.0_r));
     sc.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu)+ rho*rhobar*(r-M)/2.0_r);
-    sc.set(SpinCoeffType::beta, -rhobar*math::Cos(theta)/(two*math::Sin(theta)*math::Sqrt(two)) );
-    sc.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta)) + sc.get(SpinCoeffType::pi));
+    sc.set(SpinCoeffType::beta, -rhobar*z/(two*s1*math::Sqrt(two)) );
+    sc.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta))
+                                            + sc.get(SpinCoeffType::pi));
 
     sc.set(SpinCoeffType::kappa, teuk::zeroC);
     sc.set(SpinCoeffType::sigma, teuk::zeroC);
@@ -73,7 +85,7 @@ void KinnersleyTetrad<BLCoords>::build_tetrad(const BLCoords& Xbl) {
 }
 
 template <>
-void KinnersleyTetrad<OutgoingCoords>::build_tetrad(const OutgoingCoords & Xout) {
+void KinnersleyTetrad<OutgoingCoords>::build_tetrad_at(const OutgoingCoords & Xout) {
 
     using teuk::I;
     using namespace teuk::literals;
@@ -99,7 +111,7 @@ void KinnersleyTetrad<OutgoingCoords>::build_tetrad(const OutgoingCoords & Xout)
     n = { (r*r + a*a)/sig, -del/(2.0*sig), 0.0, a/sig };
 
     auto common = 1.0_r / (sqrt(2.0_r)*(r + I*a*z));
-    m = ghz::CVector4{ I*a*s1, 0.0_r, -s1 , I/s1 } * common;
+    m = teuk::CVector4{I * a * s1, 0.0_r, -s1 , I / s1 } * common;
     mbar = m.conj();
 
     Complex rho = -1.0_r/(r-I*a*z);
@@ -132,7 +144,7 @@ void KinnersleyTetrad<OutgoingCoords>::build_tetrad(const OutgoingCoords & Xout)
 }
 
 template <>
-void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsCompact &Xout_C) {
+void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad_at(const OutgoingCoordsCompact &Xout_C) {
 
     using teuk::I;
     using namespace teuk::literals;
@@ -167,7 +179,7 @@ void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad(const OutgoingCoordsC
     n = n * sqr(Om_C); //
 
     auto common = 1.0_r / (math::Sqrt(2.0_r)*(r + I*a*z));
-    m = ghz::CVector4{ I*a*s1, teuk::zeroC, -s1 , I/s1 } * common;
+    m = teuk::CVector4{I * a * s1, teuk::zeroC, -s1 , I / s1 } * common;
     mbar = m.conj();
 
 
@@ -263,7 +275,16 @@ Tetrad::Scalars KinnersleyTetrad<OutgoingCoords>::get_scalars_at(
 
     assert(cache_valid_ && "KinnersleyTetrad: build() must be called first");
     assert(X_cached_.has_value());
-    assert(*X_cached_ == Xout && "Mismatch: tetrad cached at different coordinates");
+    if (!(*X_cached_ == Xout)) {
+        std::cerr << "Mismatch in coordinates:\n";
+        std::cerr << "Cached: " << X_cached_->x0 << ", " << X_cached_->x1
+                  << ", " << X_cached_->x2 << ", " << X_cached_->x3 << "\n";
+        std::cerr << "Current: " << Xout.x0 << ", " << Xout.x1
+                  << ", " << Xout.x2 << ", " << Xout.x3 << "\n";
+        assert(false && "Mismatch: tetrad cached at different coordinates");
+    }
+
+ //   assert(*X_cached_ == Xout && "Mismatch: tetrad cached at different coordinates");
 
     using namespace teuk::literals;
 

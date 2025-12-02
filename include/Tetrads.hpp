@@ -25,8 +25,8 @@ protected:
     const CoordinateHelper& coord_helper;
 
 public:
-    ghz::Vector4 l, n;
-    ghz::CVector4 m, mbar;
+    teuk::Vector4 l, n;
+    teuk::CVector4 m, mbar;
     SpinCoefficients sc;
     SpinCoefficientsGHP sc_ghp;
     HeldCoefficients sc_held;
