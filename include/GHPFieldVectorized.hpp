@@ -248,7 +248,7 @@ namespace ghp {
         GHPFieldVectorized& operator*=(const GHPFieldVectorized& other) {
             if (Nr_ != other.Nr_ || Nz_ != other.Nz_)
                 throw std::runtime_error("Dimension mismatch in operator*=");
-#pragma omp parallel for
+#pragma omp parallel for  default(none) shared(other)
             for (size_type i = 0; i < values_.size(); ++i)
                 values_[i] = values_[i] * other.values_[i];
             p_ += other.p_;

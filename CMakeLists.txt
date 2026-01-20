@@ -12,7 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_C_COMPILER   "/opt/homebrew/opt/llvm@20/bin/clang")
 set(CMAKE_CXX_COMPILER "/opt/homebrew/opt/llvm@20/bin/clang++")
 
-add_compile_definitions(TEUK_PRECISION=4)
+add_compile_definitions(TEUK_PRECISION=2)
 
 # --------------------------
 # Homebrew include and link paths
@@ -84,8 +84,9 @@ add_executable(GHZ_numeric
         include/KerrCharts.hpp
 
         include/SpectralGHPFieldVectorized.hpp
-        include/Splines.hpp
-        )
+        include/Splines.hpp)
+        #include/ODE.hpp
+        #include/Corrector.hpp)
 
 # --------------------------
 # Target include directories

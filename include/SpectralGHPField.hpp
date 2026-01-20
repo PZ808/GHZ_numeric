@@ -148,45 +148,303 @@ namespace spectral {
         // element access
         Scalar &at(int r, int z) { return values_(r, z); }
 
-        const Scalar &at(int r, int z) const { return values_(r, z); }
+        [[nodiscard]] const Scalar &at(int r, int z) const { return values_(r, z); }
 
         //
-        // ZSlice: non-owning view along z for fixed r (for this GHPSpectralField)
+        // RSlice: non-owning view along z for fixed r (for this GHPSpectralField)
         //
-        struct ZSlice {
-            Scalar *data_ptr; // pointer to first z element at this r
+        //
+        struct RSlice {
+            Scalar* data_ptr;   // pointer to first z element at this r
             int Nz_;
             int w_, m_, r_;
 
-            ZSlice(Scalar *ptr = nullptr, int Nz = 0, int w = 0, int m = 0, int r = 0)
-                    : data_ptr(ptr), Nz_(Nz), w_(w), m_(m), r_(r) {}
+            RSlice(Scalar* ptr = nullptr,
+                   int Nz=0,
+                   int w=0,
+                   int m=0,
+                   int r=0)
+                    : data_ptr(ptr), Nz_(Nz), w_(w), m_(m), r_(r)
+            {}
 
+            // ---------------------------------------------------------------------
+            // Basic info
+            // ---------------------------------------------------------------------
             int size() const { return Nz_; }
-            int m() const { return m_; }
             int w() const { return w_; }
+            int m() const { return m_; }
             int r() const { return r_; }
 
-            Scalar &operator[](int i) {
+            // ---------------------------------------------------------------------
+            // Element access
+            // ---------------------------------------------------------------------
+            Scalar& operator[](int i) {
                 assert(data_ptr && i >= 0 && i < Nz_);
                 return data_ptr[i];
             }
 
-            const Scalar &operator[](int i) const {
+            const Scalar& operator[](int i) const {
                 assert(data_ptr && i >= 0 && i < Nz_);
                 return data_ptr[i];
             }
-        }; // ZSlice
 
-        // Return a non-owning ZSlice for fixed r
-        ZSlice slice_z(int r) {
+            // ---------------------------------------------------------------------
+            // Iterator (contiguous memory → true random-access iterator)
+            // ---------------------------------------------------------------------
+            struct iterator {
+                Scalar* ptr;
+
+                using iterator_category = std::random_access_iterator_tag;
+                using value_type        = Scalar;
+                using reference         = Scalar&;
+                using pointer           = Scalar*;
+                using difference_type   = std::ptrdiff_t;
+
+                explicit iterator(Scalar* p = nullptr) : ptr(p) {}
+
+                reference operator*() const { return *ptr; }
+                pointer operator->() const { return ptr; }
+
+                iterator& operator++() { ptr++; return *this; }
+                const iterator operator++(int) { iterator tmp = *this; ptr++; return tmp; }
+
+                iterator& operator--() { ptr--; return *this; }
+                const iterator operator--(int) { iterator tmp = *this; ptr--; return tmp; }
+
+                iterator operator+(difference_type n) const { return iterator(ptr + n); }
+                iterator operator-(difference_type n) const { return iterator(ptr - n); }
+                difference_type operator-(const iterator& other) const { return ptr - other.ptr; }
+
+                bool operator==(const iterator& o) const { return ptr == o.ptr; }
+                bool operator!=(const iterator& o) const { return ptr != o.ptr; }
+                bool operator<(const iterator& o) const { return ptr < o.ptr; }
+                bool operator>(const iterator& o) const { return ptr > o.ptr; }
+                bool operator<=(const iterator& o) const { return ptr <= o.ptr; }
+                bool operator>=(const iterator& o) const { return ptr >= o.ptr; }
+            };
+
+            struct const_iterator {
+                const Scalar* ptr;
+
+                using iterator_category = std::random_access_iterator_tag;
+                using value_type        = Scalar;
+                using reference         = const Scalar&;
+                using pointer           = const Scalar*;
+                using difference_type   = std::ptrdiff_t;
+
+                explicit const_iterator(const Scalar* p = nullptr) : ptr(p) {}
+
+                reference operator*() const { return *ptr; }
+                pointer operator->() const { return ptr; }
+
+                const_iterator& operator++() { ptr++; return *this; }
+                const const_iterator operator++(int) { const_iterator tmp = *this; ptr++; return tmp; }
+
+                const_iterator& operator--() { ptr--; return *this; }
+                const const_iterator operator--(int) { const_iterator tmp = *this; ptr--; return tmp; }
+
+                const_iterator operator+(difference_type n) const { return const_iterator(ptr + n); }
+                const_iterator operator-(difference_type n) const { return const_iterator(ptr - n); }
+                difference_type operator-(const const_iterator& other) const { return ptr - other.ptr; }
+
+                bool operator==(const const_iterator& o) const { return ptr == o.ptr; }
+                bool operator!=(const const_iterator& o) const { return ptr != o.ptr; }
+            };
+
+            // ---------------------------------------------------------------------
+            // begin/end
+            // ---------------------------------------------------------------------
+            iterator begin() { return iterator(data_ptr); }
+            iterator end()   { return iterator(data_ptr + Nz_); }
+
+            const_iterator begin() const { return const_iterator(data_ptr); }
+            const_iterator end()   const { return const_iterator(data_ptr + Nz_); }
+
+            const_iterator cbegin() const { return const_iterator(data_ptr); }
+            const_iterator cend()   const { return const_iterator(data_ptr + Nz_); }
+
+            // ---------------------------------------------------------------------
+            // std::span support (contiguous = allowed!)
+            // ---------------------------------------------------------------------
+            std::span<Scalar> span() {
+                return std::span<Scalar>(data_ptr, Nz_);
+            }
+
+            std::span<const Scalar> span() const {
+                return std::span<const Scalar>(data_ptr, Nz_);
+            }
+
+            // ---------------------------------------------------------------------
+            // Conjugated copy
+            // ---------------------------------------------------------------------
+            RSlice conj() const {
+                RSlice out(data_ptr, Nz_, w_, m_, r_);
+                for (int i = 0; i < Nz_; ++i)
+                    out[i] = this->operator[](i).conj();
+                return out;
+            }
+        }; // RSlice
+
+        struct ConstRSlice {
+            const Scalar* data_ptr;
+            int Nz_, w_, m_, r_;
+
+            const Scalar& operator[](int i) const { return data_ptr[i]; }
+            int size() const { return Nz_; }
+        };
+
+        ConstRSlice slice_r(int r) const {
             auto &row = values_.row_r(r);
-            return ZSlice(row.data(), values_.Nz(), w_, m_, r);
+            return ConstRSlice{row.data(), values_.Nz(), w_, m_, r};
+        }
+        // Return a non-owning RSlice for fixed r
+        RSlice slice_r(int r) {
+            auto &row = values_.row_r(r);
+            return RSlice(row.data(), values_.Nz(), w_, m_, r);
         }
 
         // const version
-        ZSlice slice_z(int r) const {
-            auto &row = values_.row_r(r);
-            return ZSlice(const_cast<Scalar *>(row.data()), values_.Nz(), w_, m_, r);
+        //RSlice slice_r(int r) const {
+        //    auto &row = values_.row_r(r);
+        //    return RSlice(const_cast<Scalar *>(row.data()), values_.Nz(), w_, m_, r);
+        //}
+
+        struct ZSlice {
+            Scalar* data_ptr;    // pointer to element at (0, z)
+            int Nr_;             // number of radial points
+            int Nz_;             // stride in memory (full z dimension)
+            int w_, m_, p_, q_;  // GHP / mode metadata
+            int z_;              // fixed column index
+
+            ZSlice(Scalar* ptr = nullptr,
+                   int Nr = 0, int Nz = 0,
+                   int w = 0, int m = 0, int p = 0, int q = 0,
+                   int z = 0)
+                    : data_ptr(ptr), Nr_(Nr), Nz_(Nz),
+                      w_(w), m_(m), p_(p), q_(q), z_(z)
+            {}
+
+            // --- size & metadata ------------------------------------------------------
+            int size() const { return Nr_; }
+            int m() const { return m_; }
+            int w() const { return w_; }
+            int p() const { return p_; }
+            int q() const { return q_; }
+            int z() const { return z_; }
+
+            // --- element access -------------------------------------------------------
+            Scalar& operator[](int r) {
+                assert(data_ptr && r >= 0 && r < Nr_);
+                return *(data_ptr + r * Nz_);
+            }
+
+            const Scalar& operator[](int r) const {
+                assert(data_ptr && r >= 0 && r < Nr_);
+                return *(data_ptr + r * Nz_);
+            }
+
+            // --- iterator (forward, uses stride) -------------------------------------
+            struct iterator {
+                Scalar* ptr;
+                int stride;
+
+                using iterator_category = std::forward_iterator_tag;
+                using value_type        = Scalar;
+                using difference_type   = std::ptrdiff_t;
+                using pointer           = Scalar*;
+                using reference         = Scalar&;
+
+                iterator(Scalar* p, int s) : ptr(p), stride(s) {}
+
+                reference operator*() const { return *ptr; }
+                pointer operator->() const { return ptr; }
+
+                iterator& operator++() { ptr += stride; return *this; }
+                iterator operator++(int) { iterator tmp = *this; ptr += stride; return tmp; }
+
+                bool operator==(const iterator& other) const { return ptr == other.ptr; }
+                bool operator!=(const iterator& other) const { return ptr != other.ptr; }
+            };
+
+            struct const_iterator {
+                const Scalar* ptr;
+                int stride;
+
+                using iterator_category = std::forward_iterator_tag;
+                using value_type        = Scalar;
+                using difference_type   = std::ptrdiff_t;
+                using pointer           = const Scalar*;
+                using reference         = const Scalar&;
+
+                const_iterator(const Scalar* p, int s) : ptr(p), stride(s) {}
+
+                reference operator*() const { return *ptr; }
+                pointer operator->() const { return ptr; }
+
+                const_iterator& operator++() { ptr += stride; return *this; }
+                const_iterator operator++(int) { const_iterator tmp = *this; ptr += stride; return tmp; }
+
+                bool operator==(const const_iterator& other) const { return ptr == other.ptr; }
+                bool operator!=(const const_iterator& other) const { return ptr != other.ptr; }
+            };
+
+            iterator begin() { return iterator(data_ptr, Nz_); }
+            iterator end()   { return iterator(data_ptr + Nr_ * Nz_, Nz_); }
+
+            const_iterator begin() const { return const_iterator(data_ptr, Nz_); }
+            const_iterator end()   const { return const_iterator(data_ptr + Nr_ * Nz_, Nz_); }
+
+            const_iterator cbegin() const { return begin(); }
+            const_iterator cend()   const { return end(); }
+
+            // --- conj copy ------------------------------------------------------------
+            ZSlice conj() const {
+                ZSlice out(data_ptr, Nr_, Nz_, w_, m_, p_, q_, z_);
+                for (int r = 0; r < Nr_; ++r)
+                    out[r] = this->operator[](r).conj();
+                return out;
+            }
+
+            // === Strided span proxy ==================================================
+            //
+            // True std::span cannot represent strided memory. This helper gives you the
+            // same interface but internally uses the iterator with stride.
+            //
+            struct Span {
+                ZSlice& parent;
+
+                Span(ZSlice& zs) : parent(zs) {}
+
+                int size() const { return parent.size(); }
+                Scalar& operator[](int i) { return parent[i]; }
+                const Scalar& operator[](int i) const { return parent[i]; }
+
+                iterator begin() { return parent.begin(); }
+                iterator end()   { return parent.end(); }
+            };
+
+            struct ConstSpan {
+                const ZSlice& parent;
+
+                ConstSpan(const ZSlice& zs) : parent(zs) {}
+
+                int size() const { return parent.size(); }
+                const Scalar& operator[](int i) const { return parent[i]; }
+
+                const_iterator begin() const { return parent.begin(); }
+                const_iterator end()   const { return parent.end(); }
+            };
+
+            Span span() { return Span(*this); }
+            ConstSpan span() const { return ConstSpan(*this); }
+
+        }; //ZSlice
+
+
+
+        ZSlice slice_z(int z) {
+            Scalar* ptr = &values_(0, z); // pointer to (0,z)
+            return ZSlice(ptr, Nr(), Nz(), w_, m_, p_, q_, z);
         }
 
         // Element-wise operations (mode-to-mode: require same w,m,Nr,Nz)
@@ -266,4 +524,4 @@ namespace spectral {
     };
 
 }
-#endif // SPECTRAL_GHPFIELD_HPP
+#endif // GHZ_NUMERIC_SPECTRALGHPFIELD_HPP

@@ -41,10 +41,13 @@ class GHPScalar {
 public:
     using Complex = ComplexT;
 
+protected:
+    int p_;
+    int q_;
 private:
     Complex value_;
-    int p_; // weight
-    int q_; // weight
+    //int p_; // weight
+    //int q_; // weight
     int spin_;
     int boost_;
 
@@ -55,6 +58,7 @@ public:
     [[nodiscard]] Complex value() const { return value_; }
     [[nodiscard]] int p() const { return p_; }
     [[nodiscard]] int q() const { return q_; }
+    void set_pq(int p, int q) { p_ = p; q_ = q; boost_ = (int)(p_+q_)/2; spin_ = (int)(p_-q_)/2;}
     [[nodiscard]] int s() const { return spin_; }
     [[nodiscard]] int b() const { return boost_; }
 

@@ -44,7 +44,13 @@ namespace orbit {
 *  General Bound Kerr Orbit (action–angle representation)
 */
     class KerrBoundOrbit : public KerrOrbitBase {
-    public:
+    protected:
+
+    protected:
+        struct TorusFrequencies {
+            Real Ups_t, Ups_phi, Ups_r, Ups_z; // avg frequencies dq_\mu/d\lambda
+            Real Omega_t, Omega_phi, Omega_r, Omega_z; // avg frequencies dq_\mu/dt
+        };
         struct Actions {
             Real J_t;    // azimuthal action (= Lz)
             Real J_phi;    // azimuthal action (= Lz)
@@ -61,10 +67,7 @@ namespace orbit {
             Real psi_t, psi_phi;
             Real psi_r, psi_z;
         };
-        struct TorusFrequencies {
-            Real Ups_t, Ups_phi, Ups_r, Ups_z; // avg frequencies dq_\mu/d\lambda
-            Real Omega_t, Omega_phi, Omega_r, Omega_z; // avg frequencies dq_\mu/dt
-        };
+
         // instantaneous frequencies a = r,z
         struct Frequencies_fa {
             Real f_r;
@@ -251,7 +254,6 @@ namespace orbit {
 
             // set constants of motion
             set_constants_of_motion(); // computes E_, Lz_, Q_, alpha_, beta_, gamma_;
-
             // roots (unphysical, but needed for freq computations)
             z1_ = sqrt(Q_/(a_*a_*gamma_*zmax_*zmax_));
 
@@ -268,15 +270,15 @@ namespace orbit {
                       << ", r3 = " << r3_ << ", r4 = " << r4_ << "\n"
                       << " z1 = " << z1_ << ", z2 = " << z2_ << ", zmax = " << zmax_ << "\n";
 
-            // initialize to periapsis
+            compute_torus_frequencies(); // compute Upsilons and Omega (avg frequencies in mino and BL time)
+
+            // initialize to periapsis and max z
             torus_angles_ = {0.0, 0.0, 0.0, 0.0};
             phases_ = {0.0, 0.0, 0.0, 0.0};
 
-            for (size_t i = 0; i < Nr; ++i)
-                psi_r_vals[i] = 2.0 * M_PI * i / Nr;
-
-            for (size_t j = 0; j < Nz; ++j)
-                psi_z_vals[j] = 2.0 * M_PI * j / Nz;
+            // initialize psi grids
+            for (size_t i = 0; i < Nr; ++i) psi_r_vals[i] = 2.0*M_PI*i / Nr;
+            for (size_t j = 0; j < Nz; ++j) psi_z_vals[j] = 2.0*M_PI*j / Nz;
 
             prepare_fft_plans();
 
@@ -291,7 +293,7 @@ namespace orbit {
             if (fft_in_z_)  fftwl_free(fft_in_z_);
             if (fft_out_z_) fftwl_free(fft_out_z_);
         }
-        void init();
+        void initialize_orbit();
         void prepare_fft_plans();
         void free_fft();                     // cleanup fft
         // -------------------------------------------------
@@ -320,12 +322,14 @@ namespace orbit {
         [[nodiscard]] const Frequencies& freqs() const { return freqs_; }
         [[nodiscard]] const Phases& angles() const { return phases_; }
 
+        TorusFrequencies get_torus_frequencies() const { return torus_freqs_; } // return \Omega_t, \Omega_phi, \Omega_r, \Omega_z
+        TorusFrequencies get_mino_torus_frequencies() const { return mino_torus_freqs; }
 
         Real get_T_r() const;
-        Real get_T_z() const;
+        [[nodiscard]] Real get_T_z() const;
 
-        Real get_Phi_r() const;
-        Real get_Phi_z() const;
+        [[nodiscard]] Real get_Phi_r() const;
+        [[nodiscard]] Real get_Phi_z() const;
 
         std::vector<Real> get_psi_r() const;
         std::vector<Real> get_psi_z() const;

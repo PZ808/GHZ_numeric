@@ -1,21 +1,13 @@
 //
 // Created by Peter Zimmerman on 22.11.25.
 //
-
-#include <cmath>
-#include <cassert>
-
 #include "../include/GHPScalars.hpp"
 #include "../include/SpectralGHPField.hpp"
 #include "../include/SpectralDiffer.hpp"
-#include "../include/HeldScalars.hpp"
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/operation.hpp>
-#include <boost/numeric/ublas/lu.hpp>
-#include <fftw3.h>
 
+#include <boost/numeric/ublas/matrix.hpp>
+#include <cmath>
+#include <cassert>
 #include <limits>
 
 namespace spectral {
@@ -40,13 +32,23 @@ namespace spectral {
  * interpolating polynomial and its derivative at arbitrary points.
  *
  */
-    vector<Real> SpectralDiffer::build_barycentric_weights() const
-    {
-        int N = (int)z_.size();
+    vector<Real> SpectralDiffer::build_barycentric_weights_z() const {
+        int N = (int) z_.size();
         vector<Real> w(N, Real(1));
         for (int j = 0; j < N; ++j) {
             w[j] = Real(1);
             for (int k = 0; k < N; ++k) if (k != j) w[j] /= (z_[j] - z_[k]);
+        }
+        return w;
+    }
+
+    RVector SpectralDiffer::build_barycentric_weights_from_nodes(const RVector &nodes) const {
+        auto x = nodes;
+        size_t N = x.size();
+        RVector w(N, Real(1));
+        for (int j = 0; j < N; ++j) {
+            w[j] = Real(1);
+            for (int k = 0; k < N; ++k) if (k != j) w[j] /= (x[j] - x[k]);
         }
         return w;
     }
@@ -86,22 +88,22 @@ namespace spectral {
 .
  */
     pair<Complex, Complex> SpectralDiffer::barycentric_interp_and_derivative(
-            const vector<Complex>& fvec,    // function to interpolate (value and derivative)
-            const vector<Real>& w,          // barycentric weights
-            Real z0                         // point of interest
-    ) const
-    {
-        int N = (int)z_.size();
+            const RVector &x_,          // interpolation nodes
+            const CVector &fvec,        // function to interpolate (value and derivative) should be a slice at fixed r or z
+            const RVector &w,          // barycentric weights
+            Real z0                     // point of interest
+    ) {
+        int N = (int) x_.size();
         Complex num(0.0, 0.0), num_der(0.0, 0.0);
         Real den = Real(0);
 
         const Real eps = std::numeric_limits<Real>::epsilon() * Real(1e3);
         for (int i = 0; i < N; ++i) {
-            Real dz = z0 - z_[i];
+            Real dz = z0 - x_[i];
             if (abs(dz) < eps) {
-                return { fvec[i],
-                         Complex(std::numeric_limits<Real>::quiet_NaN(),
-                                 std::numeric_limits<Real>::quiet_NaN()) };
+                return {fvec[i],
+                        Complex(std::numeric_limits<Real>::quiet_NaN(),
+                                std::numeric_limits<Real>::quiet_NaN())};
             }
             Real wi_dz = w[i] / dz;
             num += wi_dz * fvec[i];
@@ -111,20 +113,40 @@ namespace spectral {
 
         Complex f_interp = num / den;
         Complex df_interp = num_der - f_interp * (num_der / num);
-        return { f_interp, df_interp };
+        return {f_interp, df_interp};
     }
 
-    GHPSpectralField::ZSlice SpectralDiffer::dz_barycentric(
-            const GHPSpectralField::ZSlice &f,
-            GHPSpectralField::ZSlice &df_dz,
-            const std::vector<Real> &w  // barycentric weights
-    ) const {
+/**
+* @brief Differentiation using barycentric formula.
+*
+* df_dz[i] = sum_{j != i} w[j] / w[i] / (z[i]-z[j]) * (f[j]-f[i])
+*/
+    void SpectralDiffer::dz_barycentric_inplace(const std::span<GHPScalar<Complex>> &f_slice,
+                                                std::span<GHPScalar<Complex>> &df_dz,
+                                                const std::vector<Real> &w) const {
+        if (f_slice.size() != static_cast<size_t>(Nz_) || df_dz.size() != static_cast<size_t>(Nz_))
+            throw std::runtime_error("Slice size mismatch in dz_barycentric");
+
+#pragma omp parallel for default(none) shared(f_slice, df_dz, w)
+        for (int i = 0; i < Nz_; ++i) {
+            Complex sum = Complex(0.0, 0.0);
+            for (int j = 0; j < Nz_; ++j) {
+                if (i == j) continue;
+                sum += w[j] / w[i] * (f_slice[j].value() - f_slice[i].value()) / (z_[i] - z_[j]);
+            }
+            df_dz[i].value() = sum;
+        }
+    }
+
+    GHPSpectralField::RSlice SpectralDiffer::dz_barycentric_RSlice(const GHPSpectralField::RSlice &f,
+                                                                   GHPSpectralField::RSlice &df_dz,
+                                                                   const std::vector<Real> &w) const {
         assert(f.size() == df_dz.size());
-        const int N = (int)f.size();
+        const int N = (int) f.size();
         const Real eps = std::numeric_limits<Real>::epsilon() * Real(1e3);
 
         for (int i = 0; i < N; ++i) {
-            Complex num(0,0), num_der(0,0);
+            Complex num(0, 0), num_der(0, 0);
             Real den = Real(0);
 
             Real z0 = z_[i]; // collocation point where derivative is computed
@@ -148,19 +170,71 @@ namespace spectral {
 
         return df_dz;
     }
+
+    void SpectralDiffer::dr_barycentric_inplace(const std::span<GHPScalar<Complex>> &f_slice, // fixed z
+                                                std::span<GHPScalar<Complex>> &df_dr,         // output result
+                                                const std::vector<Real> &w) const {
+        // weights for r
+
+        if (f_slice.size() != static_cast<size_t>(Nr_) || df_dr.size() != static_cast<size_t>(Nr_))
+            throw std::runtime_error("Slice size mismatch in dr_barycentric");
+
+#pragma omp parallel for default(none) shared(f_slice, df_dr, w)
+        for (int i = 0; i < Nr_; ++i) {
+            Complex sum = Complex(0.0, 0.0);
+            for (int j = 0; j < Nr_; ++j) {
+                if (i == j) continue;
+                sum += w[j] / w[i] * (f_slice[j].value() - f_slice[i].value()) / (r_[i] - r_[j]);
+            }
+            df_dr[i].value() = sum;
+        }
+    }
+
+    GHPSpectralField::ZSlice SpectralDiffer::dr_barycentric_ZSlice(const GHPSpectralField::ZSlice &f,
+                                                                   GHPSpectralField::ZSlice &df_dr,
+                                                                   const std::vector<Real> &w) const {
+        assert(f.size() == df_dr.size());
+        const int N = (int) f.size();
+        const Real eps = std::numeric_limits<Real>::epsilon() * Real(1e3);
+
+        for (int i = 0; i < N; ++i) {
+            Complex num(0, 0), num_der(0, 0);
+            Real den = Real(0);
+
+            Real r0 = r_[i]; // collocation point where derivative is computed
+
+            for (int j = 0; j < N; ++j) {
+                if (i == j) continue;
+                Real dr = r0 - r_[j];
+                if (abs(dr) < eps) dr = eps; // avoid divide-by-zero
+                Real wi_dr = w[j] / dr;
+                num += wi_dr * f[j].value();
+                num_der += wi_dr * (f[j].value() / dr);
+                den += wi_dr;
+            }
+
+            Complex f_val = f[i].value(); // collocation value at i
+            Complex df_val = num_der - (num / den) * (num_der / den);
+
+            // wrap into GHPScalar preserving spin weights
+            df_dr[i] = GHPScalar<Complex>(df_val, f[i].p(), f[i].q());
+        }
+
+        return df_dr;
+    }
+
     vector<Real> SpectralDiffer::build_chebyshev_lobatto_nodes(int N) {
-        vector<Real> x(N);
+        vector <Real> x(N);
 
         // Chebyshev–nodes of the second kind:
         // x_j = cos(pi * j / (N - 1))
         for (int j = 0; j < N; ++j)
-            x[j] = Real( -cos(M_PI * Real(j) / Real(N - teuk::one)) );
+            x[j] = Real(-cos(M_PI * Real(j) / Real(N - teuk::one)));
 
         return x;
     }
 
-
-    /**
+/**
  * @name legendre_P_and_dP
  * @param n  Polynomial degree (n ≥ 0).
  * @param x  Evaluation point.
@@ -182,22 +256,61 @@ namespace spectral {
  *   which is numerically stable except extremely near x = ±1
  *   (these values never occur for interior Gauss–Lobatto nodes).
  *
+ *   Note that the analytic cancellation in  P'_n(x) = n (x P_n(x) − P_{n−1}(x)) / (x² − 1),
+ *   causes loss of significant digits when x→±1, even with multiple precision, bc both the numeratora
+ *   and denominartor approach zero as O(1-x). For this reason we implement
+ *   an analytic endpoint expansion of the derivative
+ *
+ *
  * This routine is used heavily in:
  *   - Gauss–Lobatto node construction
  *   - Construction of the Legendre differentiation matrix
  */
-    pair<Real, Real> SpectralDiffer::legendre_P_and_dP(int n, Real x)
-    {
+    pair<Real, Real> SpectralDiffer::legendre_P_and_dP(unsigned int n, const Real &x) {
         if (n == 0) return {Real(1), Real(0)};
         if (n == 1) return {x, Real(1)};
-        Real Pnm1 = Real(1), Pn = x;
+        Real Pnm1 = Real(1.);    // P_{0}
+        Real Pn = x;                // P_{1}
+
+        // Recurrence to compute P_n(x)
         for (int k = 2; k <= n; ++k) {
-            Real Pnp1 = ((Real(2)*k - Real(1)) * x * Pn - (k - 1) * Pnm1) / Real(k);
-            Pnm1 = Pn;
-            Pn = Pnp1;
+            Real Pnp1 = ((Real(2) * k - Real(1.)) * x * Pn - Real(k - 1.0) * Pnm1) / Real(k);
+            Pnm1 = Pn; // shift up
+            Pn = Pnp1; // shift up
         }
-        Real dPn = Real(n) / (x*x - Real(1)) * (x * Pn - Pnm1);
-        return { Pn, dPn };
+
+        //
+        // handle the points x ~ ±1 carefully to avoid loss of precision
+        //
+        // Multiprecision epsilon
+        Real eps = std::numeric_limits<Real>::epsilon();
+        // Distance to endpoint scaled by precision
+        Real dist = Real(1.0) - abs(x);
+        Real tol = sqrt(eps);
+
+        // case 1: away from endpoints
+        // safe to evaluate derivative using P'_n(x) = n (x P_n(x) − P_{n−1}(x)) / (x² − 1),
+        if (dist > tol) {
+            Real denom = x * x - Real(1.);
+            Real numer = x * Pn - Pnm1;
+            Real dPn = Real(n) * numer / denom;
+            return {Pn, dPn};
+        }
+        // CASE 2: too close to ±1 → use analytic limit
+        // P_n'(±1) = ± (-1)*sign*n(n+1)/2
+        Real dPn_endpoint = Real(n * (n + 1) / 2.0);
+
+        // (-1)^{n+1} factor
+        if (x < 0) {
+            if ((n % 2) == 0)
+                dPn_endpoint = -dPn_endpoint;
+        }
+
+        // P_n(±1)
+        Real Pn_endpoint =
+                (x >= 0 ? Real(1) : ((n % 2 == 0) ? Real(1) : Real(-1)));
+
+        return {Pn_endpoint, dPn_endpoint};
     }
 
 /**
@@ -227,20 +340,20 @@ namespace spectral {
  * Convergence is typically extremely fast; up to 40 iterations is used as a
  * conservative upper limit.
  */
-    vector<Real> SpectralDiffer::build_legendre_gauss_lobatto_nodes(int N)
-    {
-        vector<Real> x(N); // nodes
-        x[0] = Real(-1); x[N-1] = Real(1); // LGL includes endpoints
+    vector<Real> SpectralDiffer::build_legendre_gauss_lobatto_nodes(int N) {
+        vector <Real> x(N); // nodes
+        x[0] = Real(-1);
+        x[N - 1] = Real(1); // LGL includes endpoints
 
         auto iMax = 40;
-        for (int i = 1; i < N-1; ++i) {
-            Real xi_ld = -cos(M_PI*i/(N-1)); // splitting of the interval [-1,1] into N pieces
+        for (int i = 1; i < N - 1; ++i) {
+            Real xi_ld = -cos(M_PI * i / (N - 1)); // splitting of the interval [-1,1] into N pieces
             Real xi = Real(xi_ld);
             for (int it = 0; it < iMax; ++it) {
-                auto pr = legendre_P_and_dP(N-1, xi);
+                auto pr = legendre_P_and_dP(N - 1, xi);
                 Real P = pr.first;
                 Real dP = pr.second;
-                Real d2P = (Real(2)*xi*dP - Real((N-1)*N)*P) / (Real(1) - xi*xi);
+                Real d2P = (Real(2) * xi * dP - Real((N - 1) * N) * P) / (Real(1) - xi * xi);
                 Real dx = -dP / d2P;
                 xi += dx;
                 if (abs(dx) < Real(1e-30)) break;
@@ -250,27 +363,52 @@ namespace spectral {
         return x;
     }
 
-// ------------------------------------------------------------
-//
-// ------------------------------------------------------------
-    matrix<Real> SpectralDiffer::build_legendre_diff_matrix(const vector<Real>& x)
-    {
-        int N = (int)x.size();
-        matrix<Real> D(N, N);
-        vector<Real> Pnm1(N);
-        for (int i = 0; i < N; ++i) Pnm1[i] = legendre_P_and_dP(N-1, x[i]).first;
+    matrix<Real> SpectralDiffer::build_legendre_diff_matrix(const RVector &x) {
+        int N = (int) x.size();
+        matrix <Real> D(N, N);
+        vector <Real> Pnm1(N);
+        for (int i = 0; i < N; ++i) Pnm1[i] = legendre_P_and_dP(N - 1, x[i]).first;
 
         for (int i = 0; i < N; ++i) {
             for (int j = 0; j < N; ++j) {
-                if (i != j) D(i,j) = Pnm1[i] / (Pnm1[j] * (x[i] - x[j]));
-                else D(i,j) = Real(0);
+                if (i != j) D(i, j) = Pnm1[i] / (Pnm1[j] * (x[i] - x[j]));
+                else D(i, j) = Real(0);
             }
         }
         for (int i = 0; i < N; ++i) {
             Real s = Real(0);
-            for (int j = 0; j < N; ++j) if (i != j) s += D(i,j);
-            D(i,i) = -s;
+            for (int j = 0; j < N; ++j) if (i != j) s += D(i, j);
+            D(i, i) = -s;
         }
+        return D;
+    }
+/**
+ * @brief Build Chebyshev differentiation matrix for N nodes x.
+ */
+    matrix<Real> SpectralDiffer::build_chebyshev_diff_matrix(const RVector &x) {
+        int N = static_cast<int>(x.size());
+        matrix <Real> D(N, N);
+        std::vector<Real> c(N);
+
+        for (int i = 0; i < N; ++i)
+            c[i] = (i == 0 || i == N - 1) ? 2.0 : 1.0;
+        for (int i = 0; i < N; ++i) c[i] = c[i] * ((i % 2) == 0 ? 1.0 : -1.0);
+
+        for (int i = 0; i < N; ++i) {
+            for (int j = 0; j < N; ++j) {
+                if (i != j)
+                    D(i, j) = (c[i] / c[j]) / (x[i] - x[j]);
+                else
+                    D(i, j) = 0.0;
+            }
+        }
+
+        for (int i = 0; i < N; ++i) {
+            Real s = 0.0;
+            for (int j = 0; j < N; ++j) if (i != j) s += D(i, j);
+            D(i, i) = -s;
+        }
+
         return D;
     }
 /**
@@ -281,12 +419,12 @@ namespace spectral {
  * @brief Apply the spectral differentiation matrix in the z-direction to compute d/dz at all grid points of f
  *
  * Computes the z-derivative of a GHP scalar field slice using the precomputed
- * Legendre–Gauss–Lobatto differentiation matrix D_. This performs a dense
+ * Legendre–Gauss–Lobatto differentiation matrix Dz_. This performs a dense
  * matrix–vector multiplication:
  *
- *      (df/dz)_i = Σ_j  D_(i, j) * f_j ,
+ *      (df/dz)_i = Σ_j  Dz_(i, j) * f_j ,
  *
- * where each f_j is a GHPScalar and D_(i, j) is a real spectral coefficient.
+ * where each f_j is a GHPScalar and Dz_(i, j) is a real spectral coefficient.
  *
  * The spin-weights (p, q) of the input slice f are preserved in the output
  * by constructing df_dz[i] with the same (p, q). The differentiation matrix
@@ -296,166 +434,290 @@ namespace spectral {
  * matrix is applied.
  *
  */
-    void SpectralDiffer::dz_Dmatrix(const GHPSpectralField::ZSlice &f, GHPSpectralField::ZSlice &df_dz) const {
+    void SpectralDiffer::dz_Dmatrix_RSlice(const GHPSpectralField::RSlice &f,
+                                           GHPSpectralField::RSlice &df_dz) const {
         assert(f.size() == df_dz.size());
         for (int i = 0; i < Nz_; ++i) {
             df_dz[i] = GHPScalar<Complex>(teuk::zeroC, f[i].p(), f[i].q());
             for (int j = 0; j < Nz_; ++j) {
-                df_dz[i] = df_dz[i] + f[j] * GHPScalar<Complex>(D_(i,j),0,0);  // matrix multiplication
+                df_dz[i] = df_dz[i] + f[j] * GHPScalar<Complex>(Dz_(i, j), 0, 0);  // matrix multiplication
             }
         }
     }
 
-    // ---------------------------
-    // Phi-derivative via FFT for a single ZSlice
-    // ---------------------------
-    void SpectralDiffer::dphi_fft_single_m(const GHPSpectralField::ZSlice &f_slice,
-                                           GHPSpectralField::ZSlice &df_dphi_slice) const
-    {
-        int m = f_slice.m();  // <-- now it's stored inside
-        int Nz = f_slice.size();
-
-        GHPScalar<Complex> im_scalar(Complex(0, m), 0, 0);
-
-        for (int z=0; z<Nz; ++z) df_dphi_slice[z] = f_slice[z] * im_scalar;
-    }
-    // ---------------------------
-    // t-derivative via FFT for a single ZSlice
-    // ---------------------------
-    void SpectralDiffer::dphi_fft_single_w(const GHPSpectralField::ZSlice &f_slice,
-                                           GHPSpectralField::ZSlice &df_dt_slice) const
-    {
-        int w = f_slice.w();  // <-- now it's stored inside
-        int Nz = f_slice.size();
-
-        GHPScalar<Complex> iw_scalar(Complex(0, -w), 0, 0);
-
-        for (int z=0; z<Nz; ++z) df_dt_slice[z] = f_slice[z] * iw_scalar;
-    }
-
-    // ---------------------------
-    // Edth operator on a single ZSlice
-    // ---------------------------
-    GHPSpectralField::ZSlice SpectralDiffer::edth(const GHPSpectralField::ZSlice &f) const {
-
-        GHPSpectralField::ZSlice df(f.data_ptr, f.size(), f.w(), f.m(), f.r() );
-
-
-        // Compute spectral derivatives
-        dz_Dmatrix(f, df);               // ∂/∂z using Legendre matrix
-        dphi_fft_single_m(f, df); // ∂/∂φ
-        dphi_fft_single_w(f, df); // ∂/∂t
-        GHPSpectralField::ZSlice df_eth(df.data_ptr, f.size(), f.w(), f.m(), f.r() );
-
-
-        GHPScalar<Complex> m_scalar(Complex(f.m(), teuk::zero), 0, 0);
-        // compute derivative
-        for(int i = 0; i < Nz_; ++i) {
-            Real z = lgl_nodes()[i];
-            Real factor = sqrt(1.0 - z*z);
-            df_eth[i]= -factor * df[i] - m_scalar * f[i] ;
-        }
-        return df;
-    }
 /**
-   * @brief Differentiation along z using the precomputed D-matrix.
-    *
-    * df_dz[i] = sum_j D_[i,j] * f[j]
-    */
-    inline void SpectralDiffer::dz_Dmatrix_slice(const std::span<GHPScalar<Complex>>& f_slice,
-                                                 std::span<GHPScalar<Complex>>& df_dz) const
-    {
+ * @brief Compute dz using the Legendre differentiation matrix for a single row.
+ *
+ * @param f_slice Input slice (row of GHPFieldVectorized)
+ * @param df_dz  Output slice (preallocated)
+ */
+    void SpectralDiffer::dz_Dmatrix(const std::span<GHPScalar<Complex>> &f_slice,
+                                    std::span<GHPScalar<Complex>> &df_dz) const {
+
         if (f_slice.size() != static_cast<size_t>(Nz_) || df_dz.size() != static_cast<size_t>(Nz_))
             throw std::runtime_error("Slice size mismatch in dz_Dmatrix");
 
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(f_slice, df_dz)
         for (int i = 0; i < Nz_; ++i) {
             Complex sum = Complex(0.0, 0.0);
             for (int j = 0; j < Nz_; ++j)
-                sum += D_(i,j) * f_slice[j].value();
+                sum += Dz_(i, j) * f_slice[j].value();
             df_dz[i].value() = sum;
             // Spin weights remain unchanged
         }
     }
 /**
- * @brief Differentiation using barycentric formula.
+ * @brief Compute dr using the Cheb. differentiation matrix for a single row.
  *
- * df_dz[i] = sum_{j != i} w[j] / w[i] / (z[i]-z[j]) * (f[j]-f[i])
+ * @param f_slice Input slice (row of GHPFieldVectorized)
+ * @param df_dr  Output slice (preallocated)
  */
-    inline void SpectralDiffer::dz_barycentric_slice(const std::span<GHPScalar<Complex>>& f_slice,
-                                               std::span<GHPScalar<Complex>>& df_dz,
-                                               const std::vector<Real>& w) const
-    {
-        if (f_slice.size() != static_cast<size_t>(Nz_) || df_dz.size() != static_cast<size_t>(Nz_))
-            throw std::runtime_error("Slice size mismatch in dz_barycentric");
 
-#pragma omp parallel for
-        for (int i = 0; i < Nz_; ++i) {
-            Complex sum = Complex(0.0,0.0);
-            for (int j = 0; j < Nz_; ++j) {
-                if (i == j) continue;
-                sum += w[j] / w[i] * (f_slice[j].value() - f_slice[i].value()) / (z_[i] - z_[j]);
-            }
-            df_dz[i].value() = sum;
+    void SpectralDiffer::dr_Dmatrix(const std::span<GHPScalar<Complex>> &f_slice,
+                                    std::span<GHPScalar<Complex>> &df_dr) const {
+
+        const int N = static_cast<int>(f_slice.size());
+        if (df_dr.size() != static_cast<size_t>(N))
+            throw std::runtime_error("Slice size mismatch in dr_Dmatrix_slice");
+
+#pragma omp parallel for default(none) shared(f_slice, df_dr, Dr_, N)
+        for (int i = 0; i < N; ++i) {
+            Complex sum = Complex(0.0, 0.0);
+            for (int j = 0; j < N; ++j)
+                sum += Dr_(i, j) * f_slice[j].value();
+            df_dr[i].value() = sum;
+            // spin weights remain unchanged
         }
     }
 
 /**
- * @brief FFT-based derivative along phi for a single m-mode.
+ * @brief derivative along phi for a single m-mode.
  *
- * This is a placeholder: the actual implementation depends on your
- * FFT library (FFTW, MKL, etc.).
  */
-    inline void SpectralDiffer::dphi_fft_single_m_slice(const std::span<GHPScalar<Complex>>& f_slice,
-                                                  std::span<GHPScalar<Complex>>& df_dphi_slice,
-                                                  const int& m) const
-    {
+    void SpectralDiffer::dphi_single_m_slice(const std::span<GHPScalar<Complex>> &f_slice,
+                                             std::span<GHPScalar<Complex>> &df_dphi_slice,
+                                             const Real &m) const {
         if (f_slice.size() != df_dphi_slice.size())
             throw std::runtime_error("Slice size mismatch in dphi_fft_single_m");
 
         // Example: assume f_slice is already Fourier transformed, multiply by i*m
         int Nz_local = static_cast<int>(f_slice.size());
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(f_slice, df_dphi_slice, m, Nz_local)
         for (int i = 0; i < Nz_local; ++i) {
-            df_dphi_slice[i].value() = Complex(0,1) * f_slice[i].value() * static_cast<Real>(m);
+            df_dphi_slice[i].value() = Complex(0, 1) * f_slice[i].value() * static_cast<Real>(m);
         }
     }
 
-    inline void SpectralDiffer::dphi_fft_single_w_slice(const std::span<GHPScalar<Complex>>& f_slice,
-                                                  std::span<GHPScalar<Complex>>& df_dphi_slice,
-                                                  const int &w) const
-    {
+    void SpectralDiffer::dt_single_omega_slice(const std::span<GHPScalar<Complex>> &f_slice,
+                                               std::span<GHPScalar<Complex>> &df_dphi_slice,
+                                               const Real &omega) const {
         // Same as above; could include w-dependent scaling if needed
-        dphi_fft_single_m_slice(f_slice, df_dphi_slice, -w);
+        dphi_single_m_slice(f_slice, df_dphi_slice, -omega);
     }
+
 
 /**
- * @brief Apply edth operator to a single slice (eth = dz + i*dphi).
- *
- * Returns a new vector with the result.
- */
-    inline std::vector<GHPScalar<Complex>> SpectralDiffer::edth_slice(
-            const std::span<GHPScalar<Complex>>& f_slice, int m) const
+
+            Real z = lgl_nodes()[i];
+            Complex factor = Complex(Sqrt(1.0 - z * z), 0);
+            Complex df_dphi = f_RSlice[i].value() * Complex(0, 1) * Real(m);
+            out[i].value() = -Complex(1.0 / Sqrt(2.0), 0) * (
+                    -factor * df_dz_RSlice[i].value()
+                    + Complex(0, 1) * df_dphi / factor
+                    - s * z * f_RSlice[i].value() / factor
+                    + aw * factor * f_RSlice[i].value());
+        */
+
+// -----------------------------------------------------------------------------
+// In-place edthH using barycentric dz
+// -----------------------------------------------------------------------------
+    void SpectralDiffer::edthH_bary_inplace(const GHPSpectralField::RSlice &f,
+                                            GHPSpectralField::RSlice &out, Real const& a) const
     {
-        std::vector<GHPScalar<Complex>> out(f_slice.size(),
-                                            GHPScalar<Complex>(Complex(0,0),
-                                                               f_slice[0].p()+1,
-                                                               f_slice[0].q()-1));
+        // safety
+        assert(f.size() == out.size());
+        const int N = f.size();
+        if (N == 0) return;
 
-        std::vector<GHPScalar<Complex>> df_dz(f_slice.size(), GHPScalar<Complex>(Complex(0,0), 0, 0));
-        auto df_dz_span = std::span(df_dz.data(), df_dz.size());
-        dz_Dmatrix_slice(f_slice, df_dz_span);
+        // metadata
+        const int p = f[0].p();
+        const int q = f[0].q();
+        const Complex s = Complex((p - q) * 0.5, 0.0);
+        const Real m = Real(f.m());
+        const Real aw = a*f.w() * Real(2.*M_PI) / (Nt * dt);
 
-        std::vector<GHPScalar<Complex>> df_dphi(f_slice.size(), GHPScalar<Complex>(Complex(0,0), 0, 0));
-        auto df_dphi_span = std::span(df_dphi.data(), df_dphi.size());
-        dphi_fft_single_m_slice(f_slice, df_dphi_span, m);
+        // Temporary buffer for df/dz (owned here -> safe if out aliases f)
+        std::vector<GHPScalar<Complex>> df_dz_buf;
+        df_dz_buf.assign(N, GHPScalar<Complex>(Complex(0.0, 0.0), p, q));
 
-#pragma omp parallel for
-        for (size_t i = 0; i < f_slice.size(); ++i) {
-            out[i].value() = df_dz[i].value() + Complex(0,1) * df_dphi[i].value();
+        GHPSpectralField::RSlice df_dz_rs(df_dz_buf.data(), N, f.w(), f.m(), f.r());
+
+        // compute derivative in-place into df_dz_buf
+        dz_barycentric_RSlice(f, df_dz_rs, wz_); // assumes this signature exists
+
+        // compute edth_H into out (spin weights p+1, q-1)
+        const Complex pref = Complex(-1.0 / std::sqrt(2.0), 0.0);
+
+        for (int i = 0; i < N; ++i) {
+            const Real z = lgl_nodes()[i];
+            const Real factor = std::sqrt(std::max<Real>(0.0, 1.0 - z*z));
+
+            const Complex fval = f[i].value();
+            const Complex dfz  = df_dz_rs[i].value();
+            const Complex dfphi = Complex(0.0, 1.0) * Real(m) * fval;
+
+            Complex val = pref * (
+                    -factor * dfz
+                    + Complex(0.0, 1.0) * dfphi / factor
+                    - s * z * fval / factor
+                    + Complex(aw * factor, 0.0) * fval
+            );
+
+            out[i] = GHPScalar<Complex>(val, p + 1, q - 1);
         }
+    }
 
-        return out;
+// -----------------------------------------------------------------------------
+// In-place edthH using Legendre D-matrix derivative
+// -----------------------------------------------------------------------------
+    void SpectralDiffer::edthH_dmat_RSlice_inplace(const GHPSpectralField::RSlice &f,
+                                            GHPSpectralField::RSlice &out, const Real& a) const
+    {
+        // safety
+        assert(f.size() == out.size());
+        const int N = f.size();
+        if (N == 0) return;
+
+        // metadata
+        const int p = f[0].p();
+        const int q = f[0].q();
+        const Complex s = Complex((p - q) * 0.5, 0.0); // spin weight
+        const Real m = Real(f.m());
+        const Real aw = a*f.w() * Real(2.*M_PI) / (Nt * dt);
+
+        // Temporary buffer for df/dz
+        std::vector<GHPScalar<Complex>> df_dz_buf;
+        df_dz_buf.assign(N, GHPScalar<Complex>(Complex(0.0, 0.0), p, q));
+
+        GHPSpectralField::RSlice df_dz_rs(df_dz_buf.data(), N, f.w(), f.m(), f.r());
+
+        // compute derivative using D-matrix into df_dz_buf
+        dz_Dmatrix_RSlice(f, df_dz_rs); // assumes this signature exists
+
+        // compute edth_H into out (spin weights p+1, q-1)
+        const Complex pref = Complex(-1.0 / std::sqrt(2.0), 0.0);
+
+        for (int i = 0; i < N; ++i) {
+            const Real z = lgl_nodes()[i];
+            const Real factor = std::sqrt(std::max<Real>(0.0, 1.0 - z*z));
+
+            const Complex fval = f[i].value();
+            const Complex dfz  = df_dz_rs[i].value();
+            const Complex dfphi = Complex(0.0, 1.0) * Real(m) * fval;
+
+            Complex val = pref * (
+                    -factor * dfz
+                    + Complex(0.0, 1.0) * dfphi / factor
+                    - s * z * fval / factor
+                    + Complex(aw * factor, 0.0) * fval
+            );
+
+            out[i] = GHPScalar<Complex>(val, p + 1, q - 1);
+        }
+    }
+
+    void SpectralDiffer::edthH_inplace_RSliceV(
+            const spectral::SpectralGHPVectorized::RSlice &in_RSlice,
+            spectral::SpectralGHPVectorized::RSlice &out_RSlice, const Real& aw) const
+    {
+        // sanity check: sizes must match
+        assert(in_RSlice.size() == out_RSlice.size());
+        const size_t Nz = in_RSlice.size();
+
+        // extract GHP weights and mode info
+        int p = in_RSlice[0].p();
+        int q = in_RSlice[0].q();
+        Complex s = Complex((p - q) / 2., 0);
+        Real m = Real(in_RSlice.m());
+
+        // temporary derivative along z
+        std::vector<GHPScalar<Complex>> df_dz(Nz);
+        // wrap as RSlice at the same r
+        spectral::SpectralGHPVectorized::RSlice df_dz_slice(df_dz.data(), Nz,
+                                                            in_RSlice.modes_,
+                                                            in_RSlice.r());
+
+        // compute dz derivative
+        std::span<GHPScalar<Complex>> in_span(in_RSlice.data_ptr, Nz);
+        std::span<GHPScalar<Complex>> df_dz_span(df_dz_slice.data_ptr, Nz);
+
+        dz_Dmatrix(in_span, df_dz_span);  // computes derivative along z into df_dz_span
+
+        // main edthH computation
+#pragma omp parallel for default(none) shared(Nz,p, q, out_RSlice, in_RSlice, df_dz_slice, m, s, aw)
+        for (size_t i = 0; i < Nz; ++i)
+        {
+            Real z = lgl_nodes()[i];                     // Legendre-Gauss-Lobatto nodes
+            Complex factor = Complex(std::sqrt(1.0 - z * z), 0);
+            Complex df_dphi = in_RSlice[i].value() * Complex(0, 1) * Real(m);
+
+            out_RSlice[i].value() = -Complex(1.0 / std::sqrt(2.0), 0) * (
+                    -factor * df_dz_slice[i].value()
+                    + df_dphi / factor * Complex(0, 1)
+                    - s * z * in_RSlice[i].value() / factor
+                    + aw * factor * in_RSlice[i].value()
+            );
+
+            // update GHP weights (edth raises spin by 1)
+            out_RSlice[i].set_pq(p + 1, q - 1);
+        }
+    }
+
+    void SpectralDiffer::edthBarH_inplace_RSliceV(
+            const SpectralGHPVectorized::RSlice &in_RSlice,
+            SpectralGHPVectorized::RSlice &out_RSlice,
+            const Real& aw) const
+    {
+        // sanity check: sizes must match
+        assert(in_RSlice.size() == out_RSlice.size());
+        const size_t Nz = in_RSlice.size();
+
+        // extract GHP weights and mode info
+        int p = in_RSlice[0].p();
+        int q = in_RSlice[0].q();
+        Complex s = Complex((p - q) / 2., 0);
+        Real m = Real(in_RSlice.m());
+
+        // temporary derivative along z
+        std::vector<GHPScalar<Complex>> df_dz(Nz);
+        spectral::SpectralGHPVectorized::RSlice df_dz_slice(df_dz.data(), Nz,
+                                                            in_RSlice.modes_,
+                                                            in_RSlice.r());
+
+        // compute dz derivative
+        std::span<GHPScalar<Complex>> in_span(in_RSlice.data_ptr, Nz);
+        std::span<GHPScalar<Complex>> df_dz_span(df_dz_slice.data_ptr, Nz);
+        dz_Dmatrix(in_span, df_dz_span);
+
+        // main edthBar computation
+#pragma omp parallel for default(none) shared(Nz,p,q,out_RSlice,in_RSlice,df_dz_slice,m,s,aw)
+        for (size_t i = 0; i < Nz; ++i)
+        {
+            Real z = lgl_nodes()[i];                     // Legendre-Gauss-Lobatto nodes
+            Complex factor = Complex(std::sqrt(1.0 - z * z), 0);
+            Complex df_dphi = in_RSlice[i].value() * Complex(0, 1) * Real(m);
+
+            // edthBar flips the dz sign and some spin terms compared to edthH
+            out_RSlice[i].value() = -Complex(1.0 / std::sqrt(2.0), 0) * (
+                   - factor * df_dz_slice[i].value()
+                    - df_dphi / factor * Complex(0, 1)
+                    + s * z * in_RSlice[i].value() / factor
+                    - aw * factor * in_RSlice[i].value()
+            );
+
+            // update GHP weights (edthBar lowers spin by 1)
+            out_RSlice[i].set_pq(p - 1, q + 1);
+        }
     }
 
 

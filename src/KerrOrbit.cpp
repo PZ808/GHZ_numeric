@@ -15,47 +15,22 @@
 // make math::sqr available
 using math::sqr;
 
-void orbit::KerrBoundOrbit::prepare_fft_plans() {
+/** @brief Initializes the KerrBoundOrbit object by computing frequencies, sampling data,
+* and building splines for the orbital parameters.
+ * @details The initialization process involves several steps:
+ * 1. Compute the orbital frequencies (f_t, f_phi, f_r, f_z) using the compute_frequencies() method. \n
+ * 2. Sample the frequencies on a grid defined by Nr_ and Nz_ using sample_frequencies_for_fft(). \n
+ * 3. Compute the q grid values from the sampled frequencies with compute_q_grids_from_samples(). \n
+ * 4. Sample the time and azimuthal angle functions for FFT using sample_T_and_Phi_for_fft(). \n
+ * 5. Re-sample the frequencies to ensure consistency. (why?) \n
+ * 6. Compute the oscillatory components (Deltas) using compute_Deltas(). \n
+ * 7. Finally, build periodic splines for the orbital parameters with build_splines(). \n
+ *
+ * */
 
-    if (fft_plan_r_ != nullptr) {
-        fftwl_destroy_plan(fft_plan_r_);
-        fftwl_free(fft_in_r_);
-        fftwl_free(fft_out_r_);
-    }
-    if (fft_plan_z_ != nullptr) {
-        fftwl_destroy_plan(fft_plan_z_);
-        fftwl_free(fft_in_z_);
-        fftwl_free(fft_out_z_);
-    }
-
-    if (fft_plan_r_ == nullptr) {
-        fft_in_r_  = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nr_);
-        fft_out_r_ = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nr_);
-        fft_plan_r_ = fftwl_plan_dft_1d(static_cast<int>(Nr_), fft_in_r_, fft_out_r_, FFTW_FORWARD, FFTW_ESTIMATE);
-    }
-
-    if (fft_plan_z_ == nullptr) {
-        fft_in_z_  = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nz_);
-        fft_out_z_ = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nz_);
-        fft_plan_z_ = fftwl_plan_dft_1d(static_cast<int>(Nz_), fft_in_z_, fft_out_z_, FFTW_FORWARD, FFTW_ESTIMATE);
-    }
-
-}
-
-void orbit::KerrBoundOrbit::free_fft() {
-    if (fft_plan_r_) fftwl_destroy_plan(fft_plan_r_);
-    if (fft_in_r_)   fftwl_free(fft_in_r_);
-    if (fft_out_r_)  fftwl_free(fft_out_r_);
-    if (fft_plan_z_) fftwl_destroy_plan(fft_plan_z_);
-    if (fft_in_z_)   fftwl_free(fft_in_z_);
-    if (fft_out_z_)  fftwl_free(fft_out_z_);
-    fft_plan_r_ = nullptr; fft_in_r_ = nullptr;
-    fft_out_r_ = nullptr; fft_plan_z_ = nullptr;
-    fft_in_z_ = nullptr; fft_out_z_ = nullptr;
-}
-void orbit::KerrBoundOrbit::init() {
+void orbit::KerrBoundOrbit::initialize_orbit() {
     // workflow to get the orbital data
-    compute_torus_frequencies(); // compute Upsilons and Omega (avg frequencies in mino and BL time)
+
     compute_frequencies(); // compute initial frequencies f_t, f_phi, f_r, f_z where f = d\psi/d\lambda
     sample_frequencies_for_fft(Nr_, Nz_);
     compute_q_grids_from_samples(Nr_, Nz_, qr_vals, qz_vals); // fill the q grid values
@@ -164,7 +139,7 @@ void orbit::KerrBoundOrbit::compute_torus_frequencies() {
     torus_freqs_.Omega_z = mino_torus_freqs.Ups_z/mino_torus_freqs.Ups_t;
     torus_freqs_.Omega_phi = mino_torus_freqs.Ups_phi/mino_torus_freqs.Ups_t;
 
-}
+} // compute_torus_frequencies
 /**
  * get_T_r() returns T_r(r) (209) of Pound and Wardell
  * https://arxiv.org/pdf/2101.04592
@@ -661,4 +636,44 @@ void orbit::KerrBoundOrbit::export_trajectory_stream(const std::string& filename
     }
 
     out.close();
+}
+
+
+void orbit::KerrBoundOrbit::prepare_fft_plans() {
+
+    if (fft_plan_r_ != nullptr) {
+        fftwl_destroy_plan(fft_plan_r_);
+        fftwl_free(fft_in_r_);
+        fftwl_free(fft_out_r_);
+    }
+    if (fft_plan_z_ != nullptr) {
+        fftwl_destroy_plan(fft_plan_z_);
+        fftwl_free(fft_in_z_);
+        fftwl_free(fft_out_z_);
+    }
+
+    if (fft_plan_r_ == nullptr) {
+        fft_in_r_  = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nr_);
+        fft_out_r_ = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nr_);
+        fft_plan_r_ = fftwl_plan_dft_1d(static_cast<int>(Nr_), fft_in_r_, fft_out_r_, FFTW_FORWARD, FFTW_ESTIMATE);
+    }
+
+    if (fft_plan_z_ == nullptr) {
+        fft_in_z_  = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nz_);
+        fft_out_z_ = (fftwl_complex*) fftwl_malloc(sizeof(fftwl_complex) * Nz_);
+        fft_plan_z_ = fftwl_plan_dft_1d(static_cast<int>(Nz_), fft_in_z_, fft_out_z_, FFTW_FORWARD, FFTW_ESTIMATE);
+    }
+
+}
+
+void orbit::KerrBoundOrbit::free_fft() {
+    if (fft_plan_r_) fftwl_destroy_plan(fft_plan_r_);
+    if (fft_in_r_)   fftwl_free(fft_in_r_);
+    if (fft_out_r_)  fftwl_free(fft_out_r_);
+    if (fft_plan_z_) fftwl_destroy_plan(fft_plan_z_);
+    if (fft_in_z_)   fftwl_free(fft_in_z_);
+    if (fft_out_z_)  fftwl_free(fft_out_z_);
+    fft_plan_r_ = nullptr; fft_in_r_ = nullptr;
+    fft_out_r_ = nullptr; fft_plan_z_ = nullptr;
+    fft_in_z_ = nullptr; fft_out_z_ = nullptr;
 }
