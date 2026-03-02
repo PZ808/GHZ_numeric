@@ -223,32 +223,37 @@ Tetrad::Scalars KinnersleyTetrad<BLCoords>::get_scalars_at(
     using namespace teuk::literals;
 
     Real r = Xbl.x1;
-    Real theta = Xbl.x2;
+    Real z = Xbl.x2;
 
     Real a = metric.a();
     Real M = metric.M();
     Real del = metric.Delta(r);
-    Real sig = metric.Sigma(r, theta);
+    Real sig = metric.Sigma_z(r, z);
 
-    // --- Build the coefficients exactly as in build_tetrad() ---
+    // --- Build the coefficients exactly as in build_tetrad() but this builds
+    // temporary object instead of modifying the tetrad's member sc,
+    // so we can return the scalars without modifying the tetrad's state ---
     SpinCoefficients sc_local;
-    // Analytic spin coefficients
-    Complex rho = -1.0_r / (r - I * a * cos(theta));
+    // \rho = -1/(r - i a cos(theta))
+    Complex rho = -1.0_r / (r - I*a*z);
     Complex rhobar = std::conj(rho);
+    Real s1 = math::Sqrt(1.0_r - z*z); // sin(theta)
+    Real s2 = 1.0_r - z*z; // sin^2(theta)
 
     // Kinnersley tetrad BL values taken from Teukolsky Eq. (4.5)
     sc_local.set(SpinCoeffType::rho, rho);
     sc_local.set(SpinCoeffType::mu, rhobar * sqr(rho) * del / 2.0_r);
-    sc_local.set(SpinCoeffType::tau, -I * a * math::Sin(theta) * rho * rhobar / math::Sqrt(2.0_r));
-    sc_local.set(SpinCoeffType::pi, I * a * math::Sin(theta) * rho * rho / math::Sqrt(2.0_r));
+    sc_local.set(SpinCoeffType::tau, -I * a * s1 * rho * rhobar / math::Sqrt(2.0_r));
+    sc_local.set(SpinCoeffType::pi, I * a * s1 * rho * rho / math::Sqrt(2.0_r));
     sc_local.set(SpinCoeffType::kappa, teuk::zeroC);
     sc_local.set(SpinCoeffType::sigma, teuk::zeroC);
     sc_local.set(SpinCoeffType::lambda, teuk::zeroC);
     sc_local.set(SpinCoeffType::nu, teuk::zeroC);
     sc_local.set(SpinCoeffType::epsilon, teuk::zeroC);
-    sc_local.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu) + rho * rhobar * (r - M) / 2.0_r);
-    sc_local.set(SpinCoeffType::beta, -rhobar * math::Cos(theta) / (two * math::Sin(theta) * math::Sqrt(two)));
-    sc_local.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta)) + sc.get(SpinCoeffType::pi));
+    sc_local.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu) + rho * rhobar*(r-M) / 2.0_r);
+    sc_local.set(SpinCoeffType::beta, -rhobar*z / (two * s1 * math::Sqrt(two)));
+    sc_local.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta))
+                                       + sc.get(SpinCoeffType::pi));
 
     //SpinCoefficientsGHP sc_ghp(sc);
     auto sc_ghp_local = SpinCoefficientsGHP(sc_local);
@@ -291,7 +296,7 @@ Tetrad::Scalars KinnersleyTetrad<OutgoingCoords>::get_scalars_at(
 
     Tetrad::Scalars scalars;
     Real r = Xout.x1;
-    Real z = Xout.x2;
+    Real z = Xout.x2; // z=\cos\theta
     Real del = metric.Delta(r);
     using teuk::I;
     using namespace teuk::literals;
@@ -418,7 +423,7 @@ SpinCoefficientsGHP KinnersleyTetrad<OutgoingCoordsCompact>::get_ghp_scalars_at(
     Real dOm_dr = 1.0/metric.lambda_C()*dsigma_dr;
 
     Real Delta_Ups = - del/(2.0*sig)*sqr(Om_C);
-    Complex rho = -1.0_r/(r - I*a*z);
+    Complex rho = -1.0_r/(r-I*a*z);
     Complex rhobar = std::conj(rho);
 
     // --- Build the coefficients exactly as in build_tetrad() ---
@@ -435,7 +440,7 @@ SpinCoefficientsGHP KinnersleyTetrad<OutgoingCoordsCompact>::get_ghp_scalars_at(
     sc_local.set(SpinCoeffType::beta, -(rhobar*z/(2.0*s1*sqrt(2.0)))/Om_C);
     sc_local.set(SpinCoeffType::alpha,
                  (sc_local.get(SpinCoeffType::beta)
-                  + sc_local.get(SpinCoeffType::pi)) / Om_C);
+                  + sc_local.get(SpinCoeffType::pi))/Om_C);
 
     sc_local.set(SpinCoeffType::kappa, 0.0_r);
     sc_local.set(SpinCoeffType::sigma, 0.0_r);
@@ -454,13 +459,13 @@ KinnersleyTetrad<OutgoingCoordsCompact>::get_weyl_scalars_at(
     using namespace teuk::literals;
 
     Real r = coord_helper.r_from_sigma(X.x1);
-    Real Om_C = X.x1 / metric.lambda_C();
+    Real Om_C = X.x1 / metric.lambda_C(); // conformal \Omega
     Real M = metric.M();
 
     WeylScalars W;
     W.set(WeylScalarType::Psi0, 0.0_r);
     W.set(WeylScalarType::Psi1, 0.0_r);
-    W.set(WeylScalarType::Psi2, M*cube(-1.0_r/(r))*cube(1.0/Om_C)); // same as your code
+    W.set(WeylScalarType::Psi2, M*cube(-1.0_r/(r))*cube(1.0/Om_C));
     W.set(WeylScalarType::Psi3, 0.0_r);
     W.set(WeylScalarType::Psi4, 0.0_r);
 

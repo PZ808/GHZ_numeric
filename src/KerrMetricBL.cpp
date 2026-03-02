@@ -38,7 +38,7 @@ teuk::SymmetricMatrix4 KerrMetricBL::g(const BLCoords Xbl) const {
 
     assert(cache_valid_ && "KerrMetricBL::g() called before build()");
     // Kerr BL metric in mostly minus
-    Real r = Xbl.x1;
+    Real r = Xbl.x1; // r = r
     Real z = Xbl.x2; // z = \cos\theta
     Real lam = kerr_metric.Lambda_z(r, z);
 

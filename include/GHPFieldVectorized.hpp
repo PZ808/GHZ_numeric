@@ -460,5 +460,50 @@ namespace ghp {
         const container_type& data() const { return values_; }
     };
 
+
+    struct GHPBackgroundFieldsVectorized {
+        // bundle of 2D arrays (along and z) for the background GHP scalars
+        GHPFieldVectorized rho, rhop, tau, taup;
+        explicit GHPBackgroundFieldsVectorized(int  Nr, int Nz)
+            : rho(Nr, Nz, GHPScalar(teuk::zeroC, 1, 1), 1, 1),
+              rhop(Nr, Nz, GHPScalar(teuk::zeroC, -1, -1), -1, -1),
+              tau(Nr, Nz, GHPScalar(teuk::zeroC, 1, -1), 1, -1),
+              taup(Nr, Nz, GHPScalar(teuk::zeroC, -1, 1), -1, 1)
+
+        {}
+    };
+
+    // build the GHP background fields in vectorized form for all rz-nodes
+    template<typename TetradType, typename CoordType>
+    GHPBackgroundFieldsVectorized build_ghp_fields_vectorized(TetradType &tetrad,
+                                                              const std::span<const teuk::Real> r_nodes,
+                                                              const std::span<const teuk::Real> z_nodes,
+                                                              CoordType &X)
+    {
+        const int Nr = static_cast<int>(r_nodes.size());
+        const int Nz = static_cast<int>(z_nodes.size());
+
+        CoordType X_local = X;   // make a local copy for thread safety
+        TetradType tetrad_local = tetrad; // copy tetrad for this thread
+        GHPBackgroundFieldsVectorized ghp_background_fields(Nr, Nz);
+for (int ir = 0; ir < Nr; ++ir) {
+    X_local.x1 = r_nodes[ir];  // set current r to collocation point
+    for (int iz = 0; iz < Nz; ++iz) {
+        X_local.x2 = z_nodes[iz]; // set current z to collocation point
+        tetrad_local.build_tetrad_at(X_local);   // build tetrad at this point
+        auto scalars = tetrad_local.get_scalars_at(X_local); // get all scalars at this point
+
+        // assign directly
+        ghp_background_fields.rho(ir, iz) = scalars.ghp_scalars.rho;
+        ghp_background_fields.rhop(ir, iz) = scalars.ghp_scalars.rhop;
+        ghp_background_fields.tau(ir, iz) = scalars.ghp_scalars.tau;
+        ghp_background_fields.taup(ir, iz) = scalars.ghp_scalars.taup;
+
+    }
+}
+
+        return ghp_background_fields;
+    }
+
 } // namespace ghp
 #endif //GHZ_NUMERIC_GHPFIELDVECTORIZED_HPP

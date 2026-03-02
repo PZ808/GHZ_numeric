@@ -34,7 +34,7 @@ Real KerrMetric::Om_plus() const { return params.a/(sqr(params.M+sqrt(params.M*p
 Real KerrMetric::Om_minus() const { return params.a / ( sqr(params.M-sqrt(params.M*params.M-params.a*params.a)) + sqr(params.a) );  }
 Real KerrMetric::kappa_plus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M+sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ); }
 Real KerrMetric::kappa_minus() const { return sqrt(params.M*params.M-params.a*params.a)/(sqr(params.M-sqrt(params.M*params.M - params.a*params.a))+ sqr(params.a) ) ; }
-// conformal param getters
+// conformal rescaling parameter getters
 Real KerrMetric::k2_C() const {return k2_;}
 Real KerrMetric::mu_C() const {return mu_;}
 Real KerrMetric::alpha_C() const {return alpha_;}
