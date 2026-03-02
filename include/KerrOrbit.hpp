@@ -11,6 +11,7 @@
 #include "KerrMetric.hpp"
 #include "Coords.hpp"
 #include "EllipticIntegrals.hpp"
+#include "SourceTorusFrequencies.hpp"
 #include "Splines.hpp"
 #include <fftw3.h>
 #include <cstddef>
@@ -335,6 +336,11 @@ namespace orbit {
         std::vector<Real> get_psi_z() const;
         std::vector<Real> get_psi_t() const;
         std::vector<Real> get_psi_phi() const;
+
+        // expose the torus source frequencies
+        [[nodiscard]] orbit::SourceFrequencies source_frequencies() const noexcept {
+            return { torus_freqs_.Omega_r, torus_freqs_.Omega_z, torus_freqs_.Omega_phi };
+        }
 
         // --- splines ---
         PeriodicSpline interp_psi_r, interp_dpsi_r, interp_phi_r, interp_t_r;

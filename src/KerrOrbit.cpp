@@ -42,15 +42,17 @@ void orbit::KerrBoundOrbit::initialize_orbit() {
     build_splines();
 }
 
-//  evaluate orbit at Mino time lambda
+//  evaluate orbit at a given Mino time lambda \lambda = \int d\tau/\Sigma,
+//  where \tau is proper time and \Sigma = r^2 + a^2 z^2
 BLCoords orbit::KerrBoundOrbit::eval_at_Mino(const Real& lambda) const {
-    // linear torus angles
+    // linear torus angles representing mean growth of the phases from the turning points
     Real q_r = torus_freqs_.Ups_r * lambda;
     Real q_z = torus_freqs_.Ups_z * lambda;
-    // total phases
+    // interpolate instantaneous phases which fluctuate around the linear growth
     Real psi_r = interp_psi_r.eval(q_r) + interp_dpsi_r.eval(q_r);
     Real psi_z = interp_psi_z.eval(q_z) + interp_dpsi_z.eval(q_z);
 
+    // return the BL coordinates evaluated at this Mino time using the interpolated phases and mean frequencies
     return BLCoords{torus_freqs_.Omega_t*lambda+interp_t_r.eval(q_r)+interp_t_z.eval(q_z),
                     p_*M_/(1.0+e_*cos(psi_r)),
                     acos(zmax_*cos(psi_z)),
@@ -58,10 +60,16 @@ BLCoords orbit::KerrBoundOrbit::eval_at_Mino(const Real& lambda) const {
     };
 }
 
+/*
+ * The set_constants_of_motion() method computes the specific energy (E),
+ * specific angular momentum (Lz), and Carter constant (Q) for a bound orbit in Kerr spacetime,
+ * based on the orbital parameters ra, rp, zmax, etc.
+ */
 void orbit::KerrBoundOrbit::set_constants_of_motion() {
 
     auto dets = computeDeterminants_(rp_, ra_);
 
+    // see pound and wardell Eqs.(222)-(228) https://arxiv.org/pdf/2101.04592.pdf
     Real E2numer = two*dets.dg*dets.gh - dets.dh*dets.hf -two*chi_ * sqrt(
             sqr(dets.dg*dets.gh) +
             dets.hd*dets.dg*dets.gh*dets.hf + dets.hd*dets.dh*dets.hg*dets.gf );
@@ -75,7 +83,7 @@ void orbit::KerrBoundOrbit::set_constants_of_motion() {
     assert(sqr(g_(rp_)/h_(rp_))*E2_ + (f_(rp_)*E2_-d_(rp_))/h_(rp_) >= 0.0L &&
            "Error: Non-physical parameters lead to complex angular momentum!");
     // specific angular momentum Lz = u_phi = p_phi/mu
-    Lz_ = g_(rp_)*gKerr.M()*E_/h_(rp_) + gKerr.M()*chi_ *
+    Lz_ = -g_(rp_)*gKerr.M()*E_/h_(rp_) + gKerr.M()*chi_ *
             sqrt(
                     sqr(g_(rp_)/h_(rp_))*E2_ + (f_(rp_)*E2_-d_(rp_))/h_(rp_)
             );
