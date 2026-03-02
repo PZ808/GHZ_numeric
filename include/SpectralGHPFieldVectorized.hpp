@@ -10,6 +10,7 @@
 #include "GhzTypes.hpp"
 #include "GHPScalars.hpp"
 #include "HeldScalars.hpp"
+#include "SourceTorusFrequencies.hpp"
 
 #include <vector>
 #include <array>
@@ -461,16 +462,24 @@ namespace spectral {
     class SpectralFieldVectorized : public FieldVectorized<T, 2> {
     private:
         bool is_omega_set_ = false;
-    public:
-        struct Modes {
-            int m{};
-            int k{};
-            int n{};
-        };
+        bool is_src_set_   = false;
+        orbit::SourceFrequencies src_{};
+
+        void update_omega_() noexcept {
+            if (!is_src_set_) { is_omega_set_ = false; return; }
+            omega_mk_ =
+                    Real(modes_.m) *src_.Omega_phi +
+                    Real(modes_.kr) * src_.Omega_r   +
+                    Real(modes_.kz) * src_.Omega_z;
+            is_omega_set_ = true;
+        }
 
     protected:
+        struct Modes { int m{}; int kr{}; int kz{}; };
         Modes modes_;
-        Real omega_mkn_{};   // omega_mkn = n\Omega_r + m \Omega_\phi + k \Omega_z
+        Real omega_mk_{};   // omega_{mk} = kr\Omega_r + m \Omega_\phi + kz \Omega_z
+        // If a derived class *must* mutate modes_ directly, call this after
+        void recompute_omega_from_modes() noexcept { update_omega_(); }
 
     public:
         using Base = FieldVectorized<T, 2>; // build in row-major vectorization functionality
@@ -483,38 +492,80 @@ namespace spectral {
         ~SpectralFieldVectorized() = default;
 
         // ---- getters ----
-        [[nodiscard]] virtual int k() const noexcept { return modes_.k; }
+        [[nodiscard]] virtual int kr() const noexcept { return modes_.kr; }
+        [[nodiscard]] virtual int kz() const noexcept { return modes_.kz; }
         [[nodiscard]] virtual int m() const noexcept { return modes_.m; }
-        [[nodiscard]] virtual int n() const noexcept { return modes_.n; }
-        const Modes& modes() const noexcept { return modes_; }
 
-        void set_omega_kmn(const Real& Omega_r, const Real& Omega_phi, const Real& Omega_z) noexcept
-        {
-            omega_mkn_ = modes_.n * Omega_r + modes_.m * Omega_phi + modes_.k * Omega_z;
-            is_omega_set_ = true;
+        // Prefer using this instead of writing modes_ directly in derived classes.
+        void set_modes(Modes md) noexcept {
+            modes_ = md;
+            update_omega_();
         }
-        [[nodiscard]] virtual Real omega_mkn() const noexcept { return omega_mkn_; }
+        [[nodiscard]] const Modes& modes() const noexcept { return modes_; }
+        void set_source_frequencies(const orbit::SourceFrequencies& f) noexcept {
+            src_ = f;
+            is_src_set_ = true;
+            update_omega_();
+        }
+
+        [[nodiscard]] bool has_source_frequencies() const noexcept { return is_src_set_; }
+        [[nodiscard]] const orbit::SourceFrequencies& source_frequencies() const noexcept {
+            assert(is_src_set_);
+            return src_;
+        }
+        [[nodiscard]] bool has_omega_mk() const noexcept { return is_omega_set_; }
+        [[nodiscard]] Real omega_mk() const noexcept {
+            assert(is_omega_set_);
+            return omega_mk_;
+        }
+
+        [[nodiscard]] Complex iomega_mk() const noexcept {
+            assert(is_omega_set_);
+            return Complex(0.0, omega_mk_);
+        }
 
         virtual T &operator()(size_t ir, size_t iz) { return Base::operator()({ir, iz}); }
         virtual const T &operator()(size_t ir, size_t iz) const { return Base::operator()({ir, iz}); }
 
+
         // non-memory owning view structures for slices
         // simply points into storage owned by the parent SpectralFieldVectorized
-        // mutation operations modify the parent data but no memory is allocated here
+        // mutation operations modify the parent data but no memory is allocated her
         struct RSlice {
             T* data_ptr;   // pointer to start of z-array for fixed r
             size_t Nz_;
             size_t r_;
             Modes modes_;
 
-            RSlice(T* ptr=nullptr, size_t Nz=0, Modes modes={0,0,0}, size_t r=0)
-                    : data_ptr(ptr), Nz_(Nz), modes_(modes), r_(r) {}
+            // per-mode frequency combo omega_mk = m*Omega_phi + kr*Omega_r + kz*Omega_z
+            Real omega_mk_{0};
+            bool has_omega_{false};
+
+            RSlice(T* ptr=nullptr,
+                   size_t Nz=0,
+                   Modes modes={0,0,0},
+                   size_t r=0,
+                   Real omega=0,
+                   bool has_om=false)
+                    : data_ptr(ptr), Nz_(Nz), r_(r), modes_(modes),
+                      omega_mk_(omega), has_omega_(has_om) {}
 
             size_t size() const noexcept { return Nz_; }
-            size_t r() const noexcept { return r_; }
-            [[nodiscard]] int n() const noexcept { return modes_.n; }
-            [[nodiscard]] int m() const noexcept { return modes_.m; }
-            [[nodiscard]] int k() const noexcept { return modes_.k; }
+            size_t r()    const noexcept { return r_; }
+
+            [[nodiscard]] int m()  const noexcept { return modes_.m; }
+            [[nodiscard]] int kr() const noexcept { return modes_.kr; }
+            [[nodiscard]] int kz() const noexcept { return modes_.kz; }
+
+            [[nodiscard]] bool has_omega_mk() const noexcept { return has_omega_; }
+            [[nodiscard]] Real omega_mk() const noexcept {
+                assert(has_omega_);
+                return omega_mk_;
+            }
+            [[nodiscard]] Complex iomega_mk() const noexcept {
+                assert(has_omega_);
+                return Complex(0.0, omega_mk_);
+            }
 
             T& operator[](size_t i) {
                 assert(data_ptr && i < Nz_);
@@ -524,97 +575,196 @@ namespace spectral {
                 assert(data_ptr && i < Nz_);
                 return data_ptr[i];
             }
+
             void conj_inplace() {
-                for (int i = 0; i < Nz_; ++i) {
+                for (size_t i = 0; i < Nz_; ++i) {
                     data_ptr[i] = data_ptr[i].conj();
                 }
             }
-
         }; // RSlice
 
+        // const (view)
         struct ConstRSlice {
             const T* data_ptr;
-            int Nz_, r_;
+            size_t Nz_;
+            size_t r_;
+            Modes modes_;
 
-            const T& operator[](int i) const {  return data_ptr[i]; }
-            int size() const { return Nz_; }
+            Real omega_mk_{0};
+            bool has_omega_{false};
+
+            const T& operator[](size_t i) const {
+                assert(data_ptr && i < Nz_);
+                return data_ptr[i];
+            }
+            size_t size() const noexcept { return Nz_; }
+            size_t r()    const noexcept { return r_; }
+
+            [[nodiscard]] int m()  const noexcept { return modes_.m; }
+            [[nodiscard]] int kr() const noexcept { return modes_.kr; }
+            [[nodiscard]] int kz() const noexcept { return modes_.kz; }
+
+            [[nodiscard]] bool has_omega_mk() const noexcept { return has_omega_; }
+            [[nodiscard]] Real omega_mk() const noexcept {
+                assert(has_omega_);
+                return omega_mk_;
+            }
+            [[nodiscard]] Complex iomega_mk() const noexcept {
+                assert(has_omega_);
+                return Complex(0.0, omega_mk_);
+            }
         };
 
-
         struct ZSlice {
-            T* data_ptr;            // points to first element at r=0
+            T* data_ptr;            // points to first element at r=0 for fixed z
             size_t Nr_;             // number of r elements on the slice z
-            size_t stride_;         // how many elements to jump in memory to next r
+            size_t stride_;         // jump to next r (row-major: stride = Nz)
             Modes modes_;
             size_t iz_;
 
-            ZSlice(T* ptr = nullptr, size_t Nr = 0, size_t stride = 0, Modes modes={0,0,0}, size_t iz = 0)
-                    : data_ptr(ptr), Nr_(Nr), stride_(stride), modes_(modes), iz_(iz) {}
+            Real omega_mk_{0};
+            bool has_omega_{false};
 
-            [[nodiscard]] size_t size() const { return Nr_; }
-            [[nodiscard]] size_t z() const { return iz_; }
-            int k() const { return modes_.k; }
-            int n() const { return modes_.n; }
-            int m() const { return modes_.m; }
+            ZSlice(T* ptr = nullptr,
+                   size_t Nr = 0,
+                   size_t stride = 0,
+                   Modes modes={0,0,0},
+                   size_t iz = 0,
+                   Real omega=0,
+                   bool has_om=false)
+                    : data_ptr(ptr), Nr_(Nr), stride_(stride), modes_(modes), iz_(iz),
+                      omega_mk_(omega), has_omega_(has_om) {}
+
+            [[nodiscard]] size_t size() const noexcept { return Nr_; }
+            [[nodiscard]] size_t z()    const noexcept { return iz_; }
+
+            [[nodiscard]] int kr() const noexcept { return modes_.kr; }
+            [[nodiscard]] int kz() const noexcept { return modes_.kz; }
+            [[nodiscard]] int m()  const noexcept { return modes_.m; }
+
+            [[nodiscard]] bool has_omega_mk() const noexcept { return has_omega_; }
+            [[nodiscard]] Real omega_mk() const noexcept {
+                assert(has_omega_);
+                return omega_mk_;
+            }
+            [[nodiscard]] Complex iomega_mk() const noexcept {
+                assert(has_omega_);
+                return Complex(0.0, omega_mk_);
+            }
 
             T& operator[](size_t i) {
-                assert(i < Nr_);
+                assert(data_ptr && i < Nr_);
                 return data_ptr[i*stride_];
             }
             const T& operator[](size_t i) const {
-                assert(i < Nr_);
+                assert(data_ptr && i < Nr_);
                 return data_ptr[i*stride_];
             }
-        }; //ZSlice
+        }; // ZSlice
 
         // const (view)
         struct ConstZSlice {
-            const T* data_ptr;   // points to first "column" element at ir=0
-            size_t Nr_;          // number of r elements on the slice z
-            size_t stride_;      // how many elements to jump in memory to next r due to row-major storage
+            const T* data_ptr;   // points to first element at r=0 for fixed z
+            size_t Nr_;
+            size_t stride_;
+            Modes modes_;
             size_t iz_;
 
-            [[nodiscard]] size_t size() const { return Nr_; }
-            const T& operator[](size_t i) const {
-                assert(i < Nr_);
-                return data_ptr[i*stride_];
+            // NEW
+            Real omega_mk_{0};
+            bool has_omega_{false};
+
+            [[nodiscard]] size_t size() const noexcept { return Nr_; }
+            [[nodiscard]] size_t z()    const noexcept { return iz_; }
+
+            [[nodiscard]] int kr() const noexcept { return modes_.kr; }
+            [[nodiscard]] int kz() const noexcept { return modes_.kz; }
+            [[nodiscard]] int m()  const noexcept { return modes_.m; }
+
+            [[nodiscard]] bool has_omega_mk() const noexcept { return has_omega_; }
+            [[nodiscard]] Real omega_mk() const noexcept {
+                assert(has_omega_);
+                return omega_mk_;
+            }
+            [[nodiscard]] Complex iomega_mk() const noexcept {
+                assert(has_omega_);
+                return Complex(0.0, omega_mk_);
             }
 
+            const T& operator[](size_t i) const {
+                assert(data_ptr && i < Nr_);
+                return data_ptr[i*stride_];
+            }
         };
 
-        //
-        // slice accessors (views)
-        //
 
-        auto  slice_R_span(size_t ir) { return std::span<T>(Base::data_ptr_1d(ir), Base::dims()[1]); }
-        RSlice slice_R(size_t ir) { return RSlice(Base::data_ptr_1d(ir), Base::dims()[1], modes_, ir); }
-        ConstRSlice slice_Rconst(size_t r) const {
-            auto &row = Base::data_ptr_1d(r);
-            return ConstRSlice{row, Base::dims()[1], modes_, r};
+// =======================
+// slice accessors (views)
+// =======================
+
+        auto slice_R_span(size_t ir) {
+            return std::span<T>(Base::data_ptr_1d(ir), Base::dims()[1]);
         }
-        // constant z slicing accessors
-        auto slice_Z_span(size_t iz) { return std::span<T>(Base::data_ptr_1d_col(iz),
-                                                           Base::dims()[0]); }
-        ZSlice slice_Z(size_t iz) { return ZSlice(Base::data_ptr_1d_col(iz).data(),
-                                                  Base::dims()[0], Base::dims()[1],
-                                                  modes_, iz); }
+
+        RSlice slice_R(size_t ir) {
+            return RSlice(Base::data_ptr_1d(ir),
+                          Base::dims()[1],
+                          modes_,
+                          ir,
+                          omega_mk_,
+                          is_omega_set_);
+        }
+
+        ConstRSlice slice_Rconst(size_t ir) const {
+            const T* row = Base::data_ptr_1d(ir);
+            return ConstRSlice{ row,
+                                Base::dims()[1],
+                                ir,
+                                modes_,
+                                omega_mk_,
+                                is_omega_set_ };
+        }
+
+// constant z slicing accessors
+        auto slice_Z_span(size_t iz) {
+            return std::span<T>(Base::data_ptr_1d_col(iz), Base::dims()[0]);
+        }
+
+        ZSlice slice_Z(size_t iz) {
+            return ZSlice(Base::data_ptr_1d_col(iz).data(),
+                          Base::dims()[0],
+                          Base::dims()[1],
+                          modes_,
+                          iz,
+                          omega_mk_,
+                          is_omega_set_);
+        }
+
         ConstZSlice slice_Zconst(size_t iz) const {
             auto &col_ptrs = Base::data_ptr_1d_col(iz);
-            return ConstZSlice{col_ptrs.data(), Base::dims()[0], Base::dims()[1], modes_, iz};
+            return ConstZSlice{ col_ptrs.data(),
+                                Base::dims()[0],
+                                Base::dims()[1],
+                                modes_,
+                                iz,
+                                omega_mk_,
+                                is_omega_set_ };
         }
+
 
     }; // SpectralFieldVectorized
 
 /**
- * @brief 2D spectral GHP field with spin weights and mode metadata.
+ * @brief 2D spectral dim=(Nr)x(Nz) GHP field with spin weights and mode metadata.
+ * @class SpectralGHPVectorized
  *
- * SpectralGHPVectorized combines the features of GHPFieldVectorized
- * and SpectralFieldVectorized:
- *   - stores GHP-scalars with spin weights (p,q)
- *   - adds spectral mode metadata (w,m)
- *   - supports element-wise arithmetic and conjugation
- *   - provides row slicing via std::span
- *   - fully contiguous memory layout for cache efficiency
+ * @details SpectralGHPVectorized combines the features of GHPFieldVectorized
+ * and SpectralFieldVectorized: \n
+ *   - stores GHP-scalars with spin weights (p,q) \n
+ *   - adds spectral mode metadata (w,m) \n
+ *   - supports openMP element-wise arithmetic and conjugation \n
+ *   - provides row/column slicing via std::span and pointers \n
+ *   - fully contiguous memory layout for cache efficiency \n
  */
     class SpectralGHPVectorized : public SpectralFieldVectorized<GHPScalar<Complex>> {
     protected:
@@ -632,8 +782,8 @@ namespace spectral {
         [[nodiscard]] int p() const noexcept { return p_; }
         [[nodiscard]] int q() const noexcept { return q_; }
         [[nodiscard]] int m()  const noexcept { return Base::m(); }
-        [[nodiscard]] int k() const noexcept { return Base::k(); }
-        [[nodiscard]] int n() const noexcept { return Base::n(); }
+        [[nodiscard]] int kz() const noexcept { return Base::kz(); }
+        [[nodiscard]] int kr() const noexcept { return Base::kr(); }
 
 
         GHPScalar<Complex> &operator()(size_t r, size_t z) { return Base::operator()(r, z); }
@@ -666,7 +816,7 @@ namespace spectral {
         SpectralGHPVectorized operator+(const SpectralGHPVectorized &other) const {
             if (p_ != other.p_ || q_ != other.q_ ||
                 Base::dims() != other.Base::dims() || Base::m() != other.m() ||
-                Base::k() != other.k() || Base::n() != other.n())
+                Base::kr() != other.kr() || Base::kz() != other.kz())
                 throw std::runtime_error("Mismatch in weights, dims or modes");
             SpectralGHPVectorized out(Base::dims()[0], Base::dims()[1], Base::modes_,
                                       GHPScalar<Complex>(teuk::zeroC, p_, q_), p_, q_);
@@ -697,6 +847,6 @@ namespace spectral {
 
     }; // SpectralGHPVectorized
 
-} // spectral
+}; // spectral
 
 #endif // GHZ_NUMERIC_SPECTRALGHPFIELDVECTORIZED_HPP

@@ -2,7 +2,7 @@
 // Created by Peter Zimmerman on 22.11.25.
 //
 #include "../include/GHPScalars.hpp"
-#include "../include/SpectralGHPField.hpp"
+#include "../sand/SpectralGHPField.hpp"
 #include "../include/SpectralDiffer.hpp"
 
 #include <boost/numeric/ublas/matrix.hpp>
@@ -467,7 +467,7 @@ namespace spectral {
         }
     }
 /**
- * @brief Compute dr using the Cheb. differentiation matrix for a single row.
+ * @brief Compute d/dr using the Cheb. differentiation matrix for a single row.
  *
  * @param f_slice Input slice (row of GHPFieldVectorized)
  * @param df_dr  Output slice (preallocated)
@@ -486,7 +486,6 @@ namespace spectral {
             for (int j = 0; j < N; ++j)
                 sum += Dr_(i, j) * f_slice[j].value();
             df_dr[i].value() = sum;
-            // spin weights remain unchanged
         }
     }
 
@@ -573,7 +572,7 @@ namespace spectral {
                     + Complex(aw * factor, 0.0) * fval
             );
 
-            out[i] = GHPScalar<Complex>(val, p + 1, q - 1);
+            out[i] = GHPScalar<Complex>(val, p + 0, q - 2);
         }
     }
 
@@ -604,7 +603,7 @@ namespace spectral {
         // compute derivative using D-matrix into df_dz_buf
         dz_Dmatrix_RSlice(f, df_dz_rs); // assumes this signature exists
 
-        // compute edth_H into out (spin weights p+1, q-1)
+        // compute edth_H into out (spin weights p+0, q-2)
         const Complex pref = Complex(-1.0 / std::sqrt(2.0), 0.0);
 
         for (int i = 0; i < N; ++i) {
@@ -622,7 +621,7 @@ namespace spectral {
                     + Complex(aw * factor, 0.0) * fval
             );
 
-            out[i] = GHPScalar<Complex>(val, p + 1, q - 1);
+            out[i] = GHPScalar<Complex>(val, p+0, q - 2);
         }
     }
 
@@ -669,7 +668,7 @@ namespace spectral {
             );
 
             // update GHP weights (edth raises spin by 1)
-            out_RSlice[i].set_pq(p + 1, q - 1);
+            out_RSlice[i].set_pq(p + 0, q - 2);
         }
     }
 
@@ -716,10 +715,51 @@ namespace spectral {
             );
 
             // update GHP weights (edthBar lowers spin by 1)
-            out_RSlice[i].set_pq(p - 1, q + 1);
+            out_RSlice[i].set_pq(p - 2, q + 0);
         }
     }
 
+
+    /**
+     * @name thornPH_inplace_RSliceV
+     *
+     * @details Compute thornPH on a mode-decomposed Held quantity (independent of r) \n
+     * on an RSlice using that the BL frequencies are conjugate \n
+     * to both BL time and outgoing Kerr-Newman time and the simple FT identity: \n
+     * thornPH f^circ = pd_usum_{nk} (f_{mk}^*e^{-iomega_{mk}u}) = -isum_{mnk}*omega_{mk} f_{mk}e^{-i*omega_{mk}u} \n
+     * k = (kr,kz).
+     *
+     **/
+    void SpectralDiffer::thornPH_inplace_RSliceV(
+            const SpectralGHPVectorized::RSlice &in_RSlice,
+            SpectralGHPVectorized::RSlice &out_RSlice) const
+    {
+        // sanity check: sizes must match
+        assert(in_RSlice.size() == out_RSlice.size());
+        const size_t Nz = in_RSlice.size();
+        const Complex iomega = Complex(0,1)*in_RSlice.omega_mk();
+
+        // extract GHP weights and mode info
+        int p = in_RSlice[0].p();
+        int q = in_RSlice[0].q();
+
+        std::vector<GHPScalar<Complex>> thornPH_mode(Nz);
+        spectral::SpectralGHPVectorized::RSlice thornPH_mode_RSlice(thornPH_mode.data(), Nz,
+                                                            in_RSlice.modes_,
+                                                            in_RSlice.r());
+
+        std::span<GHPScalar<Complex>> in_span(in_RSlice.data_ptr, Nz);
+        std::span<GHPScalar<Complex>> out_span(thornPH_mode_RSlice.data_ptr, Nz);
+
+        // main thornPH computation
+#pragma omp parallel for default(none) shared(Nz,p,q,out_RSlice,in_RSlice,thornPH_mode_RSlice,iomega)
+        for (size_t i = 0; i < Nz; ++i)
+        {
+            out_RSlice[i].value() = -iomega*in_RSlice[i].value();
+
+            out_RSlice[i].set_pq(p-1, q-1);
+        }
+    }
 
 
 } // namespace spectral

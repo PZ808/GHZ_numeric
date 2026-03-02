@@ -8,7 +8,7 @@
 #include "GhzTypes.hpp"
 #include "HeldScalars.hpp"
 #include "VectorsGHZ.hpp"  // Your fixed-size vector class
-#include "SpectralGHPField.hpp"
+#include "../sand/SpectralGHPField.hpp"
 #include "SpectralGHPFieldVectorized.hpp"
 
 #include <vector>
@@ -51,7 +51,7 @@ namespace spectral {
         // Constructor: build nodes, weights, differentiation matrix
         SpectralDiffer(size_t Nz, size_t Nr) : Nz_(Nz), Nr_(Nr) {
             z_ = build_legendre_gauss_lobatto_nodes(Nz_); // generate nodes z[i]
-            r_ = build_chebyshev_lobatto_nodes(Nr_); // generate nodes z[i]
+            r_ = build_chebyshev_lobatto_nodes(Nr_); // generate nodes r[i]
             wz_ = build_barycentric_weights_from_nodes(z_);
             wr_ = build_barycentric_weights_from_nodes(r_);
             w_ = build_barycentric_weights_z();
@@ -138,6 +138,10 @@ namespace spectral {
                 const SpectralGHPVectorized::RSlice &in_RSlice,
                 SpectralGHPVectorized::RSlice &out_RSlice,
                 const Real& a) const;
+
+        void thornPH_inplace_RSliceV(
+                const SpectralGHPVectorized::RSlice &in_RSlice,
+                SpectralGHPVectorized::RSlice &out_RSlice ) const;
 
     private:
         size_t Nz_, Nr_;                  // Number of nodes
