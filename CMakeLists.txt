@@ -78,15 +78,15 @@ add_executable(GHZ_numeric
         include/EllipticIntegrals.hpp
         include/KerrOrbit.hpp             src/KerrOrbit.cpp
 
-        include/SpectralGHPField.hpp
+        sand/SpectralGHPField.hpp
         include/SpectralDiffer.hpp        src/SpectralDiffer.cpp
         include/HeldScalars.hpp           src/HeldScalars.cpp
         include/KerrCharts.hpp
 
         include/SpectralGHPFieldVectorized.hpp
-        include/Splines.hpp)
-        #include/ODE.hpp
-        #include/Corrector.hpp)
+        include/Splines.hpp src/KinnersleySpectralHeldOperators.cpp
+        include/ODE.hpp
+        include/Corrector.hpp)
 
 # --------------------------
 # Target include directories

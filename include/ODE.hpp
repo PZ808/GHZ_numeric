@@ -28,7 +28,7 @@ using Real = teuk::Real;
 using Cplx = teuk::Complex;
 
 
-//// example usage to solve system dy/dr = L(y,r,z) + S(r,z) of 3 coupled ODEs
+///  example usage to solve system dy/dr = L(y,r,z) + S(r,z) of 3 coupled ODEs
 //
 // std::vector<Real> r_grid = /* r grid */;
 // std::vector<Real> z_grid = /* z grid [-1,1] */;
@@ -41,7 +41,7 @@ using Cplx = teuk::Complex;
 //auto LHS = [&](const TransportODESystem::StateVec& y, Real r, Real z) -> TransportODESystem::StateVec {
 //    TransportODESystem::StateVec dy(N);
 //    Cplx rho = -1.0/(r - Cplx(0.0, a*z));
-//    // Example: fill dy[i] with your LHS expressions
+//    // Example: fill dy[i] with LHS expressions
 //    dy[0] = (rho + std::conj(rho))*y[1] + (rho - std::conj(rho))*(rho - std::conj(rho))*y[0]; // x_mmbar
 //    dy[1] = ...; // x_nm
 //    dy[2] = ...; // x_nn
@@ -63,12 +63,14 @@ using Cplx = teuk::Complex;
 ////
 namespace ode {
 
-    // State vector type for coupled ODE system at each z=z_*
-    using StateVec = std::vector<Real>; //  components: x_mmbar, Re(x_nm), Im(x_nm), x_nn
+    // State vector type for coupled ODE system at each point z=z_*
     //using StateVec = teuk::CVectorN<4, Real>;   // 3 components: x_mmbar, x_nm, x_nn
+    // Here we have to abondon the GHP scalar type and separate into Re and Im parts
+    using StateVec = std::vector<Real>; //  components: x_mmbar, Re(x_nm), Im(x_nm), x_nn
 
-    // LHSFunc: computes L(y,r,z_*), source term S(r,z_*)
+    // LHSFunc: computes L(y,r,z_*),
     using LHSFunc    = std::function<StateVec(const StateVec&, Real, Real)>;
+    // SourceFunc: computes S(r,y, z_*)
     using SourceFunc = std::function<StateVec(Real, Real)>;
 
     // Generic coupled ODE system: dy/dr = L(y,r,z) + S(r,z), where L is linear in y (from -LHS)
