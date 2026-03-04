@@ -21,6 +21,10 @@ public:
     using Tetrad::Tetrad;
     using Real = teuk::Real;  // or from metric/coords if templated further
 
+    [[nodiscard]] inline Real a()  const { return metric.a(); } // convenience accessors
+    [[nodiscard]] inline Real M()  const { return metric.M(); } // convenience accessors
+    [[nodiscard]] inline const KerrMetric & get_metric() const { return metric; }
+
     // Coordinate-dependent tetrad builder
     void build_tetrad_at(const CoordT& X); // builds tetrad at the point X
 

@@ -6,9 +6,8 @@
 #define GHZ_NUMERIC_SPECTRALDIFFER_HPP
 
 #include "GhzTypes.hpp"
-#include "HeldScalars.hpp"
 #include "VectorsGHZ.hpp"  // Your fixed-size vector class
-#include "../sand/SpectralGHPField.hpp"
+//#include "../sand/SpectralGHPField.hpp"
 #include "SpectralGHPFieldVectorized.hpp"
 
 #include <vector>
@@ -70,7 +69,7 @@ namespace spectral {
 
         // Barycentric utilities (declare; implement elsewhere or below)
         [[nodiscard]] RVector build_barycentric_weights_z() const;
-        RVector build_barycentric_weights_from_nodes(const RVector& nodes) const;
+        [[nodiscard]] RVector build_barycentric_weights_from_nodes(const RVector& nodes) const;
 
         [[nodiscard]] static std::pair<Complex, Complex> barycentric_interp_and_derivative(const RVector& nodes,
                                                                                            const CVector& f,
@@ -88,11 +87,11 @@ namespace spectral {
 
 
         // dz on a single r=const slice (in-place into df_dz)
-        void dz_Dmatrix_RSlice(const GHPSpectralField::RSlice &f_RSlice,
-                               GHPSpectralField::RSlice &dfdz_RSlice_into) const;
+        void dz_Dmatrix_RSlice(const SpectralGHPVectorized::RSlice &f_RSlice,
+                               SpectralGHPVectorized::RSlice &dfdz_RSlice_into) const;
 
-        void dr_Dmatrix_ZSlice(const  spectral::GHPSpectralField::ZSlice &f_ZSlice,
-                               GHPSpectralField::ZSlice &df_dr) const;
+        void dr_Dmatrix_ZSlice(const  spectral::SpectralGHPVectorized::ZSlice &f_ZSlice,
+                               SpectralGHPVectorized::ZSlice &df_dr) const;
 
         void dz_Dmatrix(const std::span<GHPScalar<Complex>> &f_span_rconst,
                         std::span<GHPScalar<Complex>> &df_dz) const;
@@ -101,16 +100,16 @@ namespace spectral {
                         std::span<GHPScalar<Complex>>& df_dr) const;
 
 
-        GHPSpectralField::RSlice dz_barycentric_RSlice(const GHPSpectralField::RSlice& f_RSlice,
-                                                       GHPSpectralField::RSlice& dfdz_RSlice_into,
+        SpectralGHPVectorized::RSlice dz_barycentric_RSlice(const SpectralGHPVectorized::RSlice& f_RSlice,
+                                                       SpectralGHPVectorized::RSlice& dfdz_RSlice_into,
                                                        const std::vector<Real>& weights) const;
 
         void dz_barycentric_inplace(const std::span<GHPScalar<Complex>> &f_span_const,
                                     std::span<GHPScalar<Complex>> &df,
                                     const std::vector<Real> &weights) const;
 
-        GHPSpectralField::ZSlice dr_barycentric_ZSlice(const GHPSpectralField::ZSlice &f,
-                                                      GHPSpectralField::ZSlice &df_dr,
+        SpectralGHPVectorized::ZSlice dr_barycentric_ZSlice(const SpectralGHPVectorized::ZSlice &f,
+                                                       SpectralGHPVectorized::ZSlice &df_dr,
                                                       const std::vector<Real> &w ) const;
 
         void dr_barycentric_inplace(const std::span<GHPScalar<Complex>> &f_span_const,
@@ -125,10 +124,10 @@ namespace spectral {
                                    std::span<GHPScalar<Complex>> &df_dt_slice,
                                    const Real &omega) const;
 
-        void edthH_bary_inplace(const GHPSpectralField::RSlice &f,
-                                                GHPSpectralField::RSlice &out, Real const& a) const;
-        void edthH_dmat_RSlice_inplace(const GHPSpectralField::RSlice &f,
-                                       GHPSpectralField::RSlice &out, const Real& a) const;
+        void edthH_bary_inplace(const SpectralGHPVectorized::RSlice &f,
+                                SpectralGHPVectorized::RSlice &out, Real const& a) const;
+        void edthH_dmat_RSlice_inplace(const SpectralGHPVectorized::RSlice &f,
+                                       SpectralGHPVectorized::RSlice &out, const Real& a) const;
 
         void edthH_inplace_RSliceV(
                 const SpectralGHPVectorized::RSlice &in_RSlice,
