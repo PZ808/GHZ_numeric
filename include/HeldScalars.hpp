@@ -25,14 +25,15 @@ public:
 class HeldField : public GHPField {
 public:
     HeldField() = default;
-    HeldField(int Nz,
+
+    explicit HeldField(size_t Nz,
               Scalar init = Scalar(teuk::zeroC, 0, 0), int p = 0, int q = 0)
             :     GHPField(1, Nz, init, p, q) {}
 
-    Scalar& operator()(int iz) {
+    Scalar& operator()(size_t iz) {
         return GHPField::operator()(0, iz);
     }
-    const Scalar& operator()(int iz) const {
+    const Scalar& operator()(size_t iz) const {
         return GHPField::operator()(0, iz);
     }
 
@@ -49,9 +50,10 @@ struct HeldCoefficients {
 
 };
 
+template <typename CoordT>
 struct HeldBackgroundFields {
     HeldField rhopH, rhopH_bar, tauH, tauH_bar, PsiH, PsiH_bar, OmH, OmH_bar;
-    HeldBackgroundFields(int Nz) :
+    explicit HeldBackgroundFields(size_t Nz) :
             rhopH(Nz, HeldScalar(teuk::zeroC,-2,-2), -2,-2),
             rhopH_bar(Nz, HeldScalar(teuk::zeroC,-2,-2), -2,-2),
             tauH (Nz, HeldScalar(teuk::zeroC,-1,-3), -1,-3),
@@ -62,15 +64,15 @@ struct HeldBackgroundFields {
             OmH_bar(Nz,HeldScalar(teuk::zeroC,-1,-1), -1,-1) {}
 };
 
-template <typename TetradType, typename CoordType>
-HeldBackgroundFields build_held_fields_at(TetradType& tetrad,
+template <typename TetradType, typename CoordT>
+HeldBackgroundFields<CoordT> build_held_fields_at(TetradType& tetrad,
                                        const std::vector<teuk::Real>& z_nodes,
-                                       CoordType &X)
+                                                  CoordT &X)
 {
     const int Nz = static_cast<int>(z_nodes.size());
-    HeldBackgroundFields held_fields(Nz);
+    HeldBackgroundFields<CoordT> held_fields(Nz);
 
-    for (int iz=0; iz<Nz; ++iz) {
+    for (size_t iz=0; iz<Nz; ++iz) {
         // set z to current collocation point, r can be fixed (e.g. r=const slice)
         X.x2 = z_nodes[iz];
 
@@ -79,7 +81,7 @@ HeldBackgroundFields build_held_fields_at(TetradType& tetrad,
         auto scalars = tetrad.get_scalars_at(X);  // get all scalars at the current point X = (r,z)
         // assign directly to HeldFields
         held_fields.rhopH(iz)     = scalars.held_scalars.rhopH;
-        held_fields.rhopH_bar(iz) = scalars.held_scalars.rhopH;
+        held_fields.rhopH_bar(iz) = scalars.held_scalars.rhopH_bar;
         held_fields.tauH(iz)      = scalars.held_scalars.tauH;
         held_fields.tauH_bar(iz)  = scalars.held_scalars.tauH_bar;
         held_fields.PsiH(iz)      = scalars.held_scalars.PsiH;
@@ -123,10 +125,11 @@ HeldBackgroundFields build_held_fields_at(TetradType& tetrad,
  *       in parallel. Make sure OpenMP is enabled in your compiler.
  */
 namespace ghp {
+    template <typename CoordT>
     struct HeldBackgroundFieldsVectorized {
         HeldFieldVectorized rhopH, rhopH_bar, tauH, tauH_bar, PsiH, PsiH_bar, OmH, OmH_bar;
         // bundle of 1D arrays (along z) for the background Held/GHP scalars
-        explicit HeldBackgroundFieldsVectorized(int Nz)
+        explicit HeldBackgroundFieldsVectorized(size_t Nz)
                 : rhopH(Nz, HeldScalar(teuk::zeroC, -2, -2), -2, -2),
                   rhopH_bar(Nz, HeldScalar(teuk::zeroC, -2, -2), -2, -2),
                   tauH(Nz, HeldScalar(teuk::zeroC, -1, -3), -1, -3),
@@ -138,6 +141,7 @@ namespace ghp {
                   {}
     };
 
+    template <typename CoordT>
     struct HeldRicciEquationsTypeDVectorized {
         HeldFieldVectorized EdthH_tauH, EdthH_tauH_bar, EdthH_PsiH, EdthH_PsiH_bar,
                 EdthH_OmH, EdthH_OmH_bar, EdthH_rhopH;
@@ -174,22 +178,23 @@ namespace ghp {
     };
 
     /// Bundle for background Held fields + their Ricci-type-D combinations
+    template <typename CoordT>
     struct HeldBackgroundAndRicciVectorized {
-        HeldBackgroundFieldsVectorized fields;
-        HeldRicciEquationsTypeDVectorized riccis;
+        HeldBackgroundFieldsVectorized<CoordT> fields;
+        HeldRicciEquationsTypeDVectorized<CoordT> riccis;
 
-        explicit HeldBackgroundAndRicciVectorized(int Nz)
+        explicit HeldBackgroundAndRicciVectorized(size_t Nz)
                 : fields(Nz), riccis(Nz) {}
     };
 
     // build the Held background fields in vectorized form for all z-nodes in parallel using OpenMP
     template<typename TetradType, typename CoordType>
-    HeldBackgroundAndRicciVectorized build_held_fields_vectorized(TetradType &tetrad,
+    HeldBackgroundAndRicciVectorized<CoordType> build_held_fields_vectorized(TetradType &tetrad,
                                                                 const std::span<const teuk::Real> z_nodes,
                                                                 CoordType &X)
     {
         const int Nz = static_cast<int>(z_nodes.size());
-        HeldBackgroundAndRicciVectorized result(Nz);
+        HeldBackgroundAndRicciVectorized<CoordType> result(Nz);
 
 
         auto &held_fields = result.fields;
@@ -197,7 +202,7 @@ namespace ghp {
 
         // Use OpenMP to parallelize over z-nodes
 #pragma omp parallel for default(none) firstprivate(tetrad, X, Nz) shared(z_nodes, held_fields, held_riccis)
-        for (int iz = 0; iz < Nz; ++iz) {
+        for (size_t iz = 0; iz < Nz; ++iz) {
 
             CoordType X_local = X;   // make a local copy for thread safety
             TetradType tetrad_local = tetrad; // copy tetrad for this thread

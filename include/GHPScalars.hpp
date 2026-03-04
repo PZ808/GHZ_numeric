@@ -149,8 +149,8 @@ private:
     RZBlockScalar values_; //  Nr x Nz array
     int p_;
     int q_;
-    int Nz_;
-    int Nr_;
+    size_t Nz_;
+    size_t Nr_;
     Scalar zero_pq_;
 
 public:
@@ -165,7 +165,7 @@ public:
     *
     * All entries are initialized as GHPScalar(init.value(), p, q).
     */
-    GHPField(int Nr=0, int Nz=0,
+    GHPField(size_t Nr=0, size_t Nz=0,
              Scalar init = Scalar(teuk::zeroC, 0, 0),
              int p = 0, int q = 0)
             : p_(p), q_(q), Nz_(Nz), Nr_(Nr)
@@ -175,9 +175,9 @@ public:
                 values_.resize(Nr_);
 
                 // initialize each r–row with Nz Scalars
-                for (int r = 0; r < Nr_; ++r) {
+                for (size_t r = 0; r < Nr_; ++r) {
                     values_[r].resize(Nz_);
-                    for (int z = 0; z < Nz_; ++z) {
+                    for (size_t z = 0; z < Nz_; ++z) {
                         values_[r][z] = Scalar(init.value(), p_, q_);
                     }
                 }
@@ -188,23 +188,23 @@ public:
       * @param func  Function taking (r_index, z_index) → Complex
       * The returned Complex is wrapped into a GHPScalar with fixed (p,q).
       */
-    void fill(std::function<Complex(int, int)> func) {
-        for (int r = 0; r < Nr(); ++r)
-            for (int z = 0; z < Nz(); ++z)
+    void fill(std::function<Complex(size_t, size_t)> func) {
+        for (size_t r = 0; r < Nr(); ++r)
+            for (size_t z = 0; z < Nz(); ++z)
                 values_[r][z] = Scalar(func(r, z), p_, q_);
     }
 
     const RZBlockScalar& values() const { return values_; }
     void set_values(const RZBlockScalar& vals) { values_ = vals; }
 
-    Scalar& operator()(int ir, int iz) { return values_[ir][iz]; }
-    const Scalar& operator()(int ir, int iz) const { return values_[ir][iz]; }
-    void set(int ir, int jz, Scalar val) { values_[ir][jz] = val; }
+    Scalar& operator()(size_t ir, size_t iz) { return values_[ir][iz]; }
+    const Scalar& operator()(size_t ir, size_t iz) const { return values_[ir][iz]; }
+    void set(size_t ir, size_t jz, Scalar val) { values_[ir][jz] = val; }
 
     int p() const { return p_; }
     int q() const { return q_; }
-    int Nz() const { return Nz_; }
-    int Nr() const { return Nr_; }
+    size_t Nz() const { return Nz_; }
+    size_t Nr() const { return Nr_; }
 
     /**
      * @brief GHP conjugation: swaps weights (p,q) → (q,p) and conjugates components.
@@ -212,8 +212,8 @@ public:
      */
     [[nodiscard]] GHPField conj() const {
         GHPField result(Nz_, Nr_, zero_pq_, q_, p_);
-        for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nr_; ++j)
+        for(size_t i = 0; i < Nz_; ++i)
+            for(size_t j = 0; j < Nr_; ++j)
                 result.values_[i][j] = values_[i][j].conj();
         return result;
     }
@@ -225,8 +225,8 @@ public:
    */
     GHPField transform(const Complex& lambda) const {
         GHPField result(Nz_, Nr_,zero_pq_, p_, q_);
-        for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nr_; ++j)
+        for(size_t i = 0; i < Nz_; ++i)
+            for(size_t j = 0; j < Nr_; ++j)
                 result.values_[i][j] = math::PowInt(lambda, p_) *
                         math::PowInt(std::conj(lambda), q_) * values_[i][j];
         return result;
@@ -239,8 +239,8 @@ public:
         if(Nz_ != other.Nz_ || Nr_ != other.Nr_)
             throw std::runtime_error("GHPField dimensions mismatch in multiplication");
         GHPField result(Nz_, Nr_, zero_pq_, p_ + other.p_, q_ + other.q_);
-        for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nr_; ++j)
+        for(size_t i = 0; i < Nz_; ++i)
+            for(size_t j = 0; j < Nr_; ++j)
                 result.values_[i][j] = values_[i][j] * other.values_[i][j];
         return result;
     }
@@ -251,14 +251,14 @@ public:
         if(p_ != other.p_ || q_ != other.q_)
             throw std::runtime_error("GHPField weights mismatch in addition");
         GHPField result(Nz_, Nr_,zero_pq_, p_, q_);
-        for(int i = 0; i < Nz_; ++i)
-            for(int j = 0; j < Nr_; ++j)
+        for(size_t i=0; i<Nz_; ++i)
+            for(size_t j=0; j<Nr_; ++j)
                 result.values_[i][j] = values_[i][j] + other.values_[i][j];
         return result;
     }
 
     // Convenience string representation for debugging
-    std::string str(int ir = -1, int jz = -1) const {
+    std::string str(size_t ir = -1, size_t jz = -1) const {
         std::ostringstream oss;
         oss << "GHPField(p,q)=(" << p_ << "," << q_ << "), size=(" << Nz_ << "," << Nr_ << ")\n";
         if(ir >= 0 && jz >= 0) {
@@ -277,8 +277,8 @@ public:
               const std::vector<double>& r_nodes,
               const std::vector<double>& z_nodes)
     {
-        for(int i = 0; i < Nr_; ++i) {
-            for(int j = 0; j < Nz_; ++j) {
+        for(size_t i = 0; i < Nr_; ++i) {
+            for(size_t j = 0; j < Nz_; ++j) {
                 values_[i][j].value() = func(r_nodes[i], z_nodes[j]);
             }
         }

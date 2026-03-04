@@ -75,17 +75,17 @@ namespace ghp {
         container_type values_;
         int p_ = 0;
         int q_ = 0;
-        int Nz_ = 0;
-        int Nr_ = 0;
+        size_t Nz_ = 0;
+        size_t Nr_ = 0;
 
-        constexpr size_type idx(int r, int z) const noexcept {
+        [[nodiscard]] constexpr size_type idx(int r, int z) const noexcept {
             return static_cast<size_type>(r) * static_cast<size_type>(Nz_) + static_cast<size_type>(z);
         }
 
     public:
         GHPFieldVectorized() = default;
 
-        explicit GHPFieldVectorized(int Nr, int Nz,
+        explicit GHPFieldVectorized(size_t Nr, size_t Nz,
                                     Scalar init = Scalar(teuk::zeroC, 0, 0),
                                     int p = 0, int q = 0)
                 : values_(static_cast<size_type>(Nr) * static_cast<size_type>(Nz)),
@@ -95,13 +95,13 @@ namespace ghp {
             for (auto &s : values_) s = Scalar(init.value(), p_, q_);
         }
 
-        int p() const noexcept { return p_; }
-        int q() const noexcept { return q_; }
-        int Nz() const noexcept { return Nz_; }
-        int Nr() const noexcept { return Nr_; }
+        [[nodiscard]] int p() const noexcept { return p_; }
+        [[nodiscard]] int q() const noexcept { return q_; }
+        [[nodiscard]] size_t Nz() const noexcept { return Nz_; }
+        [[nodiscard]] size_t Nr() const noexcept { return Nr_; }
 
-        Scalar& operator()(int r, int z) { return values_[idx(r, z)]; }
-        const Scalar& operator()(int r, int z) const { return values_[idx(r, z)]; }
+        Scalar& operator()(size_t r,size_t z) { return values_[idx(r, z)]; }
+        const Scalar& operator()(size_t r, size_t z) const { return values_[idx(r, z)]; }
 
         void resize(int Nr, int Nz, Scalar init = Scalar(teuk::zeroC, 0, 0)) {
             Nr_ = Nr; Nz_ = Nz;
@@ -364,7 +364,7 @@ namespace ghp {
         container_type values_;
         int p_ = 0;
         int q_ = 0;
-        int Nz_ = 0;
+        size_t Nz_ = 0;
 
     public:
         HeldFieldVectorized() = default;
@@ -392,7 +392,7 @@ namespace ghp {
         template <std::invocable<int> F>
         void fill_indexed(F&& f) {
 #pragma omp parallel for
-            for (int iz = 0; iz < Nz_; ++iz)
+            for (size_t iz = 0; iz < Nz_; ++iz)
                 values_[static_cast<size_type>(iz)] = Scalar(std::invoke(f, iz), p_, q_);
         }
 

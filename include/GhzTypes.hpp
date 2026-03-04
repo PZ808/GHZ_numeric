@@ -135,6 +135,10 @@ namespace teuk {
     inline const Complex zeroC = Complex(Real(0.0), Real(0.0));
     inline const Real one = Real(1.0);
     inline const Real two = Real(2.0);
+    inline const Real three = Real(3.0);
+    inline const Real four = Real(4.0);
+    inline const Real five = Real(5.0);
+    inline const Real six = Real(6.0);
 
     inline const Complex I{Real(0.0), Real(1.0)};
 
