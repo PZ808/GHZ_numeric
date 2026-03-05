@@ -79,19 +79,19 @@ src/
 
 ```mermaid
 flowchart TD
-  subgraph geom[Geometry (ghz/geom)]
+  subgraph geom
     KP[KerrParams] --> KM[KerrMetric]
     KM --> CH[Coords / Charts]
     KM --> TT[Tetrads]
     TT --> KT[KinnersleyTetrad]
   end
 
-  subgraph ghp[GHP & Held (ghz/ghp)]
+  subgraph ghp
     KT --> SC[Spin Coeffs / Weyl / Held Background]
     SC --> GS[GHPScalar (p,q)]
   end
 
-  subgraph spectral[Spectral Numerics (ghz/spectral)]
+  subgraph spectral
     SD[SpectralDiffer (LGL/Cheb)] --> OP[Held Operators on slices]
     GS --> SF[Spectral GHP Fields]
     SF --> OP
@@ -107,7 +107,35 @@ flowchart TD
     SRC --> TS
   end
 ```
-  
+
+```mermaid
+flowchart TD
+    subgraph Geometry
+        A[Metric]  -->   B[KerrMetric] 
+        P[KerrParams] --> B[KerrMetric]  --> C[CoordinateSystem] 
+        C--> D[KerrCharts] 
+        C --> T[Tetrad] --> KT[KinnersleyTetrad]
+        
+    end
+    subgraph Scalars
+        KT --> F[GHPScalar]
+        F --> G[GHPField]
+        G --> H[HeldField] 
+      end
+     subgraph Spectral 
+        I[GHPSpectralField] --> K[SpectralDiffer]
+        H --> K
+       SD[SpectralDiffer (LGL/Cheb)] --> OP[Held Op]
+     end
+    subgraph Orbit
+     B --> O[KerrOrbit] 
+     O --> BO[KerrBoundOrbit]
+     D --> BO
+    end
+  subgraph Transport
+    OP --> TS[Transport/Corrector Solvers]
+  end
+```
 
 Each class is independent and documented internally.  
 The `main.cpp` file demonstrates how to:
@@ -203,23 +231,6 @@ on an $$N_r \times N_z$$   grid of $$r,z$$ values.
   - supports OpenMP element-wise arithmetic and conjugation
   - provides row/column slicing via `std::span` and pointer-backed views
   - uses a fully contiguous memory layout for cache efficiency
-## 6. `SpectralField<T>`
-Generic container for spectral fields.
-
-Important Definitions:
-
-- `ZRow` = spectral points in \(z=\cos\theta\)
-- `RZBlock` = 2D array `[r][z]`
-- `ValueType = T` defines data type of the field (tuek::Complex for multiprecision)
-- `w` = \(\omega\)
-- `m` = \(m\)
-
-Features:
-
-- Supports arbitrary scalar type (e.g. GHPScalar, Real, Complex)
-- Stores \((m, \omega)\) mode labels
-- Provides access to slices, fill operations, and arithmetic
-
 
 ## 7. `SpectralDiffer`
 Legendre–Gauss–Lobatto collocation, barycentric interpolation and differentiation.
@@ -233,11 +244,12 @@ Provides:
 
 Used to operate on `ZSlice` objects of a `SpectralField`.
 
-## 9. `KinnersleyHeldOperators<CoordType T>`
+## 8. `KinnersleyHeldOperators<CoordType T>`
 Implements Held operators on spectral field slices
+ - used to build the transport operators in the GHZ hierarchy
 
 
-## 10. `KerrBoundOrbit`
+## 9. `KerrBoundOrbit`
 Action–angle parametrization of bound orbits in Kerr spacetime.
 
 - Computes mino and BL frequencies via elliptic integrals
