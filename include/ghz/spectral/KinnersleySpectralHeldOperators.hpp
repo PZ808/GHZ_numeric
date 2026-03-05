@@ -67,18 +67,18 @@ public:
 
     void edthH_bary_inplace_RSliceV(const SpectralGHPVectorized::RSlice &f,
                             SpectralGHPVectorized::RSlice &out) const;
-
+    void
+    thornPHr_inplace_RSliceV(const KinnersleyTetrad<OutgoingCoords> &ktet,
+                             const SpectralGHPVectorized::RSlice &in_RSlice,
+                             const SpectralGHPVectorized::RSlice &dr_in_RSlice,
+                             SpectralGHPVectorized::RSlice &out_RSlice) const;
 private:
     const spectral::SpectralDiffer& diff_;
     const HeldBackgroundFieldsVectorized<CoordType>& bg_helds_;
     const KinnersleyTetrad<CoordType>& kin_tetrad_;
     const Real a_ = kin_tetrad_.a();
 
-    void
-    thornPHr_inplace_RSliceV(const KinnersleyTetrad<OutgoingCoords> &ktet,
-                             const SpectralGHPVectorized::RSlice &in_RSlice,
-                             const SpectralGHPVectorized::RSlice &dr_in_RSlice,
-                             SpectralGHPVectorized::RSlice &out_RSlice) const;
+
 };
 
 #endif //HS1DATA_DATA_KINNERSLEYHELDOPERATORS_HPP
