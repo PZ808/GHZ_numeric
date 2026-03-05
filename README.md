@@ -79,37 +79,6 @@ src/
 
 ```mermaid
 flowchart TD
-  subgraph geom
-    KP[KerrParams] --> KM[KerrMetric]
-    KM --> CH[Coords / Charts]
-    KM --> TT[Tetrads]
-    TT --> KT[KinnersleyTetrad]
-  end
-
-  subgraph ghp
-    KT --> SC[Spin Coeffs / Weyl / Held Background]
-    SC --> GS[GHPScalar (p,q)]
-  end
-
-  subgraph spectral
-    SD[SpectralDiffer (LGL/Cheb)] --> OP[Held Operators on slices]
-    GS --> SF[Spectral GHP Fields]
-    SF --> OP
-  end
-
-  subgraph transport[Transport (ghz/transport)]
-    OP --> TS[Transport/Corrector Solvers]
-  end
-
-  subgraph orbit[Orbit & Source (ghz/orbit, ghz/source)]
-    KM --> OR[KerrOrbit / Bound Orbit]
-    OR --> SRC[Effective Source (m-modes)]
-    SRC --> TS
-  end
-```
-
-```mermaid
-flowchart TD
     subgraph Geometry
         A[Metric]  -->   B[KerrMetric] 
         P[KerrParams] --> B[KerrMetric]  --> C[CoordinateSystem] 
@@ -125,7 +94,7 @@ flowchart TD
      subgraph Spectral 
         I[GHPSpectralField] --> K[SpectralDiffer]
         H --> K
-       SD[SpectralDiffer (LGL/Cheb)] --> OP[Held Op]
+        K --> OP[Held Op]
      end
     subgraph Orbit
      B --> O[KerrOrbit] 
@@ -133,7 +102,9 @@ flowchart TD
      D --> BO
     end
   subgraph Transport
+    O --> TSRC[Effective Source (m-modes)]
     OP --> TS[Transport/Corrector Solvers]
+    TSRC --> TS
   end
 ```
 
