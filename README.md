@@ -1,56 +1,113 @@
-# GHZ_numeric
+## GHZ_numeric
 
-**Green Hollands Zimmerman (GHZ) Transport Solver**
+**Green–Hollands–Zimmerman (GHZ) Transport Solver**
 
-A modular C++ framework for solving the **GHZ transport equations** 
-for a generic orbit effective source in Kerr spacetime.  
+A modular C++ framework for building the numerical infrastructure needed to solve the
+**GHZ transport equations** for generic-orbit effective sources in Kerr spacetime.
 
 ---
 
-## 🔭 Overview
+## Overview
 
-`GHZ_numeric` provides numerical infrastructure for:
-- Constructing the **Kerr metric** and its coordinate representations (Boyer–Lindquist, ingoing, and outgoing Kerr coordinates).
-- Defining **null tetrads** (Kinnersley, Carter, Hartle–Hawking) and transforming between them.
-- Computing **spin coefficients** in both NP and **GHP-covariant** form.
-- Representing and manipulating **GHP scalars** (with spin- and boost-weights).
-- Setting up the **transport equations** along null congruences (for the GHZ system).
-- (In future modules) Importing the effective source in $m$-modes
-- (In future modules) Integrating the GHZ **transport equations** numerically using spectral and 
-finite difference methods
-- (In future modules) Reconstructing the effective metric from Teukolsky data and the corrector.
+`GHZ_numeric` provides reusable components for Kerr geometry and GHP/Held calculus,
+together with spectral differentiation tools and transport ODE solvers used in the
+GHZ corrector hierarchy.
 
+Core capabilities include:
 
-  The architecture is designed to be modular and extendable, allowing both **analytic** and **numerical** workflows.
+- **Kerr geometry**
+    - Kerr metric functions and invariants
+    - Multiple coordinate charts (Boyer–Lindquist, ingoing Kerr, outgoing Kerr)
+- **Frames (tetrads)**
+    - Construction of null tetrads (e.g. Kinnersley)
+    - Consistency checks and tetrad/metric utilities
+- **GHP / Held scalars**
+    - Type-safe GHP scalars with \((p,q)\) weights
+    - Held background fields and coefficients
+    - NP/GHP quantities and spin coefficients
+- **Spectral numerics**
+    - Legendre–Gauss–Lobatto (LGL) in \(z=\cos\theta\), Chebyshev in \(r\)
+    - Differentiation matrices, barycentric interpolation, filtering
+    - Pole-safe Held \(\tilde{\eth}\), \(\tilde{\eth}'\) implementations on spectral slices
+- **Transport solvers**
+    - ODE infrastructure for integrating GHZ transport systems along rays/slices
+    - Builder-style operator construction for hierarchy levels
+
+Planned / in-progress modules:
+- Importing Teukolsky spectral data from external solvers
+- Hybrid differentiation strategies (filtered spectral / FD near source support)
+- Reconstruction and corrector post-processing pipelines
 
 ---
 
 ## 🧱 Project Structure
 
+The project uses a standard `include/` + `src/` split with a shallow module structure.
+
+```text
+include/
+  ghz/
+    core/        # basic types, utilities
+    geom/        # coordinates, metrics, tetrads
+    ghp/         # GHP + Held scalars/coefs, NP/GHP quantities
+    spectral/    # spectral fields, differentiation, filters, operators
+    transport/   # ODE systems, transport solvers, corrector hierarchy tools
+    orbit/       # bound orbit parametrizations and frequencies
+    source/      # source/effective-source construction utilities
+
+src/
+  ghz/
+    core/
+    geom/
+    ghp/
+    spectral/
+    transport/
+    orbit/
+    source/
+
+**The codebase is organized into modular namespaces and directories reflecting the core components:**
+- *Geometry objects* (metrics, charts, tetrads) live in `geom/`.
+- *GHP/Held objects* (weighted scalars, spin coefficients, Weyl scalars) live in `ghp/`.
+- *Numerical operators on grids/slices* (LGL/Cheb differ, filters, Held operators) live in `spectral/`.
+- *ODE integration and corrector plumbing* lives in `transport/`.
+- *Orbit and source models* live in `orbit/` and `source/`.
+```
+
+---
+
+## Conceptual Architecture
+
 ```mermaid
 flowchart TD
-    subgraph Geometry
-        A[Metric]  -->   B[KerrMetric] 
-        P[KerrParams] --> B[KerrMetric]  --> C[CoordinateSystem] 
-        C--> D[KerrCharts] 
-        C --> T[Tetrad] --> KT[KinnersleyTetrad]
-        
-    end
-    subgraph Scalars
-        KT --> F[GHPScalar]
-        F --> G[GHPField]
-        G --> H[HeldField] 
-      end
-     subgraph Spectral 
-        I[GHPSpectralField] --> K[SpectralDiffer]
-        H --> K
-     end
-    subgraph Orbit
-     B --> O[KerrOrbit] 
-     O --> BO[KerrBoundOrbit]
-     D --> BO
-    end
-```  
+  subgraph geom[Geometry (ghz/geom)]
+    KP[KerrParams] --> KM[KerrMetric]
+    KM --> CH[Coords / Charts]
+    KM --> TT[Tetrads]
+    TT --> KT[KinnersleyTetrad]
+  end
+
+  subgraph ghp[GHP & Held (ghz/ghp)]
+    KT --> SC[Spin Coeffs / Weyl / Held Background]
+    SC --> GS[GHPScalar (p,q)]
+  end
+
+  subgraph spectral[Spectral Numerics (ghz/spectral)]
+    SD[SpectralDiffer (LGL/Cheb)] --> OP[Held Operators on slices]
+    GS --> SF[Spectral GHP Fields]
+    SF --> OP
+  end
+
+  subgraph transport[Transport (ghz/transport)]
+    OP --> TS[Transport/Corrector Solvers]
+  end
+
+  subgraph orbit[Orbit & Source (ghz/orbit, ghz/source)]
+    KM --> OR[KerrOrbit / Bound Orbit]
+    OR --> SRC[Effective Source (m-modes)]
+    SRC --> TS
+  end
+```
+  
 
 Each class is independent and documented internally.  
 The `main.cpp` file demonstrates how to:
@@ -71,7 +128,7 @@ Below are the main classes and their purposes.
 ## 1. `KerrMetric`
 Coordinate-independent Kerr metric object.
 
-- Stores parameters \(M, a, \)
+- Stores parameters \(M, a,\)
 - Provides metric functions and invariants
 - Backend used by all coordinate-specific metrics
 
@@ -87,13 +144,12 @@ Constructs quantities in and provides functions to transforms between:
 
 Provides:
 
-- Metric construction in each coordinate chart
+- Metric components in each coordinate chart
 - Transformations between charts
 - Useful geometric quantities for tetrads and scalars
-- 
 ---
 
-## 3. `KinnersleyTetrad<Coordtype T>?`
+## 3. `KinnersleyTetrad<Coordtype T>`
 Builds the Kinnersley tetrad and derived bkg quantities in all supported coordinates.
 
 Computes:
@@ -116,21 +172,37 @@ This is the basic algebraic object used everywhere.
 
 ---
 
-## 5. `GHPField`
-Represents a field of 
+## 5.   `FieldVectorized<typename T,size_type dim>`
+
+As base class of `GHPFieldVectorized (base on FieldVectorized<GHPScalar<Complex>,2>)
+and HeldFieldVectorized (based on FieldVectorized<GHPScalar<Complex>,1>;)`
+
+GHPFieldVectorized represents a vectorized row-major fields of 
 Geroch-Held-Penrose (GHP) scalars with spin-boost weights (p,q)
 on an $$N_r \times N_z$$   grid of $$r,z$$ values.
 
-- Stored as a 2D grid `[r][z]`
+- Stored as a 2D grid `[r][z]` or 1d  `[z]` array of GHP/Held scalars with metadata for dimensions
 - Arithmetic operator overloads which handle GHP weights 
-- accessors and views
+- accessors and views for slicings in r or z
 - lambda functions which fill the values given a function of r,z
 - GHP covariant tranformations inc. as conjugation and spin-boosts
-- Used for background quantities such as GHP spin coefficients
-- Used for spectral r,z 
+- Used for background quantities such as GHP spin coefficients 
+- Used for spectral field perturbed quantities, e.g. the corrector fields
 
 ---
 
+## 6.  Spectral Fields (`ghz/spectral`)
+- **`SpectralFieldVectorized<T>`**: generic 2D spectral field container with contiguous storage and fast slice views.
+  - stores mode metadata (e.g. \(m\), \(\omega\), and/or \((m,k_r,k_z)\) depending on configuration)
+  - provides `RSlice`/`ZSlice` views via `std::span`/raw pointers
+  - supports OpenMP-friendly element-wise operations
+
+- **`SpectralGHPVectorized`**: GHP-aware spectral field (combines `GHPFieldVectorized` + `SpectralFieldVectorized`)
+  - stores **GHP scalars** with spin/boost weights \((p,q)\)
+  - adds **spectral mode metadata** (e.g. \(m,\omega\) or \((m,k_r,k_z)\))
+  - supports OpenMP element-wise arithmetic and conjugation
+  - provides row/column slicing via `std::span` and pointer-backed views
+  - uses a fully contiguous memory layout for cache efficiency
 ## 6. `SpectralField<T>`
 Generic container for spectral fields.
 
@@ -148,38 +220,22 @@ Features:
 - Stores \((m, \omega)\) mode labels
 - Provides access to slices, fill operations, and arithmetic
 
----
 
-## 7. `GHPSpectralField`
-A `SpectralField<GHPScalar>` with GHP bookkeeping.
-
-- Tracks \((p,q)\) weights
-- Tracks \((m,\omega)\) indices
-- Supports GHP operator application in spectral form
-
----
-
-## 8. `HeldField`
-Held-scalar version of GHPField.
-
-- Used for outgoing-ray ODEs and puncture subtraction
-- Inherits GHP structure but with Held-weight rules
-
----
-
-## 9. `SpectralDiffer`
+## 7. `SpectralDiffer`
 Legendre–Gauss–Lobatto collocation, barycentric interpolation and differentiation.
 
 Provides:
 
-- LGL node construction in the z-direction
+- LGL node construction in the z-direction and Chebyshev nodes in the r-direction
 -  d/dz via Legendre differentiation matrices
-- Edth and edth′ operators
+-  d/dr via Chebyshev differentiation matrices
 - Barycentric interpolation
 
 Used to operate on `ZSlice` objects of a `SpectralField`.
 
----
+## 9. `KinnersleyHeldOperators<CoordType T>`
+Implements Held operators on spectral field slices
+
 
 ## 10. `KerrBoundOrbit`
 Action–angle parametrization of bound orbits in Kerr spacetime.
