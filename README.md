@@ -98,12 +98,12 @@ flowchart TD
      end
     subgraph Orbit
      B --> O[KerrOrbit] 
-     O --> BO[KerrBoundOrbit]
+     O --> BO[KerrBoundOrbit FFT]
      D --> BO
     end
   subgraph Transport
-    O --> TSRC[Effective Source (m-modes)]
-    OP --> TS[Transport/Corrector Solvers]
+    O --> TSRC[Eff source m modes]
+    OP --> TS[Transport eqn solver]
     TSRC --> TS
   end
 ```
