@@ -53,40 +53,40 @@ find_package(FFTW3 REQUIRED)
 add_executable(GHZ_numeric
         main.cpp
 
-        include/GhzTypes.hpp
-        include/EigenTeukNumTraits.hpp
-        include/KerrParams.hpp            src/KerrParams.cpp
-        include/Metric.hpp                src/KerrMetric.cpp
-        include/KerrMetric.hpp
-        include/KerrMetricBL.hpp          src/KerrMetricBL.cpp
-        include/MathMacros.hpp
-        include/Coords.hpp                src/Coords.cpp
-        include/KerrMetricIngoing.hpp     src/KerrMetricIngoing.cpp
-        include/KerrMetricOutgoing.hpp    src/KerrMetricOutgoing.cpp
+        include/ghz/core/GhzTypes.hpp
+        include/ghz/core/EigenTeukNumTraits.hpp
+        include/ghz/geom/KerrParams.hpp src/ghz/geom/KerrParams.cpp
+        include/ghz/geom/Metric.hpp src/ghz/geom/KerrMetric.cpp
+        include/ghz/geom/KerrMetric.hpp
+        include/ghz/geom/KerrMetricBL.hpp src/ghz/geom/KerrMetricBL.cpp
+        include/ghz/core/MathMacros.hpp
+        include/ghz/geom/Coords.hpp src/ghz/geom/Coords.cpp
+        include/ghz/geom/KerrMetricIngoing.hpp src/ghz/geom/KerrMetricIngoing.cpp
+        include/ghz/geom/KerrMetricOutgoing.hpp src/ghz/geom/KerrMetricOutgoing.cpp
 
-        include/Tetrads.hpp               src/KinnersleyTetrad.cpp
-        include/KinnersleyTetrad.hpp
+        include/ghz/geom/Tetrads.hpp src/ghz/geom/KinnersleyTetrad.cpp
+        include/ghz/geom/KinnersleyTetrad.hpp
 
-        include/SpinCoeffsNP.hpp          src/SpinCoeffNP.cpp
-        include/WeylScalars.hpp           src/WeylScalars.cpp
-        include/GHPScalars.hpp            src/GHPScalars.cpp
+        include/ghz/ghp/SpinCoeffsNP.hpp src/ghz/ghp/SpinCoeffNP.cpp
+        include/ghz/ghp/WeylScalars.hpp src/ghz/ghp/WeylScalars.cpp
+        include/ghz/ghp/GHPScalars.hpp src/ghz/ghp/GHPScalars.cpp
 
-        include/VectorsGHZ.hpp
+        include/ghz/core/VectorsGHZ.hpp
 
         include/SpectralSolverS2boost.hpp src/SpectralSolverS2boost.cpp
 
-        include/EllipticIntegrals.hpp
-        include/KerrOrbit.hpp             src/KerrOrbit.cpp
+        include/ghz/special/EllipticIntegrals.hpp
+        include/ghz/orbit/KerrOrbit.hpp src/ghz/source/KerrOrbit.cpp
 
         sand/SpectralGHPField.hpp
-        include/SpectralDiffer.hpp        src/SpectralDiffer.cpp
-        include/HeldScalars.hpp           src/HeldScalars.cpp
-        include/KerrCharts.hpp
+        include/ghz/spectral/SpectralDiffer.hpp src/ghz/spectral/SpectralDiffer.cpp
+        include/ghz/ghp/HeldScalars.hpp src/ghz/ghp/HeldScalars.cpp
+        include/ghz/geom/KerrCharts.hpp
 
-        include/SpectralGHPFieldVectorized.hpp
-        include/Splines.hpp src/KinnersleySpectralHeldOperators.cpp
-        include/ODE.hpp
-        include/Corrector.hpp)
+        include/ghz/spectral/SpectralGHPFieldVectorized.hpp
+        include/ghz/orbit/Splines.hpp src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+        include/ghz/transport/ODE.hpp
+        include/ghz/transport/Corrector.hpp)
 
 # --------------------------
 # Target include directories
