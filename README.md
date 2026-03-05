@@ -3,7 +3,8 @@
 **Green–Hollands–Zimmerman (GHZ) Transport Solver**
 
 A modular C++ framework for building the numerical infrastructure needed to solve the
-**GHZ transport equations** for generic-orbit effective sources in Kerr spacetime.
+**GHZ transport equations** in an $$m$$-mode effective source scheme 
+for generic bound orbits in Kerr spacetime.
 
 ---
 
@@ -22,21 +23,20 @@ Core capabilities include:
     - Construction of null tetrads (e.g. Kinnersley)
     - Consistency checks and tetrad/metric utilities
 - **GHP / Held scalars**
-    - Type-safe GHP scalars with \((p,q)\) weights
+    - Type-safe GHP scalars with $$(p,q)$$ weights
     - Held background fields and coefficients
     - NP/GHP quantities and spin coefficients
 - **Spectral numerics**
-    - Legendre–Gauss–Lobatto (LGL) in \(z=\cos\theta\), Chebyshev in \(r\)
-    - Differentiation matrices, barycentric interpolation, filtering
-    - Pole-safe Held \(\tilde{\eth}\), \(\tilde{\eth}'\) implementations on spectral slices
+    - Legendre–Gauss–Lobatto (LGL) in $$z=\cos\theta$$, Chebyshev in $$r$$
+    - Differentiation matrices, barycentric interpolation, spectral filtering
+    - Pole-safe Held operator implementations 
 - **Transport solvers**
-    - ODE infrastructure for integrating GHZ transport systems along rays/slices
+    - ODE infrastructure for integrating GHZ transport systems along rays ($$z$$-slices)
     - Builder-style operator construction for hierarchy levels
 
 Planned / in-progress modules:
 - Importing Teukolsky spectral data from external solvers
-- Hybrid differentiation strategies (filtered spectral / FD near source support)
-- Reconstruction and corrector post-processing pipelines
+- Metric reconstruction utilities
 
 ---
 
@@ -182,8 +182,8 @@ on an $$N_r \times N_z$$   grid of $$r,z$$ values.
 
 - Stored as a 2D grid `[r][z]` or 1d  `[z]` array of GHP/Held scalars with metadata for dimensions
 - Arithmetic operator overloads which handle GHP weights 
-- accessors and views for slicings in r or z
-- lambda functions which fill the values given a function of r,z
+- accessors and views for slicings in $$r$$ or $$z$$
+- lambda functions which fill the values given a function of $$r$$,$$z$$
 - GHP covariant tranformations inc. as conjugation and spin-boosts
 - Used for background quantities such as GHP spin coefficients 
 - Used for spectral field perturbed quantities, e.g. the corrector fields
@@ -192,19 +192,20 @@ on an $$N_r \times N_z$$   grid of $$r,z$$ values.
 
 ## 6.  Spectral Fields (`ghz/spectral`)
 - **`SpectralFieldVectorized<T>`**: generic 2D spectral field container with contiguous storage and fast slice views.
-  - stores mode metadata (e.g. \(m\), \(\omega\), and/or \((m,k_r,k_z)\) depending on configuration)
+  - stores mode metadata (e.g. $$m$$, $$\omega$$, and/or $$\{m,k_r,k_z\}$$ depending on configuration)
   - provides `RSlice`/`ZSlice` views via `std::span`/raw pointers
   - supports OpenMP-friendly element-wise operations
 
 - **`SpectralGHPVectorized`**: GHP-aware spectral field (combines `GHPFieldVectorized` + `SpectralFieldVectorized`)
-  - stores **GHP scalars** with spin/boost weights \((p,q)\)
-  - adds **spectral mode metadata** (e.g. \(m,\omega\) or \((m,k_r,k_z)\))
+  - stores **GHP scalars** with spin/boost weights $$(p,q)$$
+  - adds **spectral mode metadata** (e.g. \(m,\omega\) or $$(m,k_r,k_z$$))
   - supports OpenMP element-wise arithmetic and conjugation
   - provides row/column slicing via `std::span` and pointer-backed views
   - uses a fully contiguous memory layout for cache efficiency
 
 ## 7. `SpectralDiffer`
 Legendre–Gauss–Lobatto collocation, barycentric interpolation and differentiation.
+- builds nodes and differentiation matrices for spectral fields
 
 Provides:
 
