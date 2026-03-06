@@ -88,12 +88,12 @@ flowchart TD
     end
     subgraph Scalars
         KT --> F[GHPScalar]
-        F --> G[GHPField]
-        G --> H[HeldField] 
+        F --> G[GHPField Bgkd]
+        G --> H[HeldField Bgkd] 
       end
      subgraph Spectral 
         I[GHPSpectralField] --> K[SpectralDiffer]
-        H --> K
+        H --> TS[Transport eqn solver]
         K --> OP[Held Op]
      end
     subgraph Orbit
@@ -101,10 +101,15 @@ flowchart TD
      O --> BO[KerrBoundOrbit FFT]
      D --> BO
     end
+    subgraph Source 
+     P[Puncture data] --> TSRC[Eff source m modes] --> S[SourceBuilder]
+     S --> X[GHZCorrector Sol Layer]
+    end
   subgraph Transport
-    O --> TSRC[Eff source m modes]
-    OP --> TS[Transport eqn solver]
+    BO --> TSRC[Eff source m modes]
+    H --> TS[Transport Equations ZSlice Solver]
     TSRC --> TS
+    X[GHZCorrector Sol Layer] --> OP --> TS
   end
 ```
 
@@ -124,16 +129,20 @@ Below are the main classes and their purposes.
 
 ---
 
+# 0. `GHZTypes`
+Core type definitions and utilities supporting boost multiprecision, complex numbers, and linear algebra.
+
 ## 1. `KerrMetric`
 Coordinate-independent Kerr metric object.
 
-- Stores parameters \(M, a,\)
-- Provides metric functions and invariants
+- Stores Kerr parameters $$(M, a)$$
+- Provides metric functions, $$\Delta, \Sigma, \kappa_\pm, \Omega_\pm$$ etc and conformal parameters 
+ as in https://arxiv.org/pdf/1910.13452
 - Backend used by all coordinate-specific metrics
 
 ---
 
-## 2. `CoordinateSystem`
+## 2. `CoordinateHelper`
 Constructs quantities in and provides functions to transforms between:
 
 - Boyer–Lindquist coordinates
@@ -162,7 +171,8 @@ Computes:
 ---
 
 ## 4. `GHPScalar<Complex T>`
-Complex scalar with GHP weights \((p,q)\).
+Complex scalar with GHP weights $$(p,q)$$ and 
+covariant boost/spin transformations.
 
 - Operator overloads: `+, -, *, / with correct GHP transformation behavior
 - Type-safe representation of weighted scalars
@@ -176,7 +186,7 @@ This is the basic algebraic object used everywhere.
 As base class of `GHPFieldVectorized (base on FieldVectorized<GHPScalar<Complex>,2>)
 and HeldFieldVectorized (based on FieldVectorized<GHPScalar<Complex>,1>;)`
 
-GHPFieldVectorized represents a vectorized row-major fields of 
+GHPFieldVectorized represents a fast vectorized row-major fields of 
 Geroch-Held-Penrose (GHP) scalars with spin-boost weights (p,q)
 on an $$N_r \times N_z$$   grid of $$r,z$$ values.
 
