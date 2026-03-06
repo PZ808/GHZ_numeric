@@ -25,8 +25,8 @@ namespace ghz {
     struct XDerivs {
         GHPSpectral X;          // (p,q)
         GHPSpectral P_X;        // thorn  : (p+1,q+1)   (your convention: P = ∂r)
-        GHPSpectral PpH_X;      // thorn' : (p-1,q-1)   (Held thorn' on X)
-        GHPSpectral PpH_P_X;    // thorn'(P_X): (p, q)  since P_X is (p+1,q+1) then thorn' lowers -> (p,q)
+        GHPSpectral PpHr_X;      // thorn' : (p-1,q-1)   (Held thorn' on X)
+        GHPSpectral PpHr_P_X;    // thorn'(P_X): (p, q)  since P_X is (p+1,q+1) then thorn' lowers -> (p,q)
 
         GHPSpectral EH_X;       // edthH(X)    : (p,   q-2)
         GHPSpectral EbH_X;      // edthBarH(X) : (p-2, q)
@@ -40,8 +40,8 @@ namespace ghz {
         XDerivs(size_t Nr, size_t Nz, ModesMK modes, GHPType type)
                 : X       (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p,   type.q)),
                   P_X     (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p+1, type.q+1)),
-                  PpH_X   (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p-1, type.q-1)),
-                  PpH_P_X (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p,   type.q)),
+                  PpHr_X   (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p-1, type.q-1)),
+                  PpHr_P_X (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p,   type.q)),
 
                   EH_X    (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p,   type.q-2)),
                   EbH_X   (Nr, Nz, {modes.m, modes.kr, modes.kz}, GHPScalar<Complex>(teuk::zeroC, type.p-2, type.q)),

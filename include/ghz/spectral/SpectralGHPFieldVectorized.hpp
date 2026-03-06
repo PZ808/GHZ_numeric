@@ -230,6 +230,7 @@ namespace spectral {
     protected:
         int p_{};
         int q_{};
+        size_t Nz_{};
     public:
         using Base = FieldVectorized<GHPScalar<Complex>,1>;
 
@@ -237,12 +238,13 @@ namespace spectral {
         HeldVectorized(size_t Nz,
                        GHPScalar<Complex> init=GHPScalar<Complex>(teuk::zeroC,0,0),
                        int p=0,int q=0)
-                : Base({Nz}, init), p_(p), q_(q) {}
+                : Base({Nz}, init), p_(p), q_(q), Nz_(Nz){}
 
         ~HeldVectorized() = default;
 
         [[nodiscard]] int p() const noexcept { return p_; }
         [[nodiscard]] int q() const noexcept { return q_; }
+        [[nodiscard]] size_t Nz() const noexcept { return Nz_; }
 
         // custom 1d access operator
         GHPScalar<Complex>& operator()(size_t j) { return Base::operator()({j}); }
@@ -468,6 +470,7 @@ namespace spectral {
     private:
         bool is_omega_set_ = false;
         bool is_src_set_   = false;
+        size_t Nr_{}, Nz_{};
         orbit::SourceFrequencies src_{};
 
         void update_omega_() noexcept {
@@ -493,13 +496,15 @@ namespace spectral {
         SpectralFieldVectorized(size_t Nr = 0, size_t Nz = 0,
                                 Modes modes={0,0,0},
                                 const T &init = T())
-                : Base({Nr, Nz}, init), modes_(modes) {}
+                : Base({Nr, Nz}, init), modes_(modes), Nr_(Nr), Nz_(Nz) {}
         ~SpectralFieldVectorized() = default;
 
         // ---- getters ----
         [[nodiscard]] virtual int kr() const noexcept { return modes_.kr; }
         [[nodiscard]] virtual int kz() const noexcept { return modes_.kz; }
         [[nodiscard]] virtual int m() const noexcept { return modes_.m; }
+        [[nodiscard]] virtual size_t Nr() const noexcept { return Nr_; }
+        [[nodiscard]] virtual size_t Nz() const noexcept { return Nz_; }
 
         // Prefer using this instead of writing modes_ directly in derived classes.
         void set_modes(Modes md) noexcept {
@@ -793,13 +798,15 @@ namespace spectral {
                               Modes modes,
                               GHPScalar<Complex> init = GHPScalar<Complex>(
                                       teuk::zeroC, 0, 0), int p = 0, int q = 0)
-                : Base(Nr, Nz, modes, init), p_(p), q_(q) {}
+                : Base(Nr, Nz, modes, init), p_(p), q_(q)  {}
 
         [[nodiscard]] int p() const noexcept { return p_; }
         [[nodiscard]] int q() const noexcept { return q_; }
         [[nodiscard]] int m()  const noexcept { return Base::m(); }
         [[nodiscard]] int kz() const noexcept { return Base::kz(); }
         [[nodiscard]] int kr() const noexcept { return Base::kr(); }
+        [[nodiscard]] size_t Nr() const noexcept { return Base::Nr(); }
+        [[nodiscard]] size_t Nz() const noexcept { return Base::Nz(); }
 
 
         GHPScalar<Complex> &operator()(size_t r, size_t z) { return Base::operator()(r, z); }

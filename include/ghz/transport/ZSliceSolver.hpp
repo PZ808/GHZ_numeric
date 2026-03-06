@@ -38,6 +38,7 @@ namespace ghz {
  */
 
     class ZSliceSolver {
+
     public:
         ZSliceSolver(const KerrMetricOutgoing &metric,
                      const RVector &r_grid,
@@ -91,7 +92,8 @@ namespace ghz {
             };
 
             ode::TransportODESystem sys{lhs, src};
-            return ode::solve_single_z(r_grid_, y0_, sys, z_grid_[iz], abs_tol_, rel_tol_, initial_step_);
+            return ode::solve_single_z(r_grid_, y0_, sys, z_grid_[iz],
+                                       abs_tol_, rel_tol_, initial_step_);
         }
 
 
@@ -109,6 +111,7 @@ namespace ghz {
         Real abs_tol_ = 1e-12;
         Real rel_tol_ = 1e-12;
         Real initial_step_ = 1e-4;
+
     }; // class ZSliceSolver
 }
 #endif //HS1DATA_DATA_ZSLICESOLVER_HPP

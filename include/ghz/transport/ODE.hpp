@@ -16,18 +16,24 @@
 #include <functional>
 #include <cassert>
 
+using Real = teuk::Real;
+using Cplx = teuk::Complex;
 
-//
+namespace ode {
+    // State vector type for coupled ODE system at each point z=z_*
+    //using StateVec = teuk::CVectorN<4, Real>;   // 3 components: x_mmbar, x_nm, x_nn
+    // Here we have to abondon the GHP scalar type and separate into Re and Im parts
+    using StateVec = std::vector<Real>; //  components: x_mmbar, Re(x_nm), Im(x_nm), x_nn
+    // LHSFunc: computes L(y,r,z_*),
+    using LHSFunc    = std::function<StateVec(const StateVec&, Real, Real)>;
+    // SourceFunc: computes S(r,y, z_*)
+    using SourceFunc = std::function<StateVec(Real, Real)>;
+
 // ==========================================================
 // Transport ODE System for dy/dr = LHS(y,r,z) + Source(r,z)
 // with full 2D (r,z) integration support.
 // ==========================================================
 //
-
-using Real = teuk::Real;
-using Cplx = teuk::Complex;
-
-
 ///  example usage to solve system dy/dr = L(y,r,z) + S(r,z) of 3 coupled ODEs
 //
 // std::vector<Real> r_grid = /* r grid */;
@@ -61,20 +67,6 @@ using Cplx = teuk::Complex;
 //auto solution = TransportODESystem::solve_2D(r_grid, z_grid, y0, ode);
 // solution[iz][ir][component] gives x_component at (r,z)
 ////
-namespace ode {
-
-    // State vector type for coupled ODE system at each point z=z_*
-    //using StateVec = teuk::CVectorN<4, Real>;   // 3 components: x_mmbar, x_nm, x_nn
-    // Here we have to abondon the GHP scalar type and separate into Re and Im parts
-    using StateVec = std::vector<Real>; //  components: x_mmbar, Re(x_nm), Im(x_nm), x_nn
-
-    // LHSFunc: computes L(y,r,z_*),
-    using LHSFunc    = std::function<StateVec(const StateVec&, Real, Real)>;
-    // SourceFunc: computes S(r,y, z_*)
-    using SourceFunc = std::function<StateVec(Real, Real)>;
-
-    // Generic coupled ODE system: dy/dr = L(y,r,z) + S(r,z), where L is linear in y (from -LHS)
-    // and S is independent of y and determined from the stress energy of the field
     struct TransportODESystem {
         LHSFunc LHS;
         SourceFunc Source;
@@ -98,47 +90,8 @@ namespace ode {
             Real z,                          // fixed z value
             Real abs_tol=1e-9,             // solver abs tolerance
             Real rel_tol=1e-9,             // solver rel tolerance
-            Real initial_step=1e-3) {      // initial step size
+            Real initial_step=1e-3);      // initial step size
 
-        using namespace boost::numeric::odeint;
-        // Define the stepper type for adaptive integration
-        using stepper_type = boost::numeric::odeint::runge_kutta_cash_karp54<
-                StateVec, Real, StateVec, Real,
-                boost::numeric::odeint::range_algebra,
-                boost::numeric::odeint::default_operations>;
-
-        StateVec y = y0;  // initialize state vector
-        size_t Nr = r_grid.size(); // number of r grid points
-        std::vector<StateVec> solution; // store solution at r grid points
-        solution.reserve(Nr); // reserve space
-
-        size_t idx = 0;
-        // Observer lambda to capture solution at specified r_grid points
-        auto observer = [&](const StateVec &y_val, Real r_val){
-            while (idx < Nr && r_val >= r_grid[idx]) {
-                solution.push_back(y_val);
-                ++idx;
-            }
-        };
-        // Wrap the ODE to fix z
-        auto ode_wrapper = [&](const StateVec &y_in,
-                               StateVec &dydr, Real r) {
-            ode(y_in, dydr, r, z);
-        };
-
-        // Perform adaptive integration over r
-        integrate_adaptive(make_controlled(abs_tol, rel_tol, stepper_type()),
-                           ode_wrapper, y,
-                           r_grid.front(), r_grid.back(),
-                           initial_step,
-                           observer);
-
-        // wrap up: ensure solution has entries for all r_grid points
-        while (solution.size() < Nr)
-            solution.push_back(y); // fill with last value
-
-        return solution;
-    } // solve_single_z
 
     // Solver over r_grid and z_grid
     std::vector<std::vector<StateVec>> solve_2D(const std::vector<Real>& r_grid, // nodes in r
@@ -147,19 +100,7 @@ namespace ode {
                                                 const TransportODESystem& ode,
                                                 Real abs_tol = 1e-9,
                                                 Real rel_tol = 1e-9,
-                                                Real initial_step = 1e-3) {
-        size_t Nz = z_grid.size();
-        // container for full 2D solution
-        std::vector<std::vector<StateVec>> sol_2D; // sol_2D[iz][ir][component]
-        sol_2D.reserve(Nz);
-
-        // loop over z grid points
-        for (size_t iz=0; iz<Nz; ++iz){
-            Real z = z_grid[iz];
-            sol_2D.push_back(solve_single_z(r_grid, y0, ode, z, abs_tol, rel_tol, initial_step));
-        }
-        return sol_2D; // sol_2D[iz][ir][component]
-    }
+                                                Real initial_step = 1e-3);
 
 } // namespace ode
 
