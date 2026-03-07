@@ -85,8 +85,14 @@ add_executable(GHZ_numeric
 
         include/ghz/spectral/SpectralGHPFieldVectorized.hpp
         include/ghz/orbit/Splines.hpp src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+
         include/ghz/transport/ODE.hpp
-        include/ghz/transport/Corrector.hpp)
+        include/ghz/transport/Corrector.hpp
+        include/ghz/transport/Builders.hpp
+        include/ghz/transport/ZSliceSolver.hpp
+        include/ghz/transport/Operators.hpp
+        src/ghz/transport/Corrector.cpp
+        src/ghz/transport/Operators.cpp src/ghz/transport/SourceBuilders.cpp)
 
 # --------------------------
 # Target include directories
@@ -100,3 +106,14 @@ target_link_libraries(GHZ_numeric PRIVATE
         OpenMP::OpenMP_CXX
         fftw3 fftw3l m
         )
+add_executable(spectral_unit_tests
+        tests/unit/spectral_unit_tests.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        )
+target_include_directories(spectral_unit_tests PRIVATE include)
+
+target_link_libraries(spectral_unit_tests PRIVATE
+        OpenMP::OpenMP_CXX
+        fftw3)

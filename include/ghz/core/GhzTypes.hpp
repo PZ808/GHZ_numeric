@@ -129,10 +129,10 @@ namespace teuk {
     using Real     = typename ActivePrecision::Real;
     using Complex  = typename ActivePrecision::Complex;
 
+    inline const Complex zeroC = Complex(Real(0.0), Real(0.0));
+    inline const Real zero = Real(0.0);
     inline const Real twoPi = Real(2.0)*M_PI;
     inline const Real half = Real(0.5);
-    inline const Real zero = Real(0.0);
-    inline const Complex zeroC = Complex(Real(0.0), Real(0.0));
     inline const Real one = Real(1.0);
     inline const Real two = Real(2.0);
     inline const Real three = Real(3.0);
@@ -144,7 +144,7 @@ namespace teuk {
 
 
 // ----------------------------------------------------------------------------
-// Utilities
+// Utilities and traits
 // ----------------------------------------------------------------------------
 
     inline const Complex CNAN{
@@ -164,6 +164,30 @@ namespace teuk {
         using std::fmax;
         return fmax(fabs(z.real()), fabs(z.imag()));
     }
+
+    template <typename T>
+    struct is_complex : std::false_type {};
+
+    template <typename T>
+    struct is_complex<std::complex<T>> : std::true_type {};
+
+    template <typename T>
+    inline constexpr bool is_complex_v = is_complex<T>::value;
+
+    template <typename T>
+    using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+
+    template <typename T>
+    struct is_teuk_scalar : std::bool_constant<
+            std::is_arithmetic_v<remove_cvref_t<T>> ||
+            is_complex_v<remove_cvref_t<T>> ||
+            std::is_same_v<remove_cvref_t<T>, teuk::Real> ||
+            std::is_same_v<remove_cvref_t<T>, teuk::Complex>
+    > {};
+
+    template <typename T>
+    inline constexpr bool is_teuk_scalar_v = is_teuk_scalar<T>::value;
+
 
 // ----------------------------------------------------------------------------
 // Generic math wrappers (Boost compatible)

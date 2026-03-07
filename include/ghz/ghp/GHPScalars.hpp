@@ -21,19 +21,19 @@ using namespace math;
  * @class GHPScalar
  * @brief Represents a Geroch-Held-Penrose (GHP) scalar with spin-boost weights (p,q)
  *
- * This class wraps a complex number (or any ComplexT type) as a scalar in the GHP formalism.
- * Each scalar carries spin-boost weights (p,q) which define its transformation properties under
- * null tetrad rotations and boosts.
+ * @details This class wraps a complex number (or any ComplexT type) as a scalar in the GHP formalism. \n
+ * Each scalar carries spin-boost weights (p,q) which define its transformation properties under \n
+ * null tetrad rotations and boosts. \n
  *
- * Features:
- * - Access and modify the underlying complex value.
- * - Retrieve spin-boost weights and (p,q).
- * - GHP conjugation: flips weights (p,q) -> (q,p) and complex conjugates the value.
- * - Element-wise arithmetic operations that properly combine weights:
- *     - Multiplication: weights add
- *     - Division: weights subtract
- *     - Addition/Subtraction: only allowed for matching weights
- * - Spin-boost transformation: multiplies the value by λ^p * λ̄^q
+ * Features: \n
+ * - Access and modify the underlying complex value. \n
+ * - Retrieve spin-boost weights and (p,q). \n
+ * - GHP conjugation: flips weights (p,q) -> (q,p) and complex conjugates the value. \n
+ * - Element-wise arithmetic operations that properly combine weights: \n
+ *     - Multiplication: weights add \n
+ *     - Division: weights subtract \n
+ *     - Addition/Subtraction: only allowed for matching weights \n
+ * - Spin-boost transformation: multiplies the value by λ^p * λ̄^q \n
  *
  * @tparam ComplexT Type of the underlying complex number (default: teuk::Complex) used for boost multi
  */
@@ -41,6 +41,7 @@ template <typename ComplexT = teuk::Complex>
 class GHPScalar {
 public:
     using Complex = ComplexT;
+    using Real = teuk::Real;
 
 protected:
     int p_;
@@ -54,15 +55,22 @@ private:
 
 public:
     explicit GHPScalar(Complex val = teuk::zeroC, int p = 0, int q = 0)
-            : value_(val), p_(p), q_(q) { boost_ = (int)(p_+q_)/2; spin_ = (int)(p_-q_)/2; }
+            : value_(val), p_(p), q_(q)
+    {
+        boost_ = (p_+q_)/2; spin_ = (p_-q_)/2;
+        if ( ((p+q) % 2 != 0) || ((p-q) % 2 != 0) ) {
+            throw std::runtime_error("Invalid GHP weights: spin/boost would not be integers");
+        }
+    }
 
     [[nodiscard]] Complex value() const { return value_; }
+    [[nodiscard]] Complex& value() { return value_; }
     [[nodiscard]] int p() const { return p_; }
     [[nodiscard]] int q() const { return q_; }
-    void set_pq(int p, int q) { p_ = p; q_ = q; boost_ = (int)(p_+q_)/2; spin_ = (int)(p_-q_)/2;}
     [[nodiscard]] int s() const { return spin_; }
     [[nodiscard]] int b() const { return boost_; }
 
+    void set_pq(int p, int q) { p_ = p; q_ = q; boost_ = (int)(p_+q_)/2; spin_ = (int)(p_-q_)/2;}
     void setValue(Complex val) { value_ = val; }
 
     // conjugation flips weights (p,q) -> (q,p)
@@ -88,18 +96,73 @@ public:
         }
         return GHPScalar(value_ - other.value_, p_, q_);
     }
+    // unary minus
+    GHPScalar operator-() const {
+        return GHPScalar(-value_, p_, q_);
+    }
+    // in-place operators
+    GHPScalar& operator+=(const GHPScalar& other) {
+        if (p_ != other.p_ || q_ != other.q_) {
+            throw std::runtime_error("Incompatible GHP weights in addition");
+        }
+        value_ += other.value_;
+        return *this;
+    }
+    GHPScalar& operator-=(const GHPScalar& other) {
+        if (p_ != other.p_ || q_ != other.q_) {
+            throw std::runtime_error("Incompatible GHP weights in subtraction");
+        }
+        value_ -= other.value_;
+        return *this;
+    }
+    template<typename U>
+    GHPScalar& operator*=(U a) {
+        value_ *= a;
+        return *this;
+    }
+    template<typename U>
+    GHPScalar& operator/=(U a) {
+        value_ /= a;
+        return *this;
+    }
+    bool operator==(const GHPScalar& other) const {
+        return p_ == other.p_ && q_ == other.q_ && value_ == other.value_;
+    }
+
+    bool operator!=(const GHPScalar& other) const {
+        return !(*this == other);
+    }
+
     // multiplying ordinary numbers
-    template<typename U> auto operator*(U a) const {
+    template<typename U>
+    requires std::is_arithmetic_v<U> || teuk::is_complex_v<U> || teuk::is_teuk_scalar_v<U>
+    auto operator*(U a) const {
         using R = decltype(value_ * a);
         return GHPScalar<R>(value_ * a, p_, q_);
     }
-    template<typename U> friend auto operator*(U a, const GHPScalar& x) { return x * a; }
+    template<typename U>
+    requires std::is_arithmetic_v<U> || teuk::is_teuk_scalar_v<U>
+    friend auto operator*(U a, const GHPScalar& x) { return x * a; }
+
+    // dividing by ordinary numbers
+    template<typename U>
+    requires std::is_arithmetic_v<U> || teuk::is_teuk_scalar_v<U>
+    auto operator/(U a) const {
+        using R = decltype(value_ / a);
+        return GHPScalar<R>(value_ / a, p_, q_);
+    }
+    // dividing ordinary number by GHP scalar
+    template<typename U>
+    requires std::is_arithmetic_v<U> || teuk::is_teuk_scalar_v<U>
+    friend auto operator/(U a, const GHPScalar& x) {
+        using R = decltype(a / x.value_);
+        return GHPScalar<R>(a / x.value_, -x.p_, -x.q_);
+    }
 
     // spin-boost transformation
     [[nodiscard]] GHPScalar transform(const Complex& lambda) const {
         Complex newVal = math::PowInt(lambda, p_) * math::PowInt(std::conj(lambda), q_) * value_;
-        //Complex newVal = pow((teuk::Real) lambda, p_) * pow(conj(lambda), q_) * value_;
-        return GHPScalar(newVal, p_, q_);
+    return GHPScalar(newVal, p_, q_);
     }
     // debug string
     std::string str() const {
