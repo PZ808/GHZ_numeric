@@ -226,23 +226,58 @@ void KinnersleyHeldOperators<OutgoingCoords>::edthH_bary_inplace_RSliceV(
     SpectralGHPVectorized::RSlice df_dz_rs(df_dz_buf.data(), N, f.modes_, f.r_index());
 
     // Make sure diff_.z_weights() are stable weights for your LGL nodes.
-    diff_.dz_barycentric_RSlice(f, df_dz_rs, diff_.z_weights());
+    diff_.dz_barycentric_RSlice(f, df_dz_rs);
 
     this->edth_core_RSlice_with_extrapolation(f, df_dz_rs, out, EthKind::Eth);
 }
 
+
 /**
- * @name thornPH_inplace_RSliceV
+ * @name thorn_inplace_ZSliceV
+ *
+ **/
+template <>
+void KinnersleyHeldOperators<OutgoingCoords>::thorn_inplace_ZSliceV(
+        const SpectralGHPVectorized::ZSlice& in_ZSlice,
+        SpectralGHPVectorized::ZSlice& out_ZSlice) const
+{
+    assert(in_ZSlice.size() == out_ZSlice.size());
+    const size_t Nr = in_ZSlice.size();
+    if (Nr == 0) return;
+
+    const int p = in_ZSlice[0].p();
+    const int q = in_ZSlice[0].q();
+    const size_t iz = in_ZSlice.z_index();
+
+    std::vector<GHPScalar<Complex>> dr_buf(
+            Nr, GHPScalar<Complex>(teuk::zeroC, p, q)
+    );
+
+    SpectralGHPVectorized::ZSlice dr_ZSlice(
+            dr_buf.data(),
+            Nr,
+            1,
+            in_ZSlice.modes_,
+            iz,
+            in_ZSlice.has_omega_mk() ? in_ZSlice.omega_mk() : Real(0),
+            in_ZSlice.has_omega_mk()
+    );
+
+    diff_.dr_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
+
+    for (size_t ir = 0; ir < Nr; ++ir) {
+        // Example placeholder:
+        const auto val = dr_ZSlice[ir].value();
+
+        out_ZSlice[ir] = GHPScalar<Complex>(val, p+1, q+1);
+    }
+}
+
+
+/**
+ * @name thornPHr_inplace_RSliceV
  * @param in_RSlice
  * @param out_RSlice
- * @details Compute Held tildeThorn' on a {m,kr,kz} \n
- * mode-decomposed __Held__ quantity (independent of r in outgoing coordinate and Weyl aligned tetrad) \n
- * on an RSlice (r=constant). It uses explicitly the mean frequencies Omega_i in converting the time derivative \n
- * to multiplication by -i*omega_{mk} in the Fourier domain. Here we use that d/dt = (du/dt)d/du, which implies \n
- * the BL Omega_i frequencies are conjugate \n
- * to both BL time t and outgoing Kerr-Newman time u and the simple FT identity: \n
- * thornPH f^circ = pd_usum_{nk} (f_{mk}^*e^{-iomega_{mk}u}) = -isum_{mnk}*omega_{mk} f_{mk}e^{-i*omega_{mk}u} \n
- * k = (kr,kz).
  *
  **/
 template <>
@@ -263,6 +298,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::thornPHr_inplace_RSliceV(
     const Real rval = diff_.cl_nodes()[r_idx]; // Chebyshev nodes in r, but we want the actual r value at this index
     const Real Delta = met.Delta(rval);
 
+    // pull omega data from slice metadata and convert to -i*omega factor for time derivative in Fourier domain
     const Complex iomega = Complex(0, 1) * in_RSlice.omega_mk();
 
     const int p = in_RSlice[0].p();
@@ -287,6 +323,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::thornPH_inplace_RSliceV(
     const size_t Nz = in_RSlice.size();
     if (Nz == 0) return;
 
+    // pull omega data from slice metadata and convert to -i*omega factor for time derivative in Fourier domain
     const Complex iomega = Complex(0, 1) * in_RSlice.omega_mk();
 
     const int p = in_RSlice[0].p();

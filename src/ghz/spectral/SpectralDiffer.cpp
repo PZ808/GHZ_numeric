@@ -39,7 +39,7 @@ namespace spectral {
     }
 
 /**
- * @name build__barycentric_weights_from_nodes
+ * @name build_barycentric_weights_from_nodes
  * @return A vector of barycentric weights corresponding to the grid points z_.
  *
  * @brief Compute barycentric interpolation weights for the current node set.

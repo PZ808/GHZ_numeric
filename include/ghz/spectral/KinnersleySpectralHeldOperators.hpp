@@ -41,10 +41,17 @@ namespace detail {
 
 enum class EthKind { Eth, EthBar };
 
-template <typename CoordType>
+template <typename CoordType, typename DifferType=spectral::SpectralDiffer>
 class KinnersleyHeldOperators {
+
+private:
+    const DifferType& diff_;
+    const HeldBackgroundFieldsVectorized<CoordType>& bg_helds_;
+    const KinnersleyTetrad<CoordType>& kin_tetrad_;
+    const Real a_ = kin_tetrad_.a();
 public:
-    KinnersleyHeldOperators(const spectral::SpectralDiffer& diff,
+
+    KinnersleyHeldOperators(const DifferType& diff,
                             const ghp::HeldBackgroundFieldsVectorized<CoordType>& bg_helds,
                             const KinnersleyTetrad<CoordType>& kin_tetrad)
             : diff_(diff), bg_helds_(bg_helds), kin_tetrad_(kin_tetrad) {}
@@ -63,20 +70,21 @@ public:
                                   SpectralGHPVectorized::RSlice& out) const;
 
     void edthH_dmat_inplace_RSliceV(const SpectralGHPVectorized::RSlice &in_RSlice,
-                                   SpectralGHPVectorized::RSlice &out_RSlice) const;
+                                    SpectralGHPVectorized::RSlice &out_RSlice) const;
 
     void edthH_bary_inplace_RSliceV(const SpectralGHPVectorized::RSlice &f,
-                            SpectralGHPVectorized::RSlice &out) const;
-    void
-    thornPHr_inplace_RSliceV(const KinnersleyTetrad<OutgoingCoords> &ktet,
-                             const SpectralGHPVectorized::RSlice &in_RSlice,
-                             const SpectralGHPVectorized::RSlice &dr_in_RSlice,
-                             SpectralGHPVectorized::RSlice &out_RSlice) const;
-private:
-    const spectral::SpectralDiffer& diff_;
-    const HeldBackgroundFieldsVectorized<CoordType>& bg_helds_;
-    const KinnersleyTetrad<CoordType>& kin_tetrad_;
-    const Real a_ = kin_tetrad_.a();
+                                    SpectralGHPVectorized::RSlice &out) const;
+
+    void thornPHr_inplace_RSliceV(const KinnersleyTetrad<OutgoingCoords> &ktet,
+                                  const SpectralGHPVectorized::RSlice &in_RSlice,
+                                  const SpectralGHPVectorized::RSlice &dr_in_RSlice,
+                                  SpectralGHPVectorized::RSlice &out_RSlice) const;
+
+    void thorn_inplace_ZSliceV(
+            const SpectralGHPVectorized::ZSlice& in_ZSlice,
+            SpectralGHPVectorized::ZSlice& out_ZSlice) const;
+
+
 
 
 };

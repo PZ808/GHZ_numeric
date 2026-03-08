@@ -56,6 +56,8 @@ namespace spectral {
         }
 
         // Getters
+        [[nodiscard]] const size_t Nr() const { return Nr_; }
+        [[nodiscard]] const size_t Nz() const { return Nz_; }
         [[nodiscard]] const RVector &lgl_nodes() const { return z_; }
         [[nodiscard]] const RVector &cl_nodes() const { return r_; }
         [[nodiscard]] const RVector &z_weights() const { return wz_; }
