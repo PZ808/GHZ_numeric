@@ -162,31 +162,32 @@ namespace ghp {
                     values_[idx(ir,iz)] = Scalar(std::invoke(f, ir, iz), p_, q_);
         }
 /**
+ * @name fill_nodes
  * @brief Fill the field values by evaluating a function on physical
- *        (r, z) node coordinates.
+ *        (r, z) node coordinates. \n
  *
- * This routine assigns every grid entry
- *     values_[idx(ir, iz)].value()
- * using the result of a user-supplied callable
+ * This routine assigns every grid entry\n
+ *     values_[idx(ir, iz)] \n
+ * using the result of a user-supplied callable\n
+ *\n
+ *      f(r_nodes[ir], z_nodes[iz])\n
+ *\n
+ * The callable `f` must accept two `Real` arguments (r, z) and return\n
+ * a value convertible to the underlying scalar type (the `.value()` part\n
+ * of `Scalar`).\n
+ *\n
+ * Requirements: \n
+ *   - `r_nodes.size() == Nr_`\n
+ *   - `z_nodes.size() == Nz_`\n
+ *   Otherwise an exception is thrown.\n
+ *\n
+ * @parallelism
+ *   OpenMP parallelization over both r and z indices.\n
  *
- *      f(r_nodes[ir], z_nodes[iz])
+ * @template_parameters:
+ *   F — any callable satisfying `std::invocable<Real, Real>`\n
  *
- * The callable `f` must accept two `Real` arguments (r, z) and return
- * a value convertible to the underlying scalar type (the `.value()` part
- * of `Scalar`).
- *
- * Requirements:
- *   - `r_nodes.size() == Nr_`
- *   - `z_nodes.size() == Nz_`
- *   Otherwise an exception is thrown.
- *
- * Parallelism:
- *   OpenMP parallelization over both r and z indices.
- *
- * Template parameter:
- *   F — any callable satisfying `std::invocable<Real, Real>`
- *
- * Example usage:
+ * Example usage:\n
  *
  * @code
  * SpectralField psi(Nr, Nz, Scalar(0.0, p, q));
@@ -227,7 +228,7 @@ namespace ghp {
 #pragma omp parallel for collapse(2)
             for (int r = 0; r < Nr_; ++r)
                 for (int z = 0; z < Nz_; ++z)
-                    values_[idx(r,z)].value() = GHPScalar(std::invoke(f, r_nodes[r], z_nodes[z]), p_,q_);
+                    values_[idx(r,z)] = GHPScalar(std::invoke(f, r_nodes[r], z_nodes[z]), p_,q_);
         }
 
         GHPFieldVectorized& operator+=(const GHPFieldVectorized& other) {
@@ -391,7 +392,7 @@ namespace ghp {
 
         template <std::invocable<int> F>
         void fill_indexed(F&& f) {
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(f)
             for (size_t iz = 0; iz < Nz_; ++iz)
                 values_[static_cast<size_type>(iz)] = Scalar(std::invoke(f, iz), p_, q_);
         }
@@ -402,7 +403,7 @@ namespace ghp {
                 throw std::invalid_argument("z_nodes vector has wrong size");
 #pragma omp parallel for
             for (int iz = 0; iz < Nz_; ++iz)
-                values_[static_cast<size_type>(iz)].value() = std::invoke(f, z_nodes[iz]);
+                values_[static_cast<size_type>(iz)]= Scalar(std::invoke(f, z_nodes[iz], p_, q_));
         }
 
         HeldFieldVectorized& operator+=(const HeldFieldVectorized& other) {

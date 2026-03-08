@@ -120,7 +120,7 @@ namespace spectral {
         ~FieldVectorized() = default; // Default destructor
 
         // resize the field to new dimensions and initialize
-        void resize(const std::array<int, Dim> &dims, const T &init = T()) {
+        void resize(const std::array<size_t, Dim> &dims, const T &init = T()) {
             dims_ = dims;
             values_.assign( size_t(dims[0]) * (Dim==2 ? size_t(dims[1]):1), init );
         }
@@ -143,6 +143,12 @@ namespace spectral {
         // Get a pointer to row i in a 2D array stored as a 1D contiguous block (row major = row i starts at i * dims_[1])
         T* data_ptr_1d(size_t i) requires (Dim == 2) { return &values_[i * dims_[1]]; }  // pointer to row i
         T* data_ptr_1d(int i) requires  (Dim == 2) { return &values_[i * dims_[1]]; }    // pointer to row i
+        const T* data_ptr_1d(size_t i) const requires (Dim == 2) {
+            return &values_[i * dims_[1]];
+        }
+        const T* data_ptr_1d(int i) const requires (Dim == 2) {
+            return &values_[i * dims_[1]];
+        }
 
         // pointer to column (fixed z) – non-contiguous, stride = Nz
 
@@ -367,7 +373,7 @@ namespace spectral {
             }
             // conjugate the entire slice (also works with GHP weights by inheriting from GHPScalar)
             void conj_inplace() const {
-                for (int i = 0; i < Nz_; ++i)
+                for (size_t i = 0; i < Nz_; ++i)
                     data_ptr[i].conj();
             }
 
@@ -395,10 +401,10 @@ namespace spectral {
             }
             void conj_inplace() {
                 int p0 = this->data_ptr->p();
-                int q0 = this->data_ptr->p();
+                int q0 = this->data_ptr->q();
 
-                for (int i = 0; i < Nr_; ++i)
-                    this->operator[](i*stride_).conj();
+                for (size_t i=0; i < Nr_; ++i)
+                    this->operator[](i).conj();
                 // check we changed the weights
                 assert(p0==this->data_ptr->q() && q0==this->data_ptr->p());
             }
@@ -412,7 +418,7 @@ namespace spectral {
             return RSlice(ptr, Base::dims_[1], p_, q_, r);
         }
         auto span_slice_r(int r) {
-            return std::span<GHPScalar<Complex>>(Base::data_ptr_1d(r), dims_[1]);
+            return std::span<GHPScalar<Complex>>(Base::data_ptr_1d(r), Base::dims_[1]);
         }
 
         // arithmetic operators
@@ -467,12 +473,21 @@ namespace spectral {
  */
     template<typename T>
     class SpectralFieldVectorized : public FieldVectorized<T, 2> {
+
+    public:
+        struct Modes { int m{}; int kr{}; int kz{}; };
+
     private:
         bool is_omega_set_ = false;
         bool is_src_set_   = false;
         size_t Nr_{}, Nz_{};
         orbit::SourceFrequencies src_{};
-
+    protected:
+        Real omega_mk_{};   // omega_{mk} = m \Omega_\phi  + kr\Omega_r + kz \Omega_z
+        Modes modes_;
+        // If a derived class *must* mutate modes_ directly, call this after
+        void recompute_omega_from_modes() noexcept { update_omega_(); }
+    private:
         void update_omega_() noexcept {
             if (!is_src_set_) { is_omega_set_ = false; return; }
             omega_mk_ =
@@ -481,13 +496,6 @@ namespace spectral {
                     Real(modes_.kz) * src_.Omega_z;
             is_omega_set_ = true;
         }
-
-    protected:
-        struct Modes { int m{}; int kr{}; int kz{}; };
-        Modes modes_;
-        Real omega_mk_{};   // omega_{mk} = kr\Omega_r + m \Omega_\phi + kz \Omega_z
-        // If a derived class *must* mutate modes_ directly, call this after
-        void recompute_omega_from_modes() noexcept { update_omega_(); }
 
     public:
         using Base = FieldVectorized<T, 2>; // build in row-major vectorization functionality
@@ -511,6 +519,13 @@ namespace spectral {
             modes_ = md;
             update_omega_();
         }
+        void set_mode_indices(int m, int kr, int kz) noexcept {
+            modes_.m  = m;
+            modes_.kr = kr;
+            modes_.kz = kz;
+            update_omega_();
+        }
+
         [[nodiscard]] const Modes& modes() const noexcept { return modes_; }
         void set_source_frequencies(const orbit::SourceFrequencies& f) noexcept {
             src_ = f;
@@ -532,6 +547,14 @@ namespace spectral {
         [[nodiscard]] Complex iomega_mk() const noexcept {
             assert(is_omega_set_);
             return Complex(0.0, omega_mk_);
+        }
+        void set_omega_mk(Real omega) noexcept {
+            omega_mk_ = omega;
+            is_omega_set_ = true;
+        }
+        void clear_omega_mk() noexcept {
+            omega_mk_ = Real(0);
+            is_omega_set_ = false;
         }
 
         virtual T &operator()(size_t ir, size_t iz) { return Base::operator()({ir, iz}); }
@@ -747,29 +770,28 @@ namespace spectral {
         }
 
 // constant z slicing accessors
-        auto slice_Z_span(size_t iz) {
-            return std::span<T>(Base::data_ptr_1d_col(iz), Base::dims()[0]);
-        }
+        //auto slice_Z_span(size_t iz) {
+        //    return std::span<T>(Base::data_ptr_1d_col(iz), Base::dims()[0]);
+       // }
 
         ZSlice slice_Z(size_t iz) {
-            return ZSlice(Base::data_ptr_1d_col(iz).data(),
+            return ZSlice(Base::values_.data() + iz, // old Base::data_ptr_1d_col(iz).data()+iz, // pointer to first element in column iz
                           Base::dims()[0],
                           Base::dims()[1],
-                          modes_,
+                          Base::modes_,
                           iz,
-                          omega_mk_,
-                          is_omega_set_);
+                          Base::has_omega_mk() ? Base::omega_mk() : Real(0),
+                          Base::has_omega_mk());
         }
 
         ConstZSlice slice_Zconst(size_t iz) const {
-            auto &col_ptrs = Base::data_ptr_1d_col(iz);
-            return ConstZSlice{ col_ptrs.data(),
-                                Base::dims()[0],
-                                Base::dims()[1],
-                                modes_,
-                                iz,
-                                omega_mk_,
-                                is_omega_set_ };
+            return ConstZSlice{Base::values_.data() + iz, //Base::data_ptr_1d_col(iz)+iz,
+                               Base::dims()[0],
+                               Base::dims()[1],
+                               Base::modes_,
+                               iz,
+                               Base::has_omega_mk() ? Base::omega_mk() : Real(0),
+                               Base::has_omega_mk()};
         }
 
 
@@ -797,8 +819,23 @@ namespace spectral {
         SpectralGHPVectorized(size_t Nr, size_t Nz,
                               Modes modes,
                               GHPScalar<Complex> init = GHPScalar<Complex>(
-                                      teuk::zeroC, 0, 0), int p = 0, int q = 0)
+                                      teuk::zeroC, 0, 0), int p=0, int q=0)
                 : Base(Nr, Nz, modes, init), p_(p), q_(q)  {}
+
+        SpectralGHPVectorized(size_t Nr, size_t Nz,
+                              Modes modes,
+                              const ghp::GHPFieldVectorized& field)
+                : Base(Nr, Nz, modes, GHPScalar<Complex>(teuk::zeroC, field.p(), field.q())),
+                  p_(field.p()), q_(field.q())
+        {
+            if (field.Nr() != Nr || field.Nz() != Nz) {
+                throw std::runtime_error("SpectralGHPVectorized: dimension mismatch");
+            }
+
+            for (size_t ir = 0; ir < Nr; ++ir)
+                for (size_t iz = 0; iz < Nz; ++iz)
+                    (*this)(ir, iz) = field(ir, iz);
+        }
 
         [[nodiscard]] int p() const noexcept { return p_; }
         [[nodiscard]] int q() const noexcept { return q_; }
@@ -813,16 +850,24 @@ namespace spectral {
         const GHPScalar<Complex> &operator()(size_t r, size_t z) const { return Base::operator()(r, z); }
 
         inline void set_index(const size_t& ir, const size_t& iz, const GHPScalar<Complex> &val) {
-            Base::operator()(iz, ir) = val;
+            Base::operator()(ir, iz) = val;
         }
 
         auto span_slice_r(size_t ir) {
             return std::span<GHPScalar<Complex>>(Base::data_ptr_1d(ir), Base::dims()[1]);
         }
 
-        Base::RSlice slice_R(size_t r) { return Base::RSlice(Base::data_ptr_1d(r), Base::dims()[1],
-                                                             Base::modes_, r); }
+        //Base::RSlice slice_R(size_t r) { return Base::RSlice(Base::data_ptr_1d(r), Base::dims()[1],
+         //                                                    Base::modes_, r); }
 
+        Base::RSlice slice_R(size_t r) {
+            return Base::RSlice(Base::data_ptr_1d(r),
+                                Base::dims()[1],
+                                Base::modes_,
+                                r,
+                                Base::has_omega_mk() ? Base::omega_mk() : Real(0),
+                                Base::has_omega_mk());
+        }
         std::vector<GHPScalar<Complex>> col_slice_z(size_t iz) const {
             std::vector<GHPScalar<Complex>> col(Base::dims()[0]);
             for (size_t r = 0; r < Base::dims()[0]; ++r) {
@@ -831,8 +876,17 @@ namespace spectral {
             return col; // copy of the column
         }
 
+        //Base::ZSlice slice_Z(size_t iz) {
+        //    return Base::ZSlice(Base::values_.data() + iz, Base::dims()[0], Base::dims()[1], Base::modes_, iz);
+        //}
         Base::ZSlice slice_Z(size_t iz) {
-            return Base::ZSlice(Base::values_.data() + iz, Base::dims()[0], Base::dims()[1], Base::modes_, iz);
+            return Base::ZSlice(Base::values_.data() + iz,
+                                Base::dims()[0],
+                                Base::dims()[1],
+                                Base::modes_,
+                                iz,
+                                Base::has_omega_mk() ? Base::omega_mk() : Real(0),
+                                Base::has_omega_mk());
         }
 
         // arithmetic operators
@@ -861,7 +915,7 @@ namespace spectral {
             return out;
         }
 
-        void conj_inplace() const {
+        void conj_inplace() {
 #pragma omp parallel for collapse(2) default(none)
             for (size_t i = 0; i < Base::dims()[0]; ++i)
                 for (size_t j = 0; j < Base::dims()[1]; ++j)
