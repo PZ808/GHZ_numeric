@@ -449,6 +449,18 @@ namespace spectral {
                    std::span<GHPScalar<Complex>>(fout.data(), fout.size()));
         for (size_t i = 0; i < df_dr.size(); ++i) { df_dr[i] = fout[i]; }
     }
+    void SpectralDiffer::dr_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ConstZSlice &f_ZSlice,
+                                           SpectralGHPVectorized::ZSlice &df_dr) const {
+        assert(f_ZSlice.size() == df_dr.size());
+        std::vector<GHPScalar<Complex>> fin(f_ZSlice.size());
+        std::vector<GHPScalar<Complex>> fout(f_ZSlice.size());
+        for (size_t i = 0; i < f_ZSlice.size(); ++i) { fin[i] = f_ZSlice[i]; }
+        dr_Dmatrix(std::span<const GHPScalar<Complex>>(fin.data(), fin.size()),
+                   std::span<GHPScalar<Complex>>(fout.data(), fout.size()));
+        for (size_t i = 0; i < df_dr.size(); ++i) { df_dr[i] = fout[i]; }
+    }
+
+
 
     /**
     * @name dz_barycentric_inplace

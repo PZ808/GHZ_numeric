@@ -15,9 +15,9 @@ namespace orbit {
     using Real = teuk::Real;
 
     struct SourceFrequencies {
+        Real Omega_phi{0};
         Real Omega_r{0};
         Real Omega_z{0};
-        Real Omega_phi{0};
     };
 
 } //orbit

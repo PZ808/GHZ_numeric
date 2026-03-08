@@ -170,7 +170,7 @@ public:
   * @class BuilderXnn
   * @brief Concrete implementation of BuilderBase for X_nn  \n
   *
-  * This class computes the LHS operator for the X_nn eqn.  \n
+  * This class computes lower order terms and source for the X_nn eqn.  \n
   *  1/2 * (rho+rhob)^2 * Thorn[ X_nn/(rho+rhob) ] = Tln + Re U[X_mmbar] + Re V[X_nm] \n
   * L[f] = - rho*rhob/r^2 * ( r^2-a^2*z^2 ) * f -  Sigma/r( Re U[X_mmbar] + Re V[X_nm] )
   * where U[x_mmbar] is a precomputed __linear__ operator applied to x_mmbar \n

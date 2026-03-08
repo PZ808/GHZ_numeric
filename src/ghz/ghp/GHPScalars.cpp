@@ -12,13 +12,21 @@ SpinCoefficientsGHP::SpinCoefficientsGHP(const SpinCoefficients &sc_np) {
 
     // boost/spin covariant definite weight scalars
     kappa  = GHPScalar(sc_np.get(SCT::kappa), 3, 1);
+    kappa_bar  = GHPScalar(std::conj(sc_np.get(SCT::kappa)), 1, 3);
     kappap = GHPScalar(-sc_np.get(SCT::nu), -3, -1);
+    kappap_bar = GHPScalar(-std::conj(sc_np.get(SCT::nu)), -1, -3);
     sigma  = GHPScalar(sc_np.get(SCT::sigma), 3, -1);
+    sigma_bar  = GHPScalar(std::conj(sc_np.get(SCT::sigma)), -1, 3);
     sigmap = GHPScalar(-sc_np.get(SCT::lambda), -3, 1);
+    sigmap_bar = GHPScalar(std::conj(-sc_np.get(SCT::lambda)), 1, -3);
     rho    = GHPScalar(sc_np.get(SCT::rho), 1, 1);
+    rho_bar    = GHPScalar(std::conj(sc_np.get(SCT::rho)), 1, 1);
     rhop   = GHPScalar(-sc_np.get(SCT::mu), -1, -1);
+    rhop_bar   = GHPScalar(std::conj(-sc_np.get(SCT::mu)), -1, -1);
     tau    = GHPScalar(sc_np.get(SCT::tau), 1, -1);
+    tau_bar    = GHPScalar(std::conj(sc_np.get(SCT::tau)), -1, 1);
     taup   = GHPScalar(-sc_np.get(SCT::pi), -1, 1);
+    taup_bar   = GHPScalar(std::conj(-sc_np.get(SCT::pi)), 1, -1);
 
     // indefinite weight scalars
     beta = sc_np.get(SCT::beta);

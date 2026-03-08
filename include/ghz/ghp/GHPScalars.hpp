@@ -373,6 +373,7 @@ public:
 
 struct SpinCoefficientsGHP {
     GHPScalar<Complex> kappa, kappap, sigma, sigmap, tau, taup, rho, rhop; //GHP Covariant coeffs
+    GHPScalar<Complex> kappa_bar, kappap_bar, sigma_bar, sigmap_bar, tau_bar, taup_bar, rho_bar, rhop_bar; //GHP Covariant coeffs
     Complex beta, betap, epsilon, epsilonp;
     SpinCoefficientsGHP() = default;
 

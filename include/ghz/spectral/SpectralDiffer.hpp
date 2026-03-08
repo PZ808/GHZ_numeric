@@ -94,6 +94,8 @@ namespace spectral {
 
         void dr_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ZSlice &f_ZSlice,
                                SpectralGHPVectorized::ZSlice &df_dr) const;
+        void dr_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ConstZSlice &f_ZSlice,
+                               SpectralGHPVectorized::ZSlice &df_dr) const;
 
         void dz_Dmatrix(std::span<const GHPScalar<Complex>> f_span_rconst,
                         std::span<GHPScalar<Complex>> df_dz) const;

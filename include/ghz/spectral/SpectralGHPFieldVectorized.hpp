@@ -143,10 +143,10 @@ namespace spectral {
         // Get a pointer to row i in a 2D array stored as a 1D contiguous block (row major = row i starts at i * dims_[1])
         T* data_ptr_1d(size_t i) requires (Dim == 2) { return &values_[i * dims_[1]]; }  // pointer to row i
         T* data_ptr_1d(int i) requires  (Dim == 2) { return &values_[i * dims_[1]]; }    // pointer to row i
-        const T* data_ptr_1d(size_t i) const requires (Dim == 2) {
+        [[nodiscard]] const T* data_ptr_1d(size_t i) const requires (Dim == 2) {
             return &values_[i * dims_[1]];
         }
-        const T* data_ptr_1d(int i) const requires (Dim == 2) {
+        [[nodiscard]] const T* data_ptr_1d(int i) const requires (Dim == 2) {
             return &values_[i * dims_[1]];
         }
 
@@ -630,8 +630,8 @@ namespace spectral {
         // const (view)
         struct ConstRSlice {
             const T* data_ptr;
-            size_t Nz_;
-            size_t r_;
+            size_t Nz_{};
+            size_t r_{};
             Modes modes_;
 
             Real omega_mk_{0};
@@ -759,7 +759,7 @@ namespace spectral {
                           is_omega_set_);
         }
 
-        ConstRSlice slice_Rconst(size_t ir) const {
+        [[nodiscard]] ConstRSlice slice_R(size_t ir) const {
             const T* row = Base::data_ptr_1d(ir);
             return ConstRSlice{ row,
                                 Base::dims()[1],
@@ -868,6 +868,17 @@ namespace spectral {
                                 Base::has_omega_mk() ? Base::omega_mk() : Real(0),
                                 Base::has_omega_mk());
         }
+        Base::ConstRSlice slice_R(size_t r) const {
+            return Base::ConstRSlice{
+                    Base::data_ptr_1d(r),
+                    Base::dims()[1],
+                    r,
+                    Base::modes_,
+                    Base::has_omega_mk() ? Base::omega_mk() : Real(0),
+                    Base::has_omega_mk()
+            };
+        }
+
         std::vector<GHPScalar<Complex>> col_slice_z(size_t iz) const {
             std::vector<GHPScalar<Complex>> col(Base::dims()[0]);
             for (size_t r = 0; r < Base::dims()[0]; ++r) {
@@ -888,7 +899,15 @@ namespace spectral {
                                 Base::has_omega_mk() ? Base::omega_mk() : Real(0),
                                 Base::has_omega_mk());
         }
-
+        Base::ConstZSlice slice_Z(size_t iz) const {
+            return Base::ConstZSlice(Base::values_.data() + iz,
+                                Base::dims()[0],
+                                Base::dims()[1],
+                                Base::modes_,
+                                iz,
+                                Base::has_omega_mk() ? Base::omega_mk() : Real(0),
+                                Base::has_omega_mk());
+        }
         // arithmetic operators
         SpectralGHPVectorized operator+(const SpectralGHPVectorized &other) const {
             if (p_ != other.p_ || q_ != other.q_ ||

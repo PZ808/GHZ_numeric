@@ -112,8 +112,23 @@ add_executable(spectral_unit_tests
         src/ghz/ghp/GHPScalars.cpp
         src/ghz/ghp/SpinCoeffNP.cpp
         )
-target_include_directories(spectral_unit_tests PRIVATE include)
+add_executable(kinnersley_held_operators_unit_tests
+        tests/unit/kinnersley_held_operators_unit_tests.cpp
+        src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        src/ghz/geom/KerrParams.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/Coords.cpp
+        src/ghz/geom/KinnersleyTetrad.cpp
+        src/ghz/ghp/WeylScalars.cpp
+        src/ghz/ghp/HeldScalars.cpp
 
-target_link_libraries(spectral_unit_tests PRIVATE
+        )
+target_include_directories(spectral_unit_tests PRIVATE include)
+target_include_directories(kinnersley_held_operators_unit_tests PRIVATE include)
+
+target_link_libraries(kinnersley_held_operators_unit_tests PRIVATE
         OpenMP::OpenMP_CXX
         fftw3)

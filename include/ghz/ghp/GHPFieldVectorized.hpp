@@ -464,20 +464,23 @@ namespace ghp {
 
     struct GHPBackgroundFieldsVectorized {
         // bundle of 2D arrays (along and z) for the background GHP scalars
-        GHPFieldVectorized rho, rhop, tau, taup;
+        GHPFieldVectorized rho, rhop, tau, taup, rho_bar, rhop_bar, tau_bar, taup_bar;
         explicit GHPBackgroundFieldsVectorized(int  Nr, int Nz)
-            : rho(Nr, Nz, GHPScalar(teuk::zeroC, 1, 1), 1, 1),
-              rhop(Nr, Nz, GHPScalar(teuk::zeroC, -1, -1), -1, -1),
-              tau(Nr, Nz, GHPScalar(teuk::zeroC, 1, -1), 1, -1),
-              taup(Nr, Nz, GHPScalar(teuk::zeroC, -1, 1), -1, 1)
-
+                : rho(Nr, Nz, GHPScalar(teuk::zeroC, 1, 1), 1, 1),
+                  rho_bar(Nr, Nz, GHPScalar(teuk::zeroC, 1, 1), 1, 1),
+                  rhop(Nr, Nz, GHPScalar(teuk::zeroC, -1, -1), -1, -1),
+                  rhop_bar(Nr, Nz, GHPScalar(teuk::zeroC, -1, -1), -1, -1),
+                  tau(Nr, Nz, GHPScalar(teuk::zeroC, 1, -1), 1, -1),
+                  tau_bar(Nr, Nz, GHPScalar(teuk::zeroC, -1, 1), -1, 1),
+                  taup(Nr, Nz, GHPScalar(teuk::zeroC, -1, 1), -1, 1),
+                  taup_bar(Nr, Nz, GHPScalar(teuk::zeroC, 1, -1), 1,- 1)
         {}
     };
 
     // build the GHP background fields in vectorized form for all rz-nodes
     template<typename TetradType, typename CoordType>
     GHPBackgroundFieldsVectorized build_ghp_fields_vectorized(TetradType &tetrad,
-                                                              const std::span<const teuk::Real> r_nodes,
+                                                              const std::span<const teuk::Real> r_nodes, // physical nodes
                                                               const std::span<const teuk::Real> z_nodes,
                                                               CoordType &X)
     {
@@ -496,6 +499,7 @@ for (int ir = 0; ir < Nr; ++ir) {
 
         // assign directly
         ghp_background_fields.rho(ir, iz) = scalars.ghp_scalars.rho;
+        ghp_background_fields.rho_bar(ir, iz) = scalars.ghp_scalars.rho_bar;
         ghp_background_fields.rhop(ir, iz) = scalars.ghp_scalars.rhop;
         ghp_background_fields.tau(ir, iz) = scalars.ghp_scalars.tau;
         ghp_background_fields.taup(ir, iz) = scalars.ghp_scalars.taup;
