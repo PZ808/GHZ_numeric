@@ -122,6 +122,60 @@ The `main.cpp` file demonstrates how to:
 
 ---
 
+# Transport Equation Hierarchy Layering
+## 1. Data ingestion layer
+- From Mathematica we produce the effective source components $$T^{\mathcal R}_{\mu\nu}$$ on some source grid, then in C++:
+  - interpolate/resample onto the solver grid
+  - extract the left boundary values at $$r_{min}$$ (say for box windowed puncture)
+  - store the  source fields (IRG case) $$T^{\mathcal R}_{ll}$$, $$T^{\mathcal R}_{lm}$$, $$T^{\mathcal R}T_{l\bar m}$$ $$T^{\mathcal R}T_{nn}$$ on the full 2D grid.
+## 2. Hierarchical solve layer
+- Solve radial ODEs slice-by-slice in $$z$$ (i.e. along rays) for each corrector field, building up the hierarchy level by level.
+using ZSliceSolver class member solver_single_z
+- Level 1:
+  - Solve for $$X_{mmbar}$$ via ODE with source $$T_{ll}$$ and ICs from left boundary traces
+  - Build derivative pack of $$X_{mmbar}$$ (e.g. $$X$$, $$P_X$$, $$EH_X$$, etc)
+- Level 2:
+- Solve for $$X_{mmbar}$$ via ODE with source $$T_{lm} + N[X_{m\bar m}]$$ and ICs from left boundary data
+  - Build derivative pack of $$X_{nm}$$ (e.g. $$X$$, $$P_X$$, $$EbH_X$$, etc)
+- Level 3:
+  - Solve for $$X_{nn}$$ via ODE with source $$T_{ln} + Re U[X_{mmbar}] + Re V[X_{nm}]$$ and ICs from left boundary data
+## 3. Final corrector field assembly layer
+- Build the residual corrector fields on the full 2D grid by adding the analytically known vacuum region contributions
+  (homogeneous solutions with coefficients fixed by the left boundary data) to the numerically solved fields from the previous layer.`
+
+
+```mermaid
+flowchart TD
+A["Mathematica effective source T_ab(r, z)"]
+    B["Resample / interpolate onto solver grid (r_i, z_j)<br/>with z = cos(theta)"]
+
+    C["Boundary values at r = r_min<br/>used for InitialData Xmmbar / Xnm / Xnn"]
+    D["Bulk source fields on full 2D grid<br/>T_ll, T_lm, T_ln, and any edth / thorn-derived fields"]
+
+    E["Solve X_mmbar<br/>builder: for X_mmbar<br/>source: T_ll<br/>IC: y0_mmbar(z_j)"]
+    F["Build derivative pack of X_mmbar<br/>X, P_X, EH_X, ..."]
+  
+
+    G["Solve X_nm<br/>builder:  ODE for X_nm<br/>source: T_lm + N[X_mmbar]<br/>IC: y0_nm(z_j)"]
+    H["Build derivative pack of X_nm<br/>X, P_X, EbH_X, ..."]
+
+    I["Solve X_nn<br/>builder:  ODE for X_nn<br/>source: T_ln + Re U[X_mmbar] + Re V[X_nm]<br/>IC: y0_nn(z_j)"]
+
+    J["Final corrector fields on full (r, z) grid"]
+
+    A --> B
+    B --> C
+    B --> D
+    D --> E
+    C --> E
+    E --> F
+    F --> G
+    C --> G
+    G --> H
+    H --> I
+    C --> I
+    I --> J
+``` 
 
 # Core Components
 
