@@ -18,6 +18,7 @@
 
 #include "ghz/spectral/SpectralDiffer.hpp"
 
+#include <boost/numeric/ublas/matrix.hpp>
 #include <algorithm>
 #include <complex>
 #include <cstdlib>
@@ -89,6 +90,63 @@ namespace {
         }
     }
 
+    RVector build_generic_bary_weights_test(const RVector& nodes) {
+        const size_t N = nodes.size();
+        RVector w(N, Real(1));
+        for (size_t j = 0; j < N; ++j) {
+            for (size_t k = 0; k < N; ++k) {
+                if (k == j) continue;
+                w[j] /= (nodes[j] - nodes[k]);
+            }
+        }
+        return w;
+    }
+
+    boost::numeric::ublas::matrix<Real>
+    build_cheb_diff_matrix_test(const RVector& x) {
+        const int N = static_cast<int>(x.size());
+        boost::numeric::ublas::matrix<Real> D(N, N);
+        std::vector<Real> c(N);
+
+        for (int i = 0; i < N; ++i) {
+            c[i] = (i == 0 || i == N - 1) ? Real(2) : Real(1);
+            c[i] *= ((i % 2) == 0 ? Real(1) : Real(-1));
+        }
+
+        for (int i = 0; i < N; ++i) {
+            for (int j = 0; j < N; ++j) {
+                if (i != j) D(i, j) = (c[i] / c[j]) / (x[i] - x[j]);
+                else        D(i, j) = Real(0);
+            }
+        }
+
+        for (int i = 0; i < N; ++i) {
+            Real s = Real(0);
+            for (int j = 0; j < N; ++j) {
+                if (i != j) s += D(i, j);
+            }
+            D(i, i) = -s;
+        }
+
+        return D;
+    }
+
+    std::vector<GHP<Complex>>
+    apply_diff_matrix_test(const boost::numeric::ublas::matrix<Real>& D,
+                           const std::vector<GHP<Complex>>& in) {
+        const int N = static_cast<int>(in.size());
+        std::vector<GHP<Complex>> out(N, make_scalar(Complex(0, 0), p_test, q_test));
+
+        for (int i = 0; i < N; ++i) {
+            Complex sum = Complex(0, 0);
+            for (int j = 0; j < N; ++j) {
+                sum += D(i, j) * in[j].value();
+            }
+            out[i].value() = sum;
+        }
+        return out;
+    }
+
     template <typename F>
     std::vector<GHP<Complex>> sample_on_nodes(const RVector& x, F f, int p = 0, int q = 0) {
         std::vector<GHP<Complex>> out(x.size());
@@ -135,6 +193,69 @@ namespace {
 
             require_near_real(Pm, expectedPm, Real(0), "Pn(-1)");
             require_near_real(dPm, expecteddPm, Real(0), "Pn'(-1)");
+        }
+    }
+    void test_spectral_node_ordering_convention() {
+        constexpr size_t Nz = 12;
+        constexpr size_t Nr = 15;
+        SpectralDiffer diff(Nz, Nr);
+
+        const auto& z = diff.lgl_nodes();
+        const auto& r = diff.cl_nodes();
+
+        require_true(std::is_sorted(z.begin(), z.end()),
+                     "LGL nodes should be stored in ascending order");
+        require_true(std::is_sorted(r.begin(), r.end()),
+                     "Chebyshev-Lobatto nodes should be stored in ascending order");
+
+        require_near_real(z.front(), Real(-1), Real(1e-14), "LGL first node = -1");
+        require_near_real(z.back(),  Real(1),  Real(1e-14), "LGL last node = +1");
+
+        require_near_real(r.front(), Real(-1), Real(1e-14), "Cheb first node = -1");
+        require_near_real(r.back(),  Real(1),  Real(1e-14), "Cheb last node = +1");
+    }
+
+    void test_chebyshev_descending_order_consistency() {
+        constexpr size_t Nz = 8;
+        constexpr size_t Nr = 18;
+        SpectralDiffer diff(Nz, Nr);
+
+        const auto& r_asc = diff.cl_nodes();
+        RVector r_desc = r_asc;
+        std::reverse(r_desc.begin(), r_desc.end());
+
+        auto f = [](Real x) -> Complex {
+            return Complex(Real(2)*x*x*x - Real(3)*x*x + Real(4)*x - Real(5),
+                           -x*x*x*x + Real(2)*x*x - Real(1));
+        };
+        auto df = [](Real x) -> Complex {
+            return Complex(Real(6)*x*x - Real(6)*x + Real(4),
+                           -Real(4)*x*x*x + Real(4)*x);
+        };
+
+        // Check D-matrix formula on descending-ordered Chebyshev nodes
+        auto in_desc = sample_on_nodes(r_desc, f, p_test, q_test);
+        auto D_desc  = build_cheb_diff_matrix_test(r_desc);
+        auto out_desc = apply_diff_matrix_test(D_desc, in_desc);
+
+        check_derivative_vector(r_desc, out_desc, df, Real(5e-11),
+                                "Chebyshev D-matrix on descending-ordered nodes");
+
+        // Check barycentric interpolation/derivative on descending order too
+        const auto w_desc = build_generic_bary_weights_test(r_desc);
+        for (size_t i = 0; i < r_desc.size(); ++i) {
+            std::vector<Complex> fv(r_desc.size());
+            for (size_t j = 0; j < r_desc.size(); ++j) {
+                fv[j] = in_desc[j].value();
+            }
+
+            auto [fi, dfi] =
+                    SpectralDiffer::barycentric_interp_and_derivative(r_desc, fv, w_desc, r_desc[i]);
+
+            require_near(fi, f(r_desc[i]), Real(1e-13),
+                         "barycentric value on descending Chebyshev nodes at i=" + std::to_string(i));
+            require_near(dfi, df(r_desc[i]), Real(1e-10),
+                         "barycentric derivative on descending Chebyshev nodes at i=" + std::to_string(i));
         }
     }
 
@@ -421,6 +542,8 @@ int main() {
             {"hybrid_fd_first_derivative_fourth_order", test_hybrid_fd_first_derivative_fourth_order},
             {"hybrid_fd_second_derivative_fourth_order", test_hybrid_fd_second_derivative_fourth_order},
             {"hybrid_dz_kernel", test_hybrid_dz_kernel},
+            {"spectral_node_ordering_convention", test_spectral_node_ordering_convention},
+            {"chebyshev_descending_order_consistency", test_chebyshev_descending_order_consistency},
     };
 
     int passed = 0;
