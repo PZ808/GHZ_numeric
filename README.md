@@ -127,21 +127,25 @@ The `main.cpp` file demonstrates how to:
 - From Mathematica we produce the effective source components $$T^{\mathcal R}_{\mu\nu}$$ on some source grid, then in C++:
   - interpolate/resample onto the solver grid
   - extract the left boundary values at $$r_{min}$$ (say for box windowed puncture)
-  - store the  source fields (IRG case) $$T^{\mathcal R}_{ll}$$, $$T^{\mathcal R}_{lm}$$, $$T^{\mathcal R}T_{l\bar m}$$ $$T^{\mathcal R}T_{nn}$$ on the full 2D grid.
+  - store the  source fields (IRG case) $$T^{\mathcal R}_{ll}$$, 
+  - $$T^{\mathcal R}_{lm}$$,
+  - $$T^{\mathcal R}_{l\bar m}$$ 
+  - $$T^{\mathcal R}_{nn}$$ on the full 2D grid.
 ## 2. Hierarchical solve layer
 - Solve radial ODEs slice-by-slice in $$z$$ (i.e. along rays) for each corrector field, building up the hierarchy level by level.
 using ZSliceSolver class member solver_single_z
 - Level 1:
-  - Solve for $$X_{mmbar}$$ via ODE with source $$T_{ll}$$ and ICs from left boundary traces
-  - Build derivative pack of $$X_{mmbar}$$ (e.g. $$X$$, $$P_X$$, $$EH_X$$, etc)
+  - Solve for $$X_{m\bar m}$$ via ODE with source $$T_{ll}$$ and ICs from left worldtube boundary 
+  - Build derivative pack of $$X_{mmbar}$$ using the Held operators (e.g. $$X$$, $$P[X]$$, $$EH[X]$$, etc)
 - Level 2:
-- Solve for $$X_{mmbar}$$ via ODE with source $$T_{lm} + N[X_{m\bar m}]$$ and ICs from left boundary data
-  - Build derivative pack of $$X_{nm}$$ (e.g. $$X$$, $$P_X$$, $$EbH_X$$, etc)
+- Solve for $$X_{mmbar}$$ via ODE with source $$T_{lm} + \mathcal N[X_{m\bar m}]$$ and ICs from left boundary data
+  - Build derivative pack of $$X_{nm}$$ for use in the next level
 - Level 3:
-  - Solve for $$X_{nn}$$ via ODE with source $$T_{ln} + Re U[X_{mmbar}] + Re V[X_{nm}]$$ and ICs from left boundary data
+  - Solve for $$X_{nn}$$ via ODE with source $$T_{ln} + \mathcal U[X_{mmbar}] + \mathcal V[X_{nm}]$$ and ICs from left boundary data
 ## 3. Final corrector field assembly layer
 - Build the residual corrector fields on the full 2D grid by adding the analytically known vacuum region contributions
-  (homogeneous solutions with coefficients fixed by the left boundary data) to the numerically solved fields from the previous layer.`
+  (homogeneous solutions with coefficients fixed by the right $$r_{max}$$ worldtube boundary data) 
+
 
 
 ```mermaid
