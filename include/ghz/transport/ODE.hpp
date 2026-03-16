@@ -92,16 +92,6 @@ namespace ode {
             Real rel_tol=1e-9,             // solver rel tolerance
             Real initial_step=1e-3);      // initial step size
 
-
-    // Solver over r_grid and z_grid
-    std::vector<std::vector<StateVec>> solve_2D(const std::vector<Real>& r_grid, // nodes in r
-                                                const std::vector<Real>& z_grid, // nodes in z
-                                                const StateVec& y0,
-                                                const TransportODESystem& ode,
-                                                Real abs_tol = 1e-9,
-                                                Real rel_tol = 1e-9,
-                                                Real initial_step = 1e-3);
-
 } // namespace ode
 
 

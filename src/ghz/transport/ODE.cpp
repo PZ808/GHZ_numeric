@@ -7,75 +7,59 @@
 
 namespace ode {
 
-    // Adaptive solver for coupled system over r for a single z
-    std::vector<StateVec> solve_single_z(
-            const std::vector<Real>& r_grid, // nodes in r or (sigma) or the chebyshev grid relative to these values
-            const StateVec& y0,              // initial conditions at r_min
-            const TransportODESystem& ode,   // ODE system
-            Real z,                          // fixed z value
-            Real abs_tol=1e-9,             // solver abs tolerance
-            Real rel_tol=1e-9,             // solver rel tolerance
-            Real initial_step=1e-3) {      // initial step size
-
+    inline std::vector<StateVec> solve_single_z(
+            const std::vector<Real>& r_grid,
+            const StateVec& y0,
+            const TransportODESystem& ode,
+            Real z,
+            Real abs_tol,
+            Real rel_tol,
+            Real initial_step)
+    {
         using namespace boost::numeric::odeint;
-        // Define the stepper type for adaptive integration
-        using stepper_type = boost::numeric::odeint::runge_kutta_cash_karp54<
+
+        if (r_grid.empty()) {
+            throw std::invalid_argument("solve_single_z: r_grid is empty.");
+        }
+        if (y0.empty()) {
+            throw std::invalid_argument("solve_single_z: y0 is empty.");
+        }
+        if (r_grid.size() == 1) {
+            return {y0};
+        }
+        if (!std::is_sorted(r_grid.begin(), r_grid.end())) {
+            throw std::invalid_argument("solve_single_z: r_grid must be sorted ascending.");
+        }
+
+        using stepper_type = runge_kutta_cash_karp54<
                 StateVec, Real, StateVec, Real,
-                boost::numeric::odeint::range_algebra,
-                boost::numeric::odeint::default_operations>;
+                range_algebra, default_operations>;
 
-        StateVec y = y0;  // initialize state vector
-        size_t Nr = r_grid.size(); // number of r grid points
-        std::vector<StateVec> solution; // store solution at r grid points
-        solution.reserve(Nr); // reserve space
+        auto controlled = make_controlled(
+                abs_tol, rel_tol,
+                stepper_type());
 
-        size_t idx = 0;
-        // Observer lambda to capture solution at specified r_grid points
-        auto observer = [&](const StateVec &y_val, Real r_val){
-            while (idx < Nr && r_val >= r_grid[idx]) {
-                solution.push_back(y_val);
-                ++idx;
-            }
-        };
-        // Wrap the ODE to fix z
-        auto ode_wrapper = [&](const StateVec &y_in,
-                               StateVec &dydr, Real r) {
+        StateVec y = y0;
+        std::vector<StateVec> solution;
+        solution.reserve(r_grid.size());
+        solution.push_back(y0); // value at r_grid[0]
+
+        auto ode_wrapper = [&](const StateVec& y_in, StateVec& dydr, Real r) {
             ode(y_in, dydr, r, z);
         };
 
-        // Perform adaptive integration over r
-        integrate_adaptive(make_controlled(abs_tol, rel_tol, stepper_type()),
-                           ode_wrapper, y,
-                           r_grid.front(), r_grid.back(),
-                           initial_step,
-                           observer);
+        Real h = initial_step;
 
-        // wrap up: ensure solution has entries for all r_grid points
-        while (solution.size() < Nr)
-            solution.push_back(y); // fill with last value
+        for (size_t i=0; i<r_grid.size()-1; ++i) {
+            const Real r0 = r_grid[i];
+            const Real r1 = r_grid[i+1];
+
+            integrate_adaptive(controlled, ode_wrapper, y, r0, r1, h);
+
+            solution.push_back(y); // now this really is the state at r1
+        }
 
         return solution;
-    } // solve_single_z
-
-    // Solver over r_grid and z_grid
-    std::vector<std::vector<StateVec>> solve_2D(const std::vector<Real>& r_grid, // nodes in r
-                                                const std::vector<Real>& z_grid, // nodes in z
-                                                const StateVec& y0,
-                                                const TransportODESystem& ode,
-                                                Real abs_tol = 1e-9,
-                                                Real rel_tol = 1e-9,
-                                                Real initial_step = 1e-3) {
-        size_t Nz = z_grid.size();
-        // container for full 2D solution
-        std::vector<std::vector<StateVec>> sol_2D; // sol_2D[iz][ir][component]
-        sol_2D.reserve(Nz);
-
-        // loop over z grid points
-        for (size_t iz=0; iz<Nz; ++iz){
-            Real z = z_grid[iz];
-            sol_2D.push_back(solve_single_z(r_grid, y0, ode, z, abs_tol, rel_tol, initial_step));
-        }
-        return sol_2D; // sol_2D[iz][ir][component]
-    }
+    }// solve_single_z
 
 }

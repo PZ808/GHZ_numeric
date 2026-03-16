@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace ghz {
 
@@ -23,7 +24,7 @@ namespace ghz {
   * @return The index of the nearest radial grid point.
   */
 
-    size_t findNearestRIndex(Real r, const RVector &r_grid) {
+    inline size_t findNearestRIndex(Real r, const RVector &r_grid) {
         if (r_grid.empty()) {
             throw std::invalid_argument("findNearestRIndex: r_grid is empty");
             // or: assert(!r_grid.empty());
@@ -39,7 +40,7 @@ namespace ghz {
         }
         return ir;
     }
-    size_t findNearestRIndexSorted(Real r, const RVector& r_grid) {
+    inline size_t findNearestRIndexSorted(Real r, const RVector& r_grid) {
         if (r_grid.empty()) throw std::invalid_argument("r_grid empty");
 
         auto it = std::lower_bound(r_grid.begin(), r_grid.end(), r);
@@ -57,21 +58,22 @@ namespace ghz {
   * @brief Abstract base class for building LHS operators for different components of the corrector.
   */
 
-class BuilderBase {
-public:
-    // declares a pure virtual function call operator
-    virtual StateVec operator()(const StateVec &y, // ref to input state vec
-                                Real r, // radial coord
-                                Real z, // polar coord
-                                const Complex &rho, // kerr rho at this (r,z)
-                                const ghp::HeldBackgroundFieldsVectorized<CoordType> &held, // additional held fields pre-evaluated a z_nodes
-                                size_t iz // index in z direction
-    ) const = 0; // all derived classes must implement this
+    class BuilderBase {
+    public:
+        explicit BuilderBase(Real a) : a_(a) {}
+        virtual ~BuilderBase() = default;
 
-    virtual ~BuilderBase() = default;
-};
+        virtual StateVec operator()(const StateVec& y, Real r, Real z) const = 0;
 
+    protected:
+        // rho in kinnersley
+        [[nodiscard]] Complex rho_K(Real r, Real z) const {
+            return -Real(1) / (r - Complex(0.0, a_ * z));
+        }
 
+    private:
+        Real a_;
+    };
 
 /**
     ** @class BuilderX_mmbar
@@ -90,14 +92,14 @@ public:
     class BuilderXmmbar : public BuilderBase {
 
     public:
+        explicit BuilderXmmbar(Real a) : BuilderBase(a) {}
         StateVec operator()(const StateVec &y,
-                            Real r, Real z, const Complex &rho,
-                            const ghp::HeldBackgroundFieldsVectorized<CoordType> &held,
-                            size_t) const override {
+                            Real r, Real z) const override {
 
             StateVec dy(4, 0.0); // initially zero. fill with LHS deriv operator applied to y
 
-            Complex rhob = std::conj(rho);
+            const Complex rho = rho_K(r, z);
+            const Complex rhob = std::conj(rho);
 
             dy[0] = y[1]; // d(ReX)/dr
             dy[2] = y[3]; // d(ImX)/dr
@@ -115,37 +117,32 @@ public:
    * @class BuilderXnm
    * @brief Concrete implementation of BuilderBase for the X_nm level. \n
    *
-   * This class computes the operator for the X_nm level, for the eqn.  \n
+   * This class computes the LHS operator for the X_nm level, for the eqn.  \n
    * rho/(2(rho + rhob)) * d/dr ( (rho + rhob)^2 * d/dr [X_nm/(rho*(rho + rhob))] ) = T_lm + N[x_mmbar] \n
    * L[f] = rho dX/dr + rho^2 f - rhob*(rho-rhob)f
-   * where N[x_mmbar] is a precomputed __linear__ operator applied to x_mmbar. \n
    */
     class BuilderXnm : public BuilderBase {
 
-    public :
-        BuilderXnm(const GHPSpectral &NX_mmbar,
-                   const RVector &r_grid,
-                   const RVector &z_grid)
-                : NX_source_(std::move(NX_mmbar)), // forcing term from X_mmbar
-                  r_grid_(r_grid), z_grid_(z_grid) {}
+    public:
+        explicit BuilderXnm(Real a) : BuilderBase(a) {}
 
         ode::StateVec operator()(const StateVec &y,
-                                 Real r, Real /*z*/,
-                                 const Complex &rho,
-                                 const ghp::HeldBackgroundFieldsVectorized<CoordType> & /*held*/,
-                                 size_t iz) const override {
+                                 Real r, Real z) const override {
             // Expect y.size() == 4 (ReX, ReX', ImX, ImX')
             ode::StateVec dy(4, 0.0);
 
             // unpack X_nm into complex quantities
             Complex Xnm(y[0], y[2]); // ReXnm and ImXnm state vector
             Complex Vnm(y[1], y[3]); // dReX_nm/dr and dImXnm/dr
-            Real z = z_grid_[iz];
+            const Complex rho = rho_K(r, z);
+            const Complex rhob = std::conj(rho);
 
-            Complex rhob = std::conj(rho);
 
-            Complex LXnm = 2.0_r * (rho * rho * Xnm - rhob * (rho - rhob) * Xnm + rho * Vnm)
-                           + 2.0_r * NX_source_(findNearestRIndex(r, r_grid_), iz).value(); // \pd_r^2 X_{nm}
+            Complex LXnm = 2.0_r * (
+                    rho*rho * Xnm
+                   - rhob*(rho-rhob) * Xnm
+                   + rho * Vnm
+                   );
 
             // pack dy
             dy[0] = std::real(Vnm);
@@ -156,66 +153,42 @@ public:
             return dy;
         }
 
-    private:
-
-        const GHPSpectral NX_source_;
-        const RVector r_grid_{};
-        const RVector z_grid_{};
 
     };// class BuilderXnm
-
-
 
 /**
   * @class BuilderXnn
   * @brief Concrete implementation of BuilderBase for X_nn  \n
   *
-  * This class computes lower order terms and source for the X_nn eqn.  \n
   *  1/2 * (rho+rhob)^2 * Thorn[ X_nn/(rho+rhob) ] = Tln + Re U[X_mmbar] + Re V[X_nm] \n
-  * L[f] = - rho*rhob/r^2 * ( r^2-a^2*z^2 ) * f -  Sigma/r( Re U[X_mmbar] + Re V[X_nm] )
-  * where U[x_mmbar] is a precomputed __linear__ operator applied to x_mmbar \n
-  * and V[x_nm] is a precomputed __linear__ operator applied to x_nm. \n
+  * L[f] = - rho*rhob/r^2 * ( r^2-a^2*z^2 ) * f
   */
     class BuilderXnn : public BuilderBase {
     public:
-        BuilderXnn(const GHPSpectral &UX_mmbar, const GHPSpectral &VX_nm,
-                   const RVector &r_grid, const RVector &z_grid)
-                : UX_field_(UX_mmbar),
-                  VX_field_(VX_nm),
-                  r_grid_(r_grid),
-                  z_grid_(z_grid) {}
+        explicit BuilderXnn(Real a) : BuilderBase(a) {}
 
         ode::StateVec operator()(const ode::StateVec &y,
-                                 Real r, Real /*z*/,
-                                 const Complex &rho,
-                                 const ghp::HeldBackgroundFieldsVectorized<CoordType> & /*held*/,
-                                 size_t iz) const override {
+                                 Real r, Real z) const override {
 
             // State: y = {Re Xnn, Im Xnn}
             Complex Xnn(y[0], y[1]);
 
-            Complex rhob = std::conj(rho);
-            Real z = z_grid_[iz];
+            //Real Xnn = y[0];
+            //ode::StateVec dy(1);
 
-            // source term S = T_ln + Re U + Re V
-            Complex U = UX_field_(findNearestRIndex(r, r_grid_), iz).value();
-            Complex V = VX_field_(findNearestRIndex(r, r_grid_), iz).value();
-            Real S = std::real(U + V);   // assuming T_ln already included into U or V
+            const Complex rho = rho_K(r, z);
+            const Complex rhob = std::conj(rho);
 
             // compute dXnn/dr from first-order formula
-            Complex dX =
-                    Complex(2.0 * S, 0.0) / (rho + rhob)
-                    + ((rho * rho + rhob * rhob) / (rho + rhob)) * Xnn;
+            Complex dX = ( (rho*rho + rhob*rhob)/(rho+rhob) ) * Xnn;
+            //Real dX = std::real(((rho*rho + rhob*rhob)/(rho+rhob))) * Xnn;
+            //dy[0] = dX;
 
             ode::StateVec dy(2);
             dy[0] = std::real(dX);
             dy[1] = std::imag(dX);
             return dy;
         }
-
-    private:
-        const spectral::SpectralGHPVectorized UX_field_, VX_field_;
-        const RVector r_grid_, z_grid_;
 
     }; // class BuilderXnn
 

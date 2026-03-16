@@ -14,6 +14,7 @@
 //
 #include "../include/ghz/transport/SourceBuilders.hpp"
 #include "ghz/core/GhzTypes.hpp"
+#include "ghz/transport/ODE.hpp"
 
 
 namespace ghz::source {
@@ -57,14 +58,14 @@ namespace ghz::source {
         // Mode labels: assume all deriv fields share same modes
         const auto modes = xmmbar.X.modes(); // adjust accessor if needed
 
-        GHPSpectral NX_source(
+        GHPSpectral source(
                 Nr, Nz, modes,
                 GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
 
         const Real a = metric.a();
 
 #pragma omp parallel for collapse(2) default(none) \
-    shared(NX_source, xmmbar, held, ghp, r_grid, z_grid, half, three, four, out_type, Tlm, a, Nr, Nz)
+    shared(source, xmmbar, held, ghp, r_grid, z_grid, half, three, four, out_type, Tlm, a, Nr, Nz)
         for (size_t iz = 0; iz < Nz; ++iz) {
             const auto tau0 = held.tauH(iz); // τ^°(z), Held-circle
 
@@ -102,12 +103,13 @@ namespace ghz::source {
                 Complex rhs = N_of_xmmbar.value();
                 if (Tlm) rhs += (*Tlm)(ir, iz).value();
 
-                NX_source.set_index(ir, iz, GHPScalar<Complex>(rhs, out_type.p, out_type.q));
+                source.set_index(ir, iz, GHPScalar<Complex>(rhs, out_type.p, out_type.q));
             }
         }
 
-        return NX_source;
+        return source;
     }
+
 
 // -----------------------------------------------------------------------------
 // x_nn source: T_ln + Re(U[x_mmbar]) + Re(V[x_nm])
@@ -225,4 +227,5 @@ namespace ghz::source {
 
         return source;
     }
+
 } //ghz::source
