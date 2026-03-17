@@ -55,14 +55,19 @@ add_executable(GHZ_numeric
 
         include/ghz/core/GhzTypes.hpp
         include/ghz/core/EigenTeukNumTraits.hpp
+        include/ghz/core/VectorsGHZ.hpp
+        include/ghz/core/MathMacros.hpp
+
         include/ghz/geom/KerrParams.hpp src/ghz/geom/KerrParams.cpp
         include/ghz/geom/Metric.hpp src/ghz/geom/KerrMetric.cpp
         include/ghz/geom/KerrMetric.hpp
         include/ghz/geom/KerrMetricBL.hpp src/ghz/geom/KerrMetricBL.cpp
-        include/ghz/core/MathMacros.hpp
         include/ghz/geom/Coords.hpp src/ghz/geom/Coords.cpp
         include/ghz/geom/KerrMetricIngoing.hpp src/ghz/geom/KerrMetricIngoing.cpp
         include/ghz/geom/KerrMetricOutgoing.hpp src/ghz/geom/KerrMetricOutgoing.cpp
+
+        include/ghz/geom/DataDomain.hpp
+        include/ghz/geom/Domain.hpp
 
         include/ghz/geom/Tetrads.hpp src/ghz/geom/KinnersleyTetrad.cpp
         include/ghz/geom/KinnersleyTetrad.hpp
@@ -71,28 +76,33 @@ add_executable(GHZ_numeric
         include/ghz/ghp/WeylScalars.hpp src/ghz/ghp/WeylScalars.cpp
         include/ghz/ghp/GHPScalars.hpp src/ghz/ghp/GHPScalars.cpp
 
-        include/ghz/core/VectorsGHZ.hpp
-
-        include/SpectralSolverS2boost.hpp src/SpectralSolverS2boost.cpp
 
         include/ghz/special/EllipticIntegrals.hpp
         include/ghz/orbit/KerrOrbit.hpp src/ghz/source/KerrOrbit.cpp
 
-        sand/SpectralGHPField.hpp
         include/ghz/spectral/SpectralDiffer.hpp src/ghz/spectral/SpectralDiffer.cpp
         include/ghz/ghp/HeldScalars.hpp src/ghz/ghp/HeldScalars.cpp
         include/ghz/geom/KerrCharts.hpp
 
         include/ghz/spectral/SpectralGHPFieldVectorized.hpp
-        include/ghz/orbit/Splines.hpp src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+        src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+
+        include/ghz/orbit/Splines.hpp
 
         include/ghz/transport/ODE.hpp
         include/ghz/transport/Corrector.hpp
+        src/ghz/transport/Corrector.cpp
         include/ghz/transport/Builders.hpp
         include/ghz/transport/ZSliceSolver.hpp
-        include/ghz/transport/Operators.hpp
-        src/ghz/transport/Corrector.cpp
-        src/ghz/transport/Operators.cpp src/ghz/transport/SourceBuilders.cpp)
+        #include/ghz/transport/Operators.hpp
+        # src/ghz/transport/Operators.cpp
+
+        # src/ghz/transport/Operators.cpp
+        src/ghz/transport/SourceBuilders.cpp
+        include/ghz/source/EffectiveSource.hpp
+        include/ghz/source/BinaryEffectiveSourceArchive.hpp
+        src/ghz/source/BinaryEffectiveSourceArchive.cpp
+        )
 
 # --------------------------
 # Target include directories
@@ -124,9 +134,12 @@ add_executable(kinnersley_held_operators_unit_tests
         src/ghz/geom/KinnersleyTetrad.cpp
         src/ghz/ghp/WeylScalars.cpp
         src/ghz/ghp/HeldScalars.cpp
-
         )
+add_executable(effective_source_unit_tests
+        tests/unit/effective_source_unit_tests.cpp
+        src/ghz/source/BinaryEffectiveSourceArchive.cpp)
 target_include_directories(spectral_unit_tests PRIVATE include)
+target_include_directories(effective_source_unit_tests PRIVATE include)
 target_include_directories(kinnersley_held_operators_unit_tests PRIVATE include)
 
 target_link_libraries(kinnersley_held_operators_unit_tests PRIVATE

@@ -7,7 +7,9 @@
 
 #include "ghz/core/GHZTypes.hpp"
 
+
 namespace ghz::numeric {
+
     struct Domain {
         teuk::Real r_lower;
         teuk::Real r_upper;

@@ -2,20 +2,30 @@
 // Created by Peter Zimmerman on 04.03.26.
 //
 
-#ifndef HS1DATA_DATA_CONDITIONSOURCE_HPP
-#define HS1DATA_DATA_CONDITIONSOURCE_HPP
-
+#ifndef GHZ_SOURCE_CONDITIONSOURCE_HPP
+#define GHZ_SOURCE_CONDITIONSOURCE_HPP
 #pragma once
-#include <vector>
-#include <string>
-#include <complex>
 
-namespace ghz {
+#include "ghz/core/GhzTypes.hpp"
+
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <stdexcept>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+namespace ghz::source {
+
+    using teuk::Real;
+    using teuk::Complex;
+
 
     class ConditionSource {
     public:
-        using Real = double;
-        using Complex = std::complex<Real>;
+        using Real = teuk::Real;
+        using Complex = teuk::Complex;
 
         struct UniformGrid {
             size_t Nr, Nz;
@@ -57,4 +67,4 @@ namespace ghz {
     };
 
 }
-#endif //HS1DATA_DATA_CONDITIONSOURCE_HPP
+#endif //GHZ_SOURCE_CONDITIONSOURCE_HPP

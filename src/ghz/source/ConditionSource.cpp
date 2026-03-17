@@ -30,7 +30,8 @@
 
 
 
-namespace ghz {
+namespace ghz::source {
+
 
     ConditionSource::ConditionSource(const UniformGrid& grid)
             : grid_(grid)
