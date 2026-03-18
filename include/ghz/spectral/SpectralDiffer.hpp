@@ -48,23 +48,25 @@ namespace spectral {
         // Constructor: build nodes, weights, differentiation matrix
         SpectralDiffer(size_t Nz, size_t Nr) : Nz_(Nz), Nr_(Nr) {
             z_ = build_legendre_gauss_lobatto_nodes(Nz_); // generate nodes z[i]
-            r_ = build_chebyshev_lobatto_nodes(Nr_); // generate nodes r[i]
+            x_ = build_chebyshev_lobatto_nodes(Nr_); // generate nodes r[i]
             wz_ = build_barycentric_weights_LGL(z_);
-            wr_ = build_barycentric_weights_ChebLobatto_from_nodes(r_);
+            wx_ = build_barycentric_weights_ChebLobatto_from_nodes(x_);
             Dz_ = build_legendre_diff_matrix(z_);
-            Dr_ = build_chebyshev_diff_matrix(r_);
+            Dx_ = build_chebyshev_diff_matrix(x_);
         }
 
         // Getters
         [[nodiscard]] const size_t Nr() const { return Nr_; }
         [[nodiscard]] const size_t Nz() const { return Nz_; }
         [[nodiscard]] const RVector &lgl_nodes() const { return z_; }
-        [[nodiscard]] const RVector &cl_nodes() const { return r_; }
+        [[nodiscard]] const RVector &cl_nodes() const { return x_; }
         [[nodiscard]] const RVector &z_weights() const { return wz_; }
-        [[nodiscard]] const RVector &r_weights() const { return wr_; }
+        [[nodiscard]] const RVector &x_weights() const { return wx_; }
 
         [[nodiscard]] const matrix<Real> &Dz_matrix() const { return Dz_; }
-        [[nodiscard]] const matrix<Real> &Dr_matrix() const { return Dr_; }
+        [[nodiscard]] const matrix<Real> &Dx_matrix() const { return Dx_; }
+        [[nodiscard]] const matrix<Real> &Dxx_matrix() const { return prod(Dx_, Dx_);
+        }
 
         // Barycentric utilities (declare; implement elsewhere or below)
 
@@ -92,28 +94,28 @@ namespace spectral {
         void dz_Dmatrix_RSlice(const SpectralGHPVectorized::RSlice &f_RSlice,
                                SpectralGHPVectorized::RSlice &dfdz_RSlice_into) const;
 
-        void dr_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ZSlice &f_ZSlice,
-                               SpectralGHPVectorized::ZSlice &df_dr) const;
-        void dr_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ConstZSlice &f_ZSlice,
-                               SpectralGHPVectorized::ZSlice &df_dr) const;
+        void dx_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ZSlice &f_ZSlice,
+                               SpectralGHPVectorized::ZSlice &df_dx) const;
+        void dx_Dmatrix_ZSlice(const spectral::SpectralGHPVectorized::ConstZSlice &f_ZSlice,
+                               SpectralGHPVectorized::ZSlice &df_dx) const;
 
         void dz_Dmatrix(std::span<const GHPScalar<Complex>> f_span_rconst,
                         std::span<GHPScalar<Complex>> df_dz) const;
 
-        void dr_Dmatrix(std::span<const GHPScalar<Complex>> f_span_zconst,
-                        std::span<GHPScalar<Complex>> df_dr) const;
+        void dx_Dmatrix(std::span<const GHPScalar<Complex>> f_span_zconst,
+                        std::span<GHPScalar<Complex>> df_dx) const;
 
         // main kernels
         void dz_barycentric_inplace(std::span<const GHPScalar<Complex>> f_span_const,
                                     std::span<GHPScalar<Complex>> df) const;
 
-        void dr_barycentric_inplace(std::span<const GHPScalar<Complex>> f_span_const,
+        void dx_barycentric_inplace(std::span<const GHPScalar<Complex>> f_span_const,
                                     std::span<GHPScalar<Complex>> df) const;
 
         // wrappers
         void dz_barycentric_RSlice(const SpectralGHPVectorized::RSlice &f_RSlice,
                                    SpectralGHPVectorized::RSlice &dfdz_RSlice) const;
-        void dr_barycentric_ZSlice(const SpectralGHPVectorized::ZSlice &f,
+        void dx_barycentric_ZSlice(const SpectralGHPVectorized::ZSlice &f,
                                                             SpectralGHPVectorized::ZSlice &df_dr) const;
 
 
@@ -132,10 +134,10 @@ namespace spectral {
     private:
         size_t Nz_, Nr_;                  // Number of nodes
         std::vector<Real> z_;            // LGL nodes [-1,1]
-        std::vector<Real> r_;            // CL nodes [-1,1]
-        std::vector<Real> wz_, wr_;  // barycentric weights
+        std::vector<Real> x_;            // CL nodes [-1,1]
+        std::vector<Real> wz_, wx_;  // barycentric weights
         matrix<Real> Dz_;                // Legendre differentiation matrix
-        matrix<Real> Dr_;                // Chebyshev differentiation matrix
+        matrix<Real> Dx_;                // Chebyshev differentiation matrix
     }; // class SpectralDiffer
 
     /**

@@ -2,14 +2,14 @@
 // Created by Peter Zimmerman on 08.03.26.
 //
 
-#ifndef HS1DATA_DATA_SPECTRALCOORDINATEMAPS_HPP
-#define HS1DATA_DATA_SPECTRALCOORDINATEMAPS_HPP
+#ifndef GHZ_SPECTRAL_SPECTRALCOORDINATEMAPS_HPP
+#define GHZ_SPECTRAL_SPECTRALCOORDINATEMAPS_HPP
 
 // ghz/numeric/CoordinateMap1D.hpp
 #pragma once
 
 #include "ghz/core/GhzTypes.hpp"
-#include "ghz/geom/Domain.hpp"
+#include "ghz/geom/DataDomain.hpp"
 #include <stdexcept>
 
 namespace ghz::numeric {
@@ -18,7 +18,7 @@ namespace ghz::numeric {
         teuk::Real a;
         teuk::Real b;
 
-        AffineMap1D(Domain domain) : a(domain.r_lower), b(domain.r_upper) {
+        AffineMap1D(Domain domain) : a(domain.lower), b(domain.upper) {
             if (a == b) {
                 throw std::runtime_error("AffineMap1D: invalid interval");
             }
@@ -50,4 +50,4 @@ namespace ghz::numeric {
         }
     };
 }
-#endif //HS1DATA_DATA_SPECTRALCOORDINATEMAPS_HPP
+#endif //GHZ_SPECTRAL_SPECTRALCOORDINATEMAPS_HPP
