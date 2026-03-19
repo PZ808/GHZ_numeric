@@ -89,11 +89,11 @@ add_executable(GHZ_numeric
 
         include/ghz/orbit/Splines.hpp
 
-        include/ghz/transport/ODE.hpp
+        include/ghz/transport/RK/ODE.hpp
         include/ghz/transport/Corrector.hpp
         src/ghz/transport/Corrector.cpp
-        include/ghz/transport/Builders.hpp
-        include/ghz/transport/ZSliceSolver.hpp
+        include/ghz/transport/RK/Builders.hpp
+        include/ghz/transport/RK/ZSliceSolver.hpp
         #include/ghz/transport/Operators.hpp
         # src/ghz/transport/Operators.cpp
 
@@ -102,7 +102,9 @@ add_executable(GHZ_numeric
         include/ghz/source/EffectiveSource.hpp
         include/ghz/source/BinaryEffectiveSourceArchive.hpp
         src/ghz/source/BinaryEffectiveSourceArchive.cpp
-        )
+        include/ghz/source/ConditionSource.hpp
+        src/ghz/source/ConditionSource.cpp
+        include/ghz/transport/collocation/SpectralSliceSolve.hpp src/ghz/transport/collocation/SpectralSliceSolve.cpp)
 
 # --------------------------
 # Target include directories
@@ -122,6 +124,20 @@ add_executable(spectral_unit_tests
         src/ghz/ghp/GHPScalars.cpp
         src/ghz/ghp/SpinCoeffNP.cpp
         )
+add_executable(spectral_physical_unit_tests
+        tests/unit/spectral_physical_unit_tests.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        )
+add_executable(spectral_solve_unit_tests
+        tests/unit/spectral_solve_unit_tests.cpp
+        src/ghz/transport/collocation/SpectralSliceSolve.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        )
+
 add_executable(kinnersley_held_operators_unit_tests
         tests/unit/kinnersley_held_operators_unit_tests.cpp
         src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
@@ -137,7 +153,11 @@ add_executable(kinnersley_held_operators_unit_tests
         )
 add_executable(effective_source_unit_tests
         tests/unit/effective_source_unit_tests.cpp
-        src/ghz/source/BinaryEffectiveSourceArchive.cpp)
+        src/ghz/source/BinaryEffectiveSourceArchive.cpp src/ghz/source/ConditionSource.cpp)
+
+target_include_directories(spectral_physical_unit_tests PRIVATE include)
+target_include_directories(spectral_solve_unit_tests PRIVATE include)
+
 target_include_directories(spectral_unit_tests PRIVATE include)
 target_include_directories(effective_source_unit_tests PRIVATE include)
 target_include_directories(kinnersley_held_operators_unit_tests PRIVATE include)
