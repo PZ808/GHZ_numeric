@@ -1,4 +1,4 @@
-# Count real C++ source as C++
+# Count C++ files anywhere in the repo
 *.cpp linguist-language=C++
 *.cc  linguist-language=C++
 *.cxx linguist-language=C++
@@ -6,7 +6,6 @@
 *.hh  linguist-language=C++
 *.h   linguist-language=C++
 
-third_party/my_cpp_lib/** -linguist-vendored
-generated_but_keep/**     -linguist-generated
-
+# Exclude Mathematica notebook directory from language stats
 MathematicaNotebooks/** linguist-vendored
+*.np linguist-vendored
