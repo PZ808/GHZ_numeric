@@ -1,0 +1,12 @@
+# Count your real C++ source as C++
+src/**/*.cpp linguist-language=C++
+src/**/*.hpp linguist-language=C++
+src/**/*.h   linguist-language=C++
+
+# If some directories were being excluded, unmark them
+third_party/my_cpp_lib/** -linguist-vendored
+generated_but_keep/**     -linguist-generated
+
+# If Mathematica files are real and you want them counted, leave them alone.
+# If some ambiguous files are being misclassified, force them:
+some/path/*.m linguist-language=C++
