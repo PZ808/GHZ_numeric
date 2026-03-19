@@ -28,22 +28,32 @@ namespace orbit {
             set_points(x_input, y_input);
         }
 
-        [[nodiscard]] Real eval(Real x) const {
+        Real eval(Real x) const {
             assert(N_ >= 2);
 
-            // wrap x into [x0, x0 + period)
             x = wrap(x);
 
-            // find segment index
+            // periodic last interval: [x_[N_-1], x_[0] + period_)
+            if (x >= x_.back()) {
+                const Real xL = x_.back();
+                const Real xR = x_.front() + period_;
+                const Real h  = xR - xL;
+                const Real a  = (xR - x) / h;
+                const Real b  = (x - xL) / h;
+
+                return a * y_.back() + b * y_.front()
+                       + ((a*a*a - a) * M_.back() + (b*b*b - b) * M_.front()) * (h*h) / 6.0;
+            }
+
             auto it = std::upper_bound(x_.begin(), x_.end(), x);
-            std::size_t i = std::clamp(std::size_t(std::distance(x_.begin(), it) - 1), std::size_t(0), N_ - 2);
+            std::size_t i = std::size_t(std::distance(x_.begin(), it) - 1);
 
             const Real h = x_[i + 1] - x_[i];
             const Real a = (x_[i + 1] - x) / h;
             const Real b = (x - x_[i]) / h;
 
-            return a * y_[i] + b * y_[i + 1] +
-                   ((a*a*a - a) * M_[i] + (b*b*b - b) * M_[i + 1]) * (h*h) / 6.0;
+            return a * y_[i] + b * y_[i + 1]
+                   + ((a*a*a - a) * M_[i] + (b*b*b - b) * M_[i + 1]) * (h*h) / 6.0;
         }
 
         Real operator()(Real x) const { return eval(x); }
@@ -73,44 +83,95 @@ namespace orbit {
             N_ = xin.size();
             x_ = xin;
             y_ = yin;
-            period_ = x_.back() - x_.front();
 
-            M_.resize(N_, 0.0);
-            if (N_ == 2) return; // linear case
-
-            // Compute h and system coefficients
-            std::vector<Real> h(N_ - 1);
-            for (std::size_t i = 0; i < N_ - 1; ++i) h[i] = x_[i + 1] - x_[i];
-
-            std::vector<Real> a(N_), b(N_), c(N_), d(N_);
-            for (std::size_t i = 1; i < N_ - 1; ++i) {
-                a[i] = h[i - 1];
-                b[i] = 2 * (h[i - 1] + h[i]);
-                c[i] = h[i];
-                d[i] = 6 * ((y_[i + 1] - y_[i]) / h[i] - (y_[i] - y_[i - 1]) / h[i - 1]);
+            // Strictly increasing knots, no duplicated endpoint.
+            for (std::size_t i = 1; i < N_; ++i) {
+                assert(x_[i] > x_[i - 1]);
             }
 
-            // Solve reduced tridiagonal system for periodic spline (Sherman-Morrison)
-            const std::size_t n = N_ - 2;
-            std::vector<Real> cp(n), dp(n);
+            // For a periodic grid without duplicating the endpoint,
+            // the period is one extra spacing beyond x_.back().
+            period_ = (x_.back() - x_.front()) + (x_[1] - x_[0]);
 
-            cp[0] = c[1] / b[1];
-            dp[0] = d[1] / b[1];
-            for (std::size_t i = 1; i < n; ++i) {
-                const Real denom = b[i + 1] - a[i + 1] * cp[i - 1];
-                cp[i] = c[i + 1] / denom;
-                dp[i] = (d[i + 1] - a[i + 1] * dp[i - 1]) / denom;
+            M_.assign(N_, Real(0));
+
+            if (N_ == 2) {
+                // Degenerate linear periodic-ish fallback.
+                return;
             }
 
-            std::vector<Real> M_small(n);
-            M_small[n - 1] = dp[n - 1];
-            for (int i = int(n) - 2; i >= 0; --i)
-                M_small[i] = dp[i] - cp[i] * M_small[i + 1];
+            // Interval lengths h_i for intervals [x_i, x_{i+1}],
+            // with the last one being [x_{N-1}, x_0 + period_].
+            std::vector<Real> h(N_);
+            for (std::size_t i = 0; i < N_ - 1; ++i) {
+                h[i] = x_[i + 1] - x_[i];
+            }
+            h[N_ - 1] = (x_.front() + period_) - x_.back();
 
-            for (std::size_t i = 1; i < N_ - 1; ++i)
-                M_[i] = M_small[i - 1];
+            // Build the full cyclic system A M = rhs
+            std::vector<std::vector<Real>> A(N_, std::vector<Real>(N_, Real(0)));
+            std::vector<Real> rhs(N_, Real(0));
 
-            M_[0] = M_[N_ - 1] = M_small[0]; // periodic
+            auto mod = [this](long long i) -> std::size_t {
+                const long long n = static_cast<long long>(N_);
+                long long r = i % n;
+                if (r < 0) r += n;
+                return static_cast<std::size_t>(r);
+            };
+
+            for (std::size_t i = 0; i < N_; ++i) {
+                const std::size_t im1 = mod(static_cast<long long>(i) - 1);
+                const std::size_t ip1 = mod(static_cast<long long>(i) + 1);
+
+                A[i][im1] = h[im1];
+                A[i][i]   = Real(2) * (h[im1] + h[i]);
+                A[i][ip1] = h[i];
+
+                const Real slope_right = (y_[ip1] - y_[i])   / h[i];
+                const Real slope_left  = (y_[i]   - y_[im1]) / h[im1];
+                rhs[i] = Real(6) * (slope_right - slope_left);
+            }
+
+            // Solve dense linear system with Gaussian elimination + partial pivoting.
+            for (std::size_t k = 0; k < N_; ++k) {
+                // Pivot
+                std::size_t piv = k;
+                Real max_abs = std::abs(A[k][k]);
+                for (std::size_t i = k + 1; i < N_; ++i) {
+                    Real v = std::abs(A[i][k]);
+                    if (v > max_abs) {
+                        max_abs = v;
+                        piv = i;
+                    }
+                }
+                assert(max_abs > Real(0) && "PeriodicSpline: singular linear system");
+
+                if (piv != k) {
+                    std::swap(A[k], A[piv]);
+                    std::swap(rhs[k], rhs[piv]);
+                }
+
+                // Eliminate
+                for (std::size_t i = k + 1; i < N_; ++i) {
+                    const Real factor = A[i][k] / A[k][k];
+                    if (factor == Real(0)) continue;
+
+                    A[i][k] = Real(0);
+                    for (std::size_t j = k + 1; j < N_; ++j) {
+                        A[i][j] -= factor * A[k][j];
+                    }
+                    rhs[i] -= factor * rhs[k];
+                }
+            }
+
+            // Back substitution
+            for (long long i = static_cast<long long>(N_) - 1; i >= 0; --i) {
+                Real sum = rhs[static_cast<std::size_t>(i)];
+                for (std::size_t j = static_cast<std::size_t>(i) + 1; j < N_; ++j) {
+                    sum -= A[static_cast<std::size_t>(i)][j] * M_[j];
+                }
+                M_[static_cast<std::size_t>(i)] = sum / A[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)];
+            }
         }
     };
 
