@@ -14,7 +14,7 @@
 //
 #include "../include/ghz/transport/SourceBuilders.hpp"
 #include "ghz/core/GhzTypes.hpp"
-#include "ghz/transport/ODE.hpp"
+#include "ghz/transport/RK/ODE.hpp"
 
 
 namespace ghz::source {
@@ -144,10 +144,10 @@ namespace ghz::source {
 
             // Held-circle background on this z index (add what you need)
             const auto tau0 = held.tauH(iz);
-            const auto taub0 = held.tauH_bar(iz);   // if you have it
-            const auto psi0 = held.PsiH(iz);       // if you have it
-            const auto rhoP0 = held.rhopH(iz);      // if you have it
-            const auto Om0 = held.OmH(iz);        // if you have it
+            const auto taub0 = held.tauH_bar(iz);
+            const auto psi0 = held.PsiH(iz);
+            const auto rhoP0 = held.rhopH(iz);
+            const auto Om0 = held.OmH(iz);
 
             for (size_t ir = 0; ir < Nr; ++ir) {
 

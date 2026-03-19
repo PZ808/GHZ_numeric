@@ -2,8 +2,8 @@
 // Created by Peter Zimmerman on 13.03.26.
 //
 
-#ifndef HS1DATA_DATA_INITIALDATA_HPP
-#define HS1DATA_DATA_INITIALDATA_HPP
+#ifndef GHZ_NUMERIC_INITIALDATA_HPP
+#define GHZ_NUMERIC_INITIALDATA_HPP
 #pragma once
 
 #include "ghz/core/GhzTypes.hpp"
@@ -358,4 +358,4 @@ namespace ghz {
 } // namespace ghz
 
 
-#endif //HS1DATA_DATA_INITIALDATA_HPP
+#endif //GHZ_NUMERIC_INITIALDATA_HPP
