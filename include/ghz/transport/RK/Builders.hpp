@@ -6,7 +6,7 @@
 #pragma once
 
 
-#include "ghz/transport/Operators.hpp"  // operators for the transport equation
+#include "Operators.hpp"  // operators for the transport equation
 #include "ghz/transport/Corrector.hpp"
 
 

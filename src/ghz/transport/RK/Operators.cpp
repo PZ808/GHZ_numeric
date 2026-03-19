@@ -2,7 +2,7 @@
 // Created by Peter Zimmerman on 05.03.26.
 //
 
-#include "../include/ghz/transport/Operators.hpp"
+#include "ghz/transport/RK/Operators.hpp"
 #include <cassert>
 
 namespace ghz {

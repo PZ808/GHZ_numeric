@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 
-#include "Corrector.hpp"
+#include "ghz/transport/Corrector.hpp"
 
 namespace ghz {
 

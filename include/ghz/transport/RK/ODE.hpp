@@ -82,11 +82,12 @@ namespace ode {
         }
     }; // struct TransportODESystem
 
-    // Adaptive solver for coupled system over r for a single z
-    std::vector<StateVec> solve_single_z(
+    // Adaptive solver for coupled system over r for a single grid point iz
+    std::vector<StateVec> solve_single_iz(
             const std::vector<Real>& r_grid, // nodes in r or (sigma) or the chebyshev grid relative to these values
             const StateVec& y0,              // initial conditions at r_min
             const TransportODESystem& ode,   // ODE system
+            size_t iz,
             Real z,                          // fixed z value
             Real abs_tol=1e-9,             // solver abs tolerance
             Real rel_tol=1e-9,             // solver rel tolerance

@@ -2,15 +2,16 @@
 // Created by Peter Zimmerman on 06.03.26.
 //
 
-#include "ghz/transport/ODE.hpp"
+#include "ghz/transport/RK/ODE.hpp"
 
 
 namespace ode {
 
-    inline std::vector<StateVec> solve_single_z(
+    inline std::vector<StateVec> solve_single_iz(
             const std::vector<Real>& r_grid,
             const StateVec& y0,
             const TransportODESystem& ode,
+            size_t iz,
             Real z,
             Real abs_tol,
             Real rel_tol,

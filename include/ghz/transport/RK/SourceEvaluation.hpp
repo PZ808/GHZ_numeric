@@ -8,7 +8,7 @@
 
 #include "ghz/core/GhzTypes.hpp"
 #include "ghz/spectral/SpectralGHPFieldVectorized.hpp"
-#include "ghz/transport/ODE.hpp"
+#include "ghz/transport/RK/ODE.hpp"
 
 #include <vector>
 
