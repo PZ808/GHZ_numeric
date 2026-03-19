@@ -21,6 +21,7 @@
 namespace ghz::numeric {
 
     namespace ublas = boost::numeric::ublas;
+    using ghp::GHPScalar;
 
     struct PhysicalChebRadialOps {
         using Real    = teuk::Real;
@@ -119,7 +120,7 @@ namespace ghz::numeric {
         // Convenience: build complex nodal values for one fixed iz slice.
         // -------------------------------------------------------------
         [[nodiscard]] CVector
-        extract_complex_zslice(const spectral::GHPSpectralField& field, size_t iz) const
+        extract_complex_zslice(const spectral::SpectralGHPVectorized& field, size_t iz) const
         {
             const size_t Nr = x_nodes.size();
             if (field.Nr() != Nr) {
@@ -131,7 +132,7 @@ namespace ghz::numeric {
 
             CVector vals(Nr);
             for (size_t ir = 0; ir < Nr; ++ir) {
-                vals[ir] = field.at(ir, iz).value();
+                vals[ir] = field(ir, iz).value();
             }
             return vals;
         }

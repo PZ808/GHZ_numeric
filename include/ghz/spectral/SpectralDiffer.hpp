@@ -53,6 +53,7 @@ namespace spectral {
             wx_ = build_barycentric_weights_ChebLobatto_from_nodes(x_);
             Dz_ = build_legendre_diff_matrix(z_);
             Dx_ = build_chebyshev_diff_matrix(x_);
+            Dxx_ = prod(Dx_, Dx_);
         }
 
         // Getters
@@ -63,10 +64,11 @@ namespace spectral {
         [[nodiscard]] const RVector &z_weights() const { return wz_; }
         [[nodiscard]] const RVector &x_weights() const { return wx_; }
 
+        // accessors
         [[nodiscard]] const matrix<Real> &Dz_matrix() const { return Dz_; }
         [[nodiscard]] const matrix<Real> &Dx_matrix() const { return Dx_; }
-        [[nodiscard]] const matrix<Real> &Dxx_matrix() const { return prod(Dx_, Dx_);
-        }
+        //[[nodiscard]] const matrix<Real> &Dxx_matrix() const { return prod(Dx_, Dx_); }
+        [[nodiscard]] const matrix<Real>& Dxx_matrix() const { return Dxx_; }
 
         // Barycentric utilities (declare; implement elsewhere or below)
 
@@ -138,6 +140,7 @@ namespace spectral {
         std::vector<Real> wz_, wx_;  // barycentric weights
         matrix<Real> Dz_;                // Legendre differentiation matrix
         matrix<Real> Dx_;                // Chebyshev differentiation matrix
+        matrix<Real> Dxx_;
     }; // class SpectralDiffer
 
     /**

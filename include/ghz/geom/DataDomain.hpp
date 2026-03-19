@@ -2,8 +2,8 @@
 // Created by Peter Zimmerman on 08.03.26.
 //
 
-#ifndef GHZ_NUMERIC_DOMAIN_HPP
-#define GHZ_NUMERIC_DOMAIN_HPP
+#ifndef GHZ_NUMERIC_DATADOMAIN_HPP
+#define GHZ_NUMERIC_DATADOMAIN_HPP
 
 #pragma once
 
@@ -131,10 +131,22 @@ namespace ghz::numeric {
             );
         }
 
+        // helpers
         [[nodiscard]] std::vector<Subdomain1D> orderedSubdomains() const {
             return {vac_left, puncture_left, puncture_right, vac_right};
         }
 
+        [[nodiscard]] std::vector<Subdomain1D> punctureSubdomains() const {
+            return {puncture_left, puncture_right};
+        }
+
+        [[nodiscard]] std::vector<Subdomain1D> vacuumSubdomains() const {
+            return {vac_left, vac_right};
+        }
+
+        [[nodiscard]] bool isPunctureInterface(Real r) const noexcept {
+            return r == r_p;
+        }
     private:
         void validate_() const {
             if (!(full.lower < r_min)) {
@@ -156,6 +168,35 @@ namespace ghz::numeric {
         }
     };
 
+    struct PunctureTwoDomainSplit {
+        Real r_min{};
+        Real r_p{};
+        Real r_max{};
+
+        Subdomain1D left;
+        Subdomain1D right;
+
+        PunctureTwoDomainSplit(Real r_min_in, Real r_particle, Real r_max_in)
+                : r_min(r_min_in), r_p(r_particle), r_max(r_max_in)
+        {
+            if (!(r_min < r_p && r_p < r_max)) {
+                throw std::invalid_argument(
+                        "PunctureTwoDomainSplit: require r_min < r_p < r_max");
+            }
+
+            left = Subdomain1D(
+                    Domain(r_min, r_p),
+                    RegionType::Puncture,
+                    "puncture_left"
+            );
+
+            right = Subdomain1D(
+                    Domain(r_p, r_max),
+                    RegionType::Puncture,
+                    "puncture_right"
+            );
+        }
+    };
 } // namespace ghz::numeric
 
-#endif //GHZ_NUMERIC_DOMAIN_HPP
+#endif //GHZ_NUMERIC_DATADOMAIN_HPP

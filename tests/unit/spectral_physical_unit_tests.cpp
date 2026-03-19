@@ -269,6 +269,41 @@ namespace {
         std::cout << "    interpolation and dr evaluation passed.\n";
     }
 
+
+    inline Real max_residual_inf_norm(
+            const matrix<Real>& B,
+            const std::vector<Complex>& u,
+            const std::vector<Complex>& rhs)
+    {
+        const std::size_t N = u.size();
+
+        if (B.size1() != N || B.size2() != N || rhs.size() != N) {
+            throw std::runtime_error("max_residual_inf_norm: size mismatch.");
+        }
+
+        Real max_res = Real(0);
+
+        for (std::size_t i = 0; i < N; ++i) {
+            Complex sum = Complex(0.0, 0.0);
+            for (std::size_t j = 0; j < N; ++j) {
+                sum += B(i, j) * u[j];
+            }
+            max_res = std::max(max_res, std::abs(sum - rhs[i]));
+        }
+
+        return max_res;
+    }
+
+
+    inline Real max_rhs_inf_norm(const std::vector<Complex>& rhs)
+    {
+        Real max_rhs = Real(0);
+        for (const auto& v : rhs) {
+            max_rhs = std::max(max_rhs, std::abs(v));
+        }
+        return max_rhs;
+    }
+
     // -------------------------------------------------------------------------
     // Test 3: manufactured one-domain Schwarzschild collocation solve
     //
@@ -312,7 +347,7 @@ namespace {
             }
         }
 
-        // Collocation system B u = rhs:
+        // collocation system B u = rhs:
         // row 0: u(rmin) = T1
         // row 1: u'(rmin) = T2
         // rows 2..: A u = f
@@ -343,11 +378,22 @@ namespace {
         }
 
         const auto u_num = solve_real_matrix_complex_rhs(B, rhs);
+        const Real max_res = max_residual_inf_norm(B, u_num, rhs);
 
+        std::cout << "    max ||B u - rhs||_inf          = "
+                  << std::setprecision(18) << max_res << "\n";
+
+        require_true(max_res < Real(1e-10),
+                     "manufactured Schwarzschild collocation residual too large");
         Real max_err = Real(0);
         for (std::size_t i = 0; i < N; ++i) {
             max_err = std::max(max_err, std::abs(u_num[i] - u_exact(r[i])));
         }
+        const Real rhs_inf = max_rhs_inf_norm(rhs);
+        const Real rel_res = (rhs_inf > Real(0)) ? max_res / rhs_inf : max_res;
+
+        std::cout << "    relative residual              = "
+                  << std::setprecision(18) << rel_res << "\n";
 
         std::cout << "    max nodal error in manufactured solution = "
                   << std::setprecision(18) << max_err << "\n";
