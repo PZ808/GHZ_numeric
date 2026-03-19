@@ -8,7 +8,7 @@
 #pragma once
 
 #include "ghz/transport/Corrector.hpp"
-#include "ghz/transport/Builders.hpp"
+#include "Builders.hpp"
 
 #include <functional>
 #include <stdexcept>
