@@ -28,13 +28,13 @@ public:
     teuk::Vector4 l, n;
     teuk::CVector4 m, mbar;
     SpinCoefficients sc;
-    SpinCoefficientsGHP sc_ghp;
-    HeldCoefficients sc_held;
-    WeylScalars weyls;
+    ghp::SpinCoefficientsGHP sc_ghp;
+    ghp::HeldCoefficients sc_held;
+    ghp::WeylScalars weyls;
 
     struct Scalars {
-        SpinCoefficientsGHP ghp_scalars;
-        HeldCoefficients held_scalars;
+        ghp::SpinCoefficientsGHP ghp_scalars;
+        ghp::HeldCoefficients held_scalars;
     };
 
     explicit Tetrad(KerrMetric& gKerr, CoordinateHelper& ch)

@@ -28,11 +28,11 @@ public:
     // Coordinate-dependent tetrad builder
     void build_tetrad_at(const CoordT& X); // builds tetrad at the point X
 
-    SpinCoefficientsGHP get_spin_coeffs_at(const CoordT& X) const;
-    WeylScalars         get_weyl_scalars_at(const CoordT& X) const;
-    HeldCoefficients get_held_scalars_at(const CoordT& X) const;
+    ghp::SpinCoefficientsGHP get_spin_coeffs_at(const CoordT& X) const;
+    ghp::WeylScalars         get_weyl_scalars_at(const CoordT& X) const;
+    ghp::HeldCoefficients get_held_scalars_at(const CoordT& X) const;
     Scalars get_scalars_at(const CoordT& X) const;
-    SpinCoefficientsGHP get_ghp_scalars_at(const OutgoingCoordsCompact &X) const;
+    ghp::SpinCoefficientsGHP get_ghp_scalars_at(const OutgoingCoordsCompact &X) const;
 
     Complex rho_at(const Real& r, const Real& z) const;
 };
