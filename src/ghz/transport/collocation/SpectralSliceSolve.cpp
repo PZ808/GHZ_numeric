@@ -254,23 +254,126 @@ namespace ghz::collocation {
         const std::size_t NR = rops_right.r().size();
         const std::size_t NT = NL + NR;
 
-        check_domain_sizes(NL, NR);
+        if (NL < 3) {
+            throw std::runtime_error(
+                    "solve_scalar_two_domain_slice: left domain must have at least 3 nodes.");
+        }
+        if (NR < 3) {
+            throw std::runtime_error(
+                    "solve_scalar_two_domain_slice: right domain must have at least 3 nodes.");
+        }
+
         check_scalar_equation_sizes(eq.left,  NL, "solve_scalar_two_domain_slice(left)");
         check_scalar_equation_sizes(eq.right, NR, "solve_scalar_two_domain_slice(right)");
+
+        const auto& DrL  = rops_left.Dr_matrix();
+        const auto& DrrL = rops_left.Drr_matrix();
+        const auto& DrR  = rops_right.Dr_matrix();
+        const auto& DrrR = rops_right.Drr_matrix();
 
         CMatrix B(NT, NT, Complex(0.0, 0.0));
         std::vector<Complex> rhs(NT, Complex(0.0, 0.0));
 
-        assemble_block_operator(B, rhs, rops_left, rops_right, eq);
+        auto write_outer_bc_row =
+                [&](std::size_t row, const BoundaryCondition& bc)
+                {
+                    for (std::size_t j = 0; j < NT; ++j) {
+                        B(row, j) = Complex(0.0, 0.0);
+                    }
 
-        // Replace rows:
-        //   0      -> outer BC row 0
-        //   1      -> outer BC row 1
-        //   NL-1   -> interface value row
-        //   NL     -> interface derivative row
-        overwrite_outer_bc_row(B, rhs, rops_left, rops_right, bc_row0, 0);
-        overwrite_outer_bc_row(B, rhs, rops_left, rops_right, bc_row1, 1);
-        overwrite_interface_rows(B, rhs, rops_left, rops_right, iface);
+                    if (bc.side == BCSide::Left) {
+                        const std::size_t idx = 0;
+                        if (bc.kind == BCKind::Value) {
+                            B(row, idx) = Complex(1.0, 0.0);
+                        } else {
+                            for (std::size_t j = 0; j < NL; ++j) {
+                                B(row, j) = Complex(DrL(idx, j), 0.0);
+                            }
+                        }
+                    } else {
+                        const std::size_t idx = NR - 1;
+                        if (bc.kind == BCKind::Value) {
+                            B(row, NL + idx) = Complex(1.0, 0.0);
+                        } else {
+                            for (std::size_t j = 0; j < NR; ++j) {
+                                B(row, NL + j) = Complex(DrR(idx, j), 0.0);
+                            }
+                        }
+                    }
+
+                    rhs[row] = bc.value;
+                };
+
+        std::size_t row = 0;
+
+        // ---------------------------------------------------------
+        // 1) outer BC rows
+        // ---------------------------------------------------------
+        write_outer_bc_row(row++, bc_row0);
+        write_outer_bc_row(row++, bc_row1);
+
+        // ---------------------------------------------------------
+        // 2) left-domain ODE on interior nodes i = 1 .. NL-2
+        // ---------------------------------------------------------
+        for (std::size_t i = 1; i <= NL - 2; ++i, ++row) {
+            for (std::size_t j = 0; j < NL; ++j) {
+                const Complex Iij = (i == j) ? Complex(1.0, 0.0) : Complex(0.0, 0.0);
+                B(row, j) = eq.left.a2[i] * Complex(DrrL(i, j), 0.0)
+                            + eq.left.a1[i] * Complex(DrL(i, j), 0.0)
+                            + eq.left.a0[i] * Iij;
+            }
+            rhs[row] = eq.left.rhs[i];
+        }
+
+        // ---------------------------------------------------------
+        // 3) right-domain ODE on interior nodes i = 1 .. NR-2
+        // ---------------------------------------------------------
+        for (std::size_t i = 1; i <= NR - 2; ++i, ++row) {
+            for (std::size_t j = 0; j < NR; ++j) {
+                const Complex Iij = (i == j) ? Complex(1.0, 0.0) : Complex(0.0, 0.0);
+                B(row, NL + j) = eq.right.a2[i] * Complex(DrrR(i, j), 0.0)
+                                 + eq.right.a1[i] * Complex(DrR(i, j), 0.0)
+                                 + eq.right.a0[i] * Iij;
+            }
+            rhs[row] = eq.right.rhs[i];
+        }
+
+        // ---------------------------------------------------------
+        // 4) interface value jump:
+        //    u_R(r_p) - u_L(r_p) = value_jump
+        // ---------------------------------------------------------
+        {
+            const std::size_t iL = NL - 1; // last node on left
+            const std::size_t iR = 0;      // first node on right
+
+            B(row, iL)      = Complex(-1.0, 0.0);
+            B(row, NL + iR) = Complex( 1.0, 0.0);
+            rhs[row] = iface.value_jump;
+            ++row;
+        }
+
+        // ---------------------------------------------------------
+        // 5) interface derivative jump:
+        //    u'_R(r_p) - u'_L(r_p) = derivative_jump
+        // ---------------------------------------------------------
+        {
+            const std::size_t iL = NL - 1;
+            const std::size_t iR = 0;
+
+            for (std::size_t j = 0; j < NL; ++j) {
+                B(row, j) = Complex(-DrL(iL, j), 0.0);
+            }
+            for (std::size_t j = 0; j < NR; ++j) {
+                B(row, NL + j) = Complex(DrR(iR, j), 0.0);
+            }
+            rhs[row] = iface.derivative_jump;
+            ++row;
+        }
+
+        if (row != NT) {
+            throw std::runtime_error(
+                    "solve_scalar_two_domain_slice: internal row count mismatch.");
+        }
 
         const auto u = solve_complex_linear_system(B, rhs);
 
