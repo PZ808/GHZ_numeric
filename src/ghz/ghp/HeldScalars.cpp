@@ -7,7 +7,7 @@
 #include "ghz/ghp/GHPScalars.hpp"
 
 
-HeldCoefficients::HeldCoefficients(const SpinCoefficientsGHP &sc_ghp,
+ghp::HeldCoefficients::HeldCoefficients(const ghp::SpinCoefficientsGHP &sc_ghp,
                                                    const WeylScalars &weyl_scs) {
     // initialize weights according to GHP convention (p,q)
     // (using Held’s sign conventions)

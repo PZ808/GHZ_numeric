@@ -10,87 +10,91 @@
 #include "SpinCoeffsNP.hpp"
 #include "ghz/core/MathMacros.hpp"
 #include "GHPFieldVectorized.hpp"
-#include "../../../sand/SpectralGHPField.hpp"
 #include <complex>
 #include <string>
 
 using Complex = teuk::Complex;
 
-class HeldScalar : public GHPScalar<Complex> {
-public:
-    HeldScalar() = default;
-    HeldScalar(const Complex& v, int p, int q) : GHPScalar<Complex>(v, p, q) {}
-};
+namespace ghp {
 
-class HeldField : public GHPField {
-public:
-    HeldField() = default;
+    class HeldScalar : public ghp::GHPScalar<Complex> {
+    public:
+        HeldScalar() = default;
 
-    explicit HeldField(size_t Nz,
-              Scalar init = Scalar(teuk::zeroC, 0, 0), int p = 0, int q = 0)
-            :     GHPField(1, Nz, init, p, q) {}
+        HeldScalar(const Complex &v, int p, int q) : GHPScalar<Complex>(v, p, q) {}
+    };
 
-    Scalar& operator()(size_t iz) {
-        return GHPField::operator()(0, iz);
+    class HeldField : public ghp::GHPField {
+    public:
+        HeldField() = default;
+
+        explicit HeldField(size_t Nz,
+                           Scalar init = Scalar(teuk::zeroC, 0, 0), int p = 0, int q = 0)
+                : GHPField(1, Nz, init, p, q) {}
+
+        Scalar &operator()(size_t iz) {
+            return GHPField::operator()(0, iz);
+        }
+
+        const Scalar &operator()(size_t iz) const {
+            return GHPField::operator()(0, iz);
+        }
+
+    };
+
+    struct HeldCoefficients {
+        HeldCoefficients(const ghp::SpinCoefficientsGHP &sc_ghp, const WeylScalars &weyl_scs);
+
+        HeldScalar rhopH, tauH, rhopH_bar, tauH_bar;
+        HeldScalar PsiH, PsiH_bar;
+        HeldScalar OmH, OmH_bar;
+
+        HeldCoefficients() = default;
+
+    };
+
+    template<typename CoordT>
+    struct HeldBackgroundFields {
+        HeldField rhopH, rhopH_bar, tauH, tauH_bar, PsiH, PsiH_bar, OmH, OmH_bar;
+
+        explicit HeldBackgroundFields(size_t Nz) :
+                rhopH(Nz, HeldScalar(teuk::zeroC, -2, -2), -2, -2),
+                rhopH_bar(Nz, HeldScalar(teuk::zeroC, -2, -2), -2, -2),
+                tauH(Nz, HeldScalar(teuk::zeroC, -1, -3), -1, -3),
+                tauH_bar(Nz, HeldScalar(teuk::zeroC, -3, -1), -3, -1),
+                PsiH(Nz, HeldScalar(teuk::zeroC, -3, -3), -3, -3),
+                PsiH_bar(Nz, HeldScalar(teuk::zeroC, -3, -3), -3, -3),
+                OmH(Nz, HeldScalar(teuk::zeroC, -1, -1), -1, -1),
+                OmH_bar(Nz, HeldScalar(teuk::zeroC, -1, -1), -1, -1) {}
+    };
+
+    template<typename TetradType, typename CoordT>
+    HeldBackgroundFields<CoordT> build_held_fields_at(TetradType &tetrad,
+                                                      const std::vector<teuk::Real> &z_nodes,
+                                                      CoordT &X) {
+        const int Nz = static_cast<int>(z_nodes.size());
+        HeldBackgroundFields<CoordT> held_fields(Nz);
+
+        for (size_t iz = 0; iz < Nz; ++iz) {
+            // set z to current collocation point, r can be fixed (e.g. r=const slice)
+            X.x2 = z_nodes[iz];
+
+            tetrad.build_tetrad(X);   // build tetrad at this point
+
+            auto scalars = tetrad.get_scalars_at(X);  // get all scalars at the current point X = (r,z)
+            // assign directly to HeldFields
+            held_fields.rhopH(iz) = scalars.held_scalars.rhopH;
+            held_fields.rhopH_bar(iz) = scalars.held_scalars.rhopH_bar;
+            held_fields.tauH(iz) = scalars.held_scalars.tauH;
+            held_fields.tauH_bar(iz) = scalars.held_scalars.tauH_bar;
+            held_fields.PsiH(iz) = scalars.held_scalars.PsiH;
+            held_fields.PsiH_bar(iz) = scalars.held_scalars.PsiH_bar;
+            held_fields.OmH(iz) = scalars.held_scalars.OmH;
+            held_fields.OmH_bar(iz) = scalars.held_scalars.OmH_bar;
+        }
+
+        return held_fields;
     }
-    const Scalar& operator()(size_t iz) const {
-        return GHPField::operator()(0, iz);
-    }
-
-};
-
-struct HeldCoefficients {
-    HeldCoefficients(const SpinCoefficientsGHP &sc_ghp, const WeylScalars &weyl_scs);
-
-    HeldScalar rhopH, tauH,  rhopH_bar, tauH_bar;
-    HeldScalar PsiH, PsiH_bar;
-    HeldScalar OmH, OmH_bar;
-
-    HeldCoefficients() = default;
-
-};
-
-template <typename CoordT>
-struct HeldBackgroundFields {
-    HeldField rhopH, rhopH_bar, tauH, tauH_bar, PsiH, PsiH_bar, OmH, OmH_bar;
-    explicit HeldBackgroundFields(size_t Nz) :
-            rhopH(Nz, HeldScalar(teuk::zeroC,-2,-2), -2,-2),
-            rhopH_bar(Nz, HeldScalar(teuk::zeroC,-2,-2), -2,-2),
-            tauH (Nz, HeldScalar(teuk::zeroC,-1,-3), -1,-3),
-            tauH_bar(Nz, HeldScalar(teuk::zeroC,-3,-1), -3,-1),
-            PsiH (Nz, HeldScalar(teuk::zeroC,-3,-3), -3,-3),
-            PsiH_bar(Nz, HeldScalar(teuk::zeroC,-3,-3), -3,-3),
-            OmH  (Nz, HeldScalar(teuk::zeroC,-1,-1), -1,-1),
-            OmH_bar(Nz,HeldScalar(teuk::zeroC,-1,-1), -1,-1) {}
-};
-
-template <typename TetradType, typename CoordT>
-HeldBackgroundFields<CoordT> build_held_fields_at(TetradType& tetrad,
-                                       const std::vector<teuk::Real>& z_nodes,
-                                                  CoordT &X)
-{
-    const int Nz = static_cast<int>(z_nodes.size());
-    HeldBackgroundFields<CoordT> held_fields(Nz);
-
-    for (size_t iz=0; iz<Nz; ++iz) {
-        // set z to current collocation point, r can be fixed (e.g. r=const slice)
-        X.x2 = z_nodes[iz];
-
-        tetrad.build_tetrad(X);   // build tetrad at this point
-
-        auto scalars = tetrad.get_scalars_at(X);  // get all scalars at the current point X = (r,z)
-        // assign directly to HeldFields
-        held_fields.rhopH(iz)     = scalars.held_scalars.rhopH;
-        held_fields.rhopH_bar(iz) = scalars.held_scalars.rhopH_bar;
-        held_fields.tauH(iz)      = scalars.held_scalars.tauH;
-        held_fields.tauH_bar(iz)  = scalars.held_scalars.tauH_bar;
-        held_fields.PsiH(iz)      = scalars.held_scalars.PsiH;
-        held_fields.PsiH_bar(iz)  = scalars.held_scalars.PsiH_bar;
-        held_fields.OmH(iz)       = scalars.held_scalars.OmH;
-        held_fields.OmH_bar(iz)   = scalars.held_scalars.OmH_bar;
-    }
-
-    return held_fields;
 }
 /*!
  * \struct HeldBackgroundFieldsVectorized
@@ -125,6 +129,7 @@ HeldBackgroundFields<CoordT> build_held_fields_at(TetradType& tetrad,
  *       in parallel. Make sure OpenMP is enabled in your compiler.
  */
 namespace ghp {
+
     template <typename CoordT>
     struct HeldBackgroundFieldsVectorized {
         HeldFieldVectorized rhopH, rhopH_bar, tauH, tauH_bar, PsiH, PsiH_bar, OmH, OmH_bar;

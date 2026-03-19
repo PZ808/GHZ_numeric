@@ -10,26 +10,30 @@
 #include <map>
 #include "ghz/core/GhzTypes.hpp"
 
-enum class WeylScalarType {
-    Psi0, Psi1, Psi2, Psi3, Psi4
-};
+namespace ghp {
+
+    enum class WeylScalarType {
+        Psi0, Psi1, Psi2, Psi3, Psi4
+    };
 
 
 // GHP Spin Coefficient container
-class WeylScalars {
-    using Complex = teuk::Complex;
+    class WeylScalars {
+        using Complex = teuk::Complex;
 
-private:
-    std::map<WeylScalarType, Complex> weyl_scalars;
+    private:
+        std::map<WeylScalarType, Complex> weyl_scalars;
 
-public:
-    WeylScalars() = default;
+    public:
+        WeylScalars() = default;
 
-    void set(WeylScalarType type, Complex value);
-    Complex get(WeylScalarType type) const;
+        void set(WeylScalarType type, Complex value);
 
-    // Optional: print all coefficients
-    std::string toString() const;
-};
+        Complex get(WeylScalarType type) const;
+
+        // Optional: print all coefficients
+        std::string toString() const;
+    };
+}
 
 #endif //GHZ_NUMERIC_WEYLSCALARS_HPP

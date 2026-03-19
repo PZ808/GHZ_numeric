@@ -5,7 +5,7 @@
 #include "ghz/ghp/GHPScalars.hpp"
 
 
-SpinCoefficientsGHP::SpinCoefficientsGHP(const SpinCoefficients &sc_np) {
+ghp::SpinCoefficientsGHP::SpinCoefficientsGHP(const SpinCoefficients &sc_np) {
     // initialize weights according to GHP convention (p,q)
     // (using Held’s sign conventions)
     using SCT = SpinCoeffType;
@@ -35,11 +35,11 @@ SpinCoefficientsGHP::SpinCoefficientsGHP(const SpinCoefficients &sc_np) {
     epsilonp = -sc_np.get(SCT::gamma);
 }
 
-void GHPCoefficients::set(GHPCoefficientType type, GHPScalar<Complex> value) {
+void ghp::GHPCoefficients::set(GHPCoefficientType type, GHPScalar<Complex> value) {
     coeffs[type] = value;
 }
 
-GHPScalar<Complex> GHPCoefficients::get(GHPCoefficientType type) const {
+ghp::GHPScalar<Complex> ghp::GHPCoefficients::get(GHPCoefficientType type) const {
     auto it = coeffs.find(type);
     if (it != coeffs.end()) return it->second;
     return GHPScalar(teuk::zeroC,0,0);
