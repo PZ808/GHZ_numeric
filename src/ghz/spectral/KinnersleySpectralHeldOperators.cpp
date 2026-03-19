@@ -202,7 +202,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::thorn_inplace_ZSliceV(
             in_ZSlice.has_omega_mk() ? in_ZSlice.omega_mk() : Real(0),
             in_ZSlice.has_omega_mk() );
 
-    diff_.dr_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
+    diff_.dx_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
     const Real dxdr = r_map_.dxdr();
 
     for (size_t ir = 0; ir < Nr; ++ir) {
@@ -235,7 +235,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::thorn_inplace_ZSliceV(
             in_ZSlice.has_omega_mk() ? in_ZSlice.omega_mk() : Real(0),
             in_ZSlice.has_omega_mk() );
 
-    diff_.dr_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
+    diff_.dx_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
 
     for (size_t ir = 0; ir < Nr; ++ir) {
         // Example placeholder:
@@ -353,7 +353,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::thornPHr_inplace_ZSliceV(
             in_ZSlice.has_omega_mk() ? in_ZSlice.omega_mk() : Real(0),
             in_ZSlice.has_omega_mk() );
 
-    diff_.dr_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
+    diff_.dx_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
     const Real dxdr = r_map_.dxdr();
 
 //#pragma omp parallel for default(none) shared(in_ZSlice, met, zval, dr_ZSlice, out_ZSlice) firstprivate(Nr, iomega, p, q)
