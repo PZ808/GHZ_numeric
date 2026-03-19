@@ -9,4 +9,4 @@
 third_party/my_cpp_lib/** -linguist-vendored
 generated_but_keep/**     -linguist-generated
 
-some/path/*.m linguist-language=C++
+MathematicaNotebooks/** linguist-vendored
