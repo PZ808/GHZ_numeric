@@ -29,6 +29,7 @@ namespace spectral {
     using Real = teuk::Real;
     using Complex = teuk::Complex;
     using namespace teuk::literals;
+    using ghp::GHPScalar;
 
     // global time-stepping parameters for evolution tests
     const int Nt = 10;
