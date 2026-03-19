@@ -30,15 +30,10 @@ using math::sqr;
 
 void orbit::KerrBoundOrbit::initialize_orbit() {
     // workflow to get the orbital data
-
-    compute_frequencies(); // compute initial frequencies f_t, f_phi, f_r, f_z where f = d\psi/d\lambda
+    compute_frequencies();
     sample_frequencies_for_fft(Nr_, Nz_);
-    compute_q_grids_from_samples(Nr_, Nz_, qr_vals, qz_vals); // fill the q grid values
-    sample_T_and_Phi_for_fft(Nr_, Nz_);
-    sample_frequencies_for_fft(Nr_, Nz_);
+    compute_q_grids_from_samples(Nr_, Nz_, qr_vals, qz_vals);
     compute_Deltas(Nr_, Nz_);
-
-    // build periodic splines
     build_splines();
 }
 
@@ -48,18 +43,28 @@ BLCoords orbit::KerrBoundOrbit::eval_at_Mino(const Real& lambda) const {
     // linear torus angles representing mean growth of the phases from the turning points
     Real q_r = torus_freqs_.Ups_r * lambda;
     Real q_z = torus_freqs_.Ups_z * lambda;
+
     // interpolate instantaneous phases which fluctuate around the linear growth
-    Real psi_r = interp_psi_r.eval(q_r) + interp_dpsi_r.eval(q_r);
-    Real psi_z = interp_psi_z.eval(q_z) + interp_dpsi_z.eval(q_z);
+    // implementation of Eq. (250) Pound and Wardell
+    Real psi_r = q_r - interp_dpsi_r.eval(0.0) + interp_dpsi_r.eval(q_r);
+    Real psi_z = q_z - interp_dpsi_z.eval(0.0) + interp_dpsi_z.eval(q_z);
+
+    Real t = torus_freqs_.Ups_t * lambda
+             - interp_t_r.eval(0.0) - interp_t_z.eval(0.0)
+             + interp_t_r.eval(q_r) + interp_t_z.eval(q_z);
+
+    Real phi = torus_freqs_.Ups_phi * lambda
+               - interp_phi_r.eval(0.0) - interp_phi_z.eval(0.0) // spline for the oscillatory correction
+               + interp_phi_r.eval(q_r) + interp_phi_z.eval(q_z);
 
     // return the BL coordinates evaluated at this Mino time using the interpolated phases and mean frequencies
-    return BLCoords{torus_freqs_.Omega_t*lambda+interp_t_r.eval(q_r)+interp_t_z.eval(q_z),
-                    p_*M_/(1.0+e_*cos(psi_r)),
-                    acos(zmax_*cos(psi_z)),
-                    torus_freqs_.Omega_phi*lambda+interp_phi_r.eval(q_r)+interp_phi_z.eval(q_z)
+    return BLCoords{
+            t,
+            p_*M_/(Real(1.0) + e_*cos(psi_r)),
+            zmax_*cos(psi_z),
+            phi
     };
 }
-
 /*
  * The set_constants_of_motion() method computes the specific energy (E),
  * specific angular momentum (Lz), and Carter constant (Q) for a bound orbit in Kerr spacetime,
@@ -140,6 +145,11 @@ void orbit::KerrBoundOrbit::compute_torus_frequencies() {
             -(two*M*E_*rminus-a*Lz_)/(r3_-rminus)*(one- F_pm_(rminus,kr)/(rp_-rminus))
     ) + Lz_*EllipticIntegrals::computeThirdKind(zmax_*zmax_,kz)/EllipticIntegrals::computeFirstKind(kz);
 
+    // set the torus frequencies with the Mino time frequencies
+    torus_freqs_.Ups_t = mino_torus_freqs.Ups_t;
+    torus_freqs_.Ups_r = mino_torus_freqs.Ups_r;
+    torus_freqs_.Ups_z = mino_torus_freqs.Ups_z;
+    torus_freqs_.Ups_phi = mino_torus_freqs.Ups_phi;
 
     // set Boyer-Lindquist mean frequencies at parameter time t_BL
     torus_freqs_.Omega_t = one;
@@ -217,49 +227,37 @@ void orbit::KerrBoundOrbit::compute_frequencies() {
  *
  * - updates the private internal action angles q_alpha = Upsilon_alpha * lambda + q_alpha^0
  */
-void orbit::KerrBoundOrbit::update_q_angles(orbit::Real const& mino_time_param) {
-    torus_angles_.q_r = torus_angles_.q_r + torus_freqs_.Omega_r*mino_time_param;
-    torus_angles_.q_z = torus_angles_.q_z + torus_freqs_.Omega_z*mino_time_param;
-    torus_angles_.q_t = torus_angles_.q_t + torus_freqs_.Omega_t*mino_time_param;
-    torus_angles_.q_phi = torus_angles_.q_phi + torus_freqs_.Omega_phi*mino_time_param;
+void orbit::KerrBoundOrbit::update_q_angles(orbit::Real const& lambda) {
+    torus_angles_.q_r = torus_angles_.q_r + torus_freqs_.Ups_r*lambda;
+    torus_angles_.q_z = torus_angles_.q_z + torus_freqs_.Ups_z*lambda;
+    torus_angles_.q_t = torus_angles_.q_t + torus_freqs_.Ups_t*lambda;
+    torus_angles_.q_phi = torus_angles_.q_phi + torus_freqs_.Ups_phi*lambda;
 }
-/**
- * sample_T_and_Phi_for_fft
- * @brief generates T_r(r) and T_z(z) for f_t
- *  and Phi_r(r) and Phi_z(z) for f_phi
- * - updates the private internal vectors T_a_samples_ and Phi_a_samples_
- */
-void orbit::KerrBoundOrbit::sample_T_and_Phi_for_fft(size_t Nr, size_t Nz)
+
+std::vector<Complex> orbit::KerrBoundOrbit::resample_to_uniform_q(
+        const std::vector<Complex>& samples_in,
+        const std::vector<Real>& q_grid) const
 {
-    const Real two_pi = teuk::twoPi;
-    const Real psi_r_saved = phases_.psi_r;
-    const Real psi_z_saved = phases_.psi_z;
-
-    T_r_samples_.resize(Nr);
-    Phi_r_samples_.resize(Nr);
-    T_z_samples_.resize(Nz);
-    Phi_z_samples_.resize(Nz);
-
-    // Sample T_r(psi_r),Phi_r(psi_r)
-    for (size_t i = 0; i < Nr; ++i) {
-        Real psi_r = teuk::twoPi * i / Nr;
-        phases_.psi_r = psi_r;
-        // leave psi_z as whatever; T_r,Phi_r depend only on psi_r
-        T_r_samples_[i] = get_T_r();
-        Phi_r_samples_[i] = get_Phi_r();
+    const std::size_t N = samples_in.size();
+    if (q_grid.size() != N) {
+        throw std::runtime_error("resample_to_uniform_q: size mismatch");
     }
 
-    // Sample T_z(psi_z),Phi_z(psi_z)
-    for (size_t j = 0; j < Nz; ++j) {
-        Real psi_z =teuk::twoPi * j / Nz;
-        phases_.psi_z = psi_z;
-        // T_z depends only on psi_z
-        T_z_samples_[j] = get_T_z();
-        Phi_z_samples_[j] = get_Phi_z();
+    std::vector<Real> re_in(N), im_in(N);
+    for (std::size_t i = 0; i < N; ++i) {
+        re_in[i] = samples_in[i].real();
+        im_in[i] = samples_in[i].imag();
     }
-    // restore original orbit state!
-    phases_.psi_r = psi_r_saved;
-    phases_.psi_z = psi_z_saved;
+
+    PeriodicSpline spline_re(q_grid, re_in, teuk::twoPi);
+    PeriodicSpline spline_im(q_grid, im_in, teuk::twoPi);
+
+    std::vector<Complex> out(N);
+    for (std::size_t j = 0; j < N; ++j) {
+        Real q = teuk::twoPi * Real(j) / Real(N);
+        out[j] = Complex(spline_re.eval(q), spline_im.eval(q));
+    }
+    return out;
 }
 
 void orbit::KerrBoundOrbit::sample_frequencies_for_fft(size_t Nr, size_t Nz) {
@@ -317,29 +315,29 @@ void orbit::KerrBoundOrbit::compute_q_from_psi(const std::vector<Real>& f, std::
         q[i] = scale * cum[i]; // set q[i] s.t. it increases uniformly in torus phase advance
 }
 
-void orbit::KerrBoundOrbit::compute_q_grids_from_samples(const size_t& Nr, const size_t& Nz,
-                                                         std::vector<Real>& q_r,
-                                                         std::vector<Real>& q_z)
+void orbit::KerrBoundOrbit::compute_q_grids_from_samples(
+        const size_t& Nr, const size_t& Nz,
+        std::vector<Real>& q_r_uniform,
+        std::vector<Real>& q_z_uniform)
 {
-    const Real twoPi = teuk::twoPi;
+    std::vector<Real> f_r_slice(Nr), f_z_slice(Nz);
 
-    // --- Extract f_r(ψ_r, ψ_z=0) → f_r_slice[i] ---
-    std::vector<Real> f_r_slice(Nr);
     for (size_t i = 0; i < Nr; ++i) {
-        size_t idx = i * Nz + 0;   // j = 0 slice
+        size_t idx = i * Nz;
         f_r_slice[i] = f_samples_[idx].f_r;
     }
-
-    // --- Extract f_z(ψ_r=0, ψ_z) → f_z_slice[j] ---
-    std::vector<Real> f_z_slice(Nz);
     for (size_t j = 0; j < Nz; ++j) {
-        size_t idx = 0 * Nz + j;   // i = 0 slice
+        size_t idx = j;
         f_z_slice[j] = f_samples_[idx].f_z;
     }
 
-    // Now compute q_r(ψ_r) and q_z(ψ_z)
-    compute_q_from_psi(f_r_slice, q_r);
-    compute_q_from_psi(f_z_slice, q_z);
+    compute_q_from_psi(f_r_slice, q_of_psi_r_vals);
+    compute_q_from_psi(f_z_slice, q_of_psi_z_vals);
+
+    q_r_uniform.resize(Nr);
+    q_z_uniform.resize(Nz);
+    for (size_t i = 0; i < Nr; ++i) q_r_uniform[i] = teuk::twoPi * Real(i) / Real(Nr);
+    for (size_t j = 0; j < Nz; ++j) q_z_uniform[j] = teuk::twoPi * Real(j) / Real(Nz);
 }
 
 // map FFT index -> integer mode k in range -(N/2)..(N/2-1)
@@ -348,154 +346,46 @@ inline int fft_index_to_mode(int idx, int N) {
     return idx - N;
 }
 
-void orbit::KerrBoundOrbit::compute_Delta_and_freq_modes(
-        const std::vector<Complex>& samples_in,  // f(ψ) samples
-        const std::vector<Real>& q_grid,         // q[ψ] sampled at same ψ-grid points <-- pass q_r_vals OR q_z_vals here
-        const Real& Omega,                              // \Upsilon_α or Ω_α (torus freq)
-        std::vector<Real>& Delta_out,            // Δψ or Δt or Δφ oscillating piece (changed in place)
-        std::vector<Complex>& modes_out)         // Fourier modes c_k of frequency f_α (changed in place)
-{
-    /*
-         Algorithm
-         ---------------------------
-         for fixed j (fixed q_z)
-         take samples_in[i = 0..Nr-1]    // slice along r
-            use q_r_vals[i] in reconstruction
-            1D FFT → modes f_{k_r}(q_z)
-            end j
-        then for each k_r:
-            take values vs j
-            use q_z_vals[j]
-        1D FFT → f_{k_r,k_z}
-        divide by -i (k_r Ω_r) or  - i (k_z Ω_z)
-        inverse FFT back
-    */
-    // FFTW uses long double precision
-    // unfortunately there is no multi-precision complex type in FFTW
-    using LD = long double;
-    using LC = std::complex<long double>;
-
-    size_t N = samples_in.size();
-
-    Delta_out.assign(N, 0);
-    modes_out.assign(N, LC(0,0));
-    const LC Ilc(0, 1);
-
-    //Delta_out.assign(N, Real(0));
-    //modes_out.assign(N, Complex(0,0));
-
-    // compute mean
-    Complex mean = std::accumulate(samples_in.begin(), samples_in.end(),
-                                   Complex(0.,0.) ) /
-                                           Complex(N);
-
-    std::vector<Complex> osc(N); // oscillating piece of the phase values
-    // mean subtraction
-#pragma omp parallel for default(none) shared(osc,samples_in,mean,N)
-    for(size_t i=0; i<N;i ++) osc[i] = samples_in[i] - mean;
-
-    // Allocate FFTW buffers
-    auto* in  = (fftwl_complex*)fftwl_malloc(sizeof(fftwl_complex) * N);
-    auto* out = (fftwl_complex*)fftwl_malloc(sizeof(fftwl_complex) * N);
-
-// Fill input
-#pragma omp parallel for default(none) shared(in,samples_in,mean,N)
-    for(size_t i=0; i<N; i++) {
-        in[i][0] = LD(samples_in[i].real() - mean.real());
-        in[i][1] = LD(samples_in[i].imag() - mean.imag());
-    }
-
-// Create plan
-    fftwl_plan fftwlPlan = fftwl_plan_dft_1d((int)N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-// Execute FFT
-    fftwl_execute(fftwlPlan);
-
-    //std::vector<Complex> raw_modes(N); // FFT modes
-    //fftwl_plan plan = fftwl_plan_dft_1d(int(N), reinterpret_cast<fftwl_complex*>(osc.data()), reinterpret_cast<fftwl_complex*>(raw_modes.data()), FFTW_FORWARD, FFTW_ESTIMATE);
-    //fftwl_execute(plan);
-    //fftwl_destroy_plan(plan);
-
-    // normalize
-#pragma omp parallel for default(none) shared(out,modes_out,N)
-    for(size_t k=0; k<N; k++) {
-        modes_out[k] = LC(out[k][0], out[k][1]) / LD(N);
-    }
-
-    //for(size_t k=0;k<N;k++) modes_out[k] = raw_modes[k];
-
-    // construct Δ using *actual* q-grid
-    int kmax = int(N/2);
-#pragma omp parallel for default(none) shared(Delta_out,modes_out,q_grid,Omega,N,kmax,Ilc)
-    for(size_t i=0; i<N; i++) { // over grid points
-        // get q value at this grid point
-        const LD& q = (LD)q_grid[i];
-        LC sum(0.0L,0.0L); // start sum at zero for grid point i
-
-        for (int k = 1; k < kmax; ++k) { // sum over modes
-
-            LC kC = LC((LD)k, 0.0L);
-
-            // promote FFTW mode to long double
-            LC mk = LC((LD)modes_out[k].real(), (LD)modes_out[k].imag());
-
-            sum += mk * exp(-Ilc * kC * q)
-                   / (-Ilc * kC * (LD)Omega);
-
-            sum += std::conj(mk) * exp(Ilc * kC * q)
-                   / ( Ilc * kC * (LD)Omega); // add negative modes via conj symmetry
-        }
-
-        Delta_out[i] = sum.real();
-    }
-    // Cleanup
-    fftwl_destroy_plan(fftwlPlan);
-    fftwl_free(in);
-    fftwl_free(out);
-}
-
+// Assumes samples_q are real-valued data stored in Complex form,
+// so negative Fourier modes are reconstructed by conjugation.
 void orbit::KerrBoundOrbit::compute_Delta_and_freq_modes_SIMD(
-        const std::vector<Complex>& samples_in,  // f(ψ) samples
-        const std::vector<Real>& q_grid,         // q[ψ] sampled at same ψ-grid points <-- pass q_r_vals OR q_z_vals here
-        const Real& Omega,                              // \Upsilon_α or Ω_α (torus freq)
-        std::vector<Real>& Delta_out,            // Δψ or Δt or Δφ oscillating piece (changed in place)
-        std::vector<Complex>& modes_out)         // Fourier modes c_k of frequency f_α (changed in place)
+        const std::vector<Complex>& samples_in,
+        const std::vector<Real>& q_of_psi,
+        const Real& Ups,
+        std::vector<Real>& Delta_out,
+        std::vector<Complex>& modes_out)
 {
-    /*
-         Algorithm
-         ---------------------------
-         for fixed j (fixed q_z)
-         take samples_in[i = 0..Nr-1]    // slice along r
-            use q_r_vals[i] in reconstruction
-            1D FFT → modes f_{k_r}(q_z)
-            end j
-        then for each k_r:
-            take values vs j
-            use q_z_vals[j]
-        1D FFT → f_{k_r,k_z}
-        divide by -i (k_r Ω_r) or  - i (k_z Ω_z)
-        inverse FFT back
-    */
-    // FFTW uses long double precision
-    // unfortunately there is no multi-precision complex type in FFTW
     using LD = long double;
     using LC = std::complex<long double>;
 
-    size_t N = samples_in.size();
-
-    Delta_out.assign(N, 0);
-    modes_out.assign(N, LC(0,0));
+    const size_t N = samples_in.size();
     const LC Ilc(0, 1);
-    const LD OmL = (LD)Omega;
+    const LD UpsL = LD(Ups);
+    /*
+        Algorithm
+        ---------------------------
+        for fixed j (fixed q_z)
+        take samples_in[i = 0..Nr-1]    // slice along r
+           use q_r_vals[i] in reconstruction
+           1D FFT → modes f_{k_r}(q_z)
+           end j
+       then for each k_r:
+           take values vs j
+           use q_z_vals[j]
+       1D FFT → f_{k_r,k_z}
+       divide by -i (k_r Ω_r) or  - i (k_z Ω_z)
+       inverse FFT back
+   */
+    // FFTW uses long double precision
+    // unfortunately there is no multi-precision complex type in FFTW
 
-    //Delta_out.assign(N, Real(0));
-    //modes_out.assign(N, Complex(0,0));
+    // 1. Resample X(psi_i) -> X(q_j) on uniform q-grid
+    std::vector<Complex> samples_q = resample_to_uniform_q(samples_in, q_of_psi);
 
-    // compute mean
-    Complex mean = std::accumulate(samples_in.begin(), samples_in.end(),
-                                   Complex(0.,0.) ) /
-                   Complex(N);
+    // 2. Compute mean on uniform q-grid
+    Complex mean = std::accumulate(samples_q.begin(), samples_q.end(), Complex(0.,0.)) / Complex(N);
 
-    // choose FFT plan based on N
+    // 3. Choose persistent FFT plan
     fftwl_plan plan = nullptr;
     fftwl_complex* in = nullptr;
     fftwl_complex* out = nullptr;
@@ -509,57 +399,55 @@ void orbit::KerrBoundOrbit::compute_Delta_and_freq_modes_SIMD(
         in   = fft_in_z_;
         out  = fft_out_z_;
     } else {
-        throw std::runtime_error("compute_Delta_and_freq_modes: input size does not match Nr or Nz!");
+        throw std::runtime_error("compute_Delta_and_freq_modes_SIMD: size mismatch");
     }
 
-// Fill input with oscillating piece by subtracting mean
-#pragma omp parallel for default(none) shared(in,samples_in,mean,N)
-    for(size_t i=0; i<N; i++) {
-        in[i][0] = LD(samples_in[i].real() - mean.real());
-        in[i][1] = LD(samples_in[i].imag() - mean.imag());
+    // 4. Fill FFT input from uniform q samples
+#pragma omp parallel for default(none) shared(in,samples_q,mean,N)
+    for (size_t i = 0; i < N; ++i) {
+        in[i][0] = LD(samples_q[i].real() - mean.real());
+        in[i][1] = LD(samples_q[i].imag() - mean.imag());
     }
-    fftwl_execute(plan);  // execute persistent plan
 
-    // normalize by N size
+    fftwl_execute(plan);
+
+    modes_out.assign(N, Complex(0.0, 0.0));
 #pragma omp parallel for default(none) shared(out,modes_out,N)
-    for(size_t k=0; k<N; k++) {
+    for (size_t k = 0; k < N; ++k) {
         modes_out[k] = LC(out[k][0], out[k][1]) / LD(N);
     }
 
-    // construct Δ using *actual* q-grid
-    int kmax = int(N/2);
-#pragma omp parallel for default(none) shared(Delta_out,modes_out,q_grid,OmL,N,kmax,Ilc)
-    for(size_t i=0; i<N; i++) { // over grid points
-        // get q value at this grid point
-        const LD& q = (LD)q_grid[i];
-        LD sum_re = 0.0L; // start sum at zero for grid point i
+    // 5. Reconstruct Delta on the same uniform q-grid
+    Delta_out.assign(N, Real(0));
+    const int kmax = static_cast<int>((N + 1) / 2);
+    // Intentionally omit Nyquist mode for spectral integration.
+
+#pragma omp parallel for default(none) shared(Delta_out,modes_out,N,kmax,Ilc,UpsL)
+    for (size_t i = 0; i < N; ++i) {
+        const LD q = LD(Real(2*M_PI*i) / Real(N));
+        LD sum_re = 0.0L;
 
 #pragma omp simd reduction(+:sum_re)
-        for (int k = 1; k < kmax; ++k) { // sum over modes
+        for (int k = 1; k < kmax; ++k) {
+            LD kL = LD(k);
+            LC mk(LD(modes_out[k].real()), LD(modes_out[k].imag()));
 
-            LD kL = (LD)k;
-            const LC mk(
-                    (LD)modes_out[k].real(),
-                    (LD)modes_out[k].imag()
-            );
+            LD ang = -kL * q;
+            LD c = cosl(ang);
+            LD s = sinl(ang);
 
-            const LD ang = -kL * q;   // argument of exp
-            const LD cos_a = cosl(ang);
-            const LD sin_a = sinl(ang);
-            // e^{± i k q}
-            const LC e_pos(cos_a,  sin_a);
-            const LC e_neg(cos_a, -sin_a);
+            LC e_pos(c, s);
+            LC e_neg(c, -s);
 
-            const LC denom(0.0L, -kL * OmL); // -i k Ω
-            const LC term = (mk * e_neg - conj(mk) * e_pos) / denom;
-
+            LC denom(0.0L, -kL * UpsL);
+            LC term = (mk * e_neg - std::conj(mk) * e_pos) / denom;
             sum_re += term.real();
-
         }
 
-        Delta_out[i] = sum_re;
+        Delta_out[i] = Real(sum_re);
     }
 }
+
 
 /**
 *   \function compute_Deltas
@@ -596,21 +484,19 @@ void orbit::KerrBoundOrbit::compute_Deltas(size_t Nr, size_t Nz)
     Delta_t_r_.resize(Nr);   Delta_t_z_.resize(Nz);
     Delta_phi_r_.resize(Nr); Delta_phi_z_.resize(Nz);
 
-    // compute radial deltas and freq modes
-    compute_Delta_and_freq_modes_SIMD(slice_r, qr_vals, torus_freqs_.Ups_r,
-                                 Delta_psi_r_, f_modes_.f_r_modes);
-    compute_Delta_and_freq_modes_SIMD(slice_t_r, qr_vals, torus_freqs_.Ups_r,
-                                 Delta_t_r_,   f_modes_.T_r_modes);
-    compute_Delta_and_freq_modes_SIMD(slice_phi_r,qr_vals, torus_freqs_.Omega_r,
-                                 Delta_phi_r_, f_modes_.Phi_r_modes);
+    compute_Delta_and_freq_modes_SIMD(slice_r, q_of_psi_r_vals, torus_freqs_.Ups_r,
+                                      Delta_psi_r_, f_modes_.f_r_modes);
+    compute_Delta_and_freq_modes_SIMD(slice_t_r, q_of_psi_r_vals, torus_freqs_.Ups_r,
+                                      Delta_t_r_,   f_modes_.T_r_modes);
+    compute_Delta_and_freq_modes_SIMD(slice_phi_r, q_of_psi_r_vals, torus_freqs_.Ups_r,
+                                      Delta_phi_r_, f_modes_.Phi_r_modes);
 
-    // compute polar deltas and freq modes
-    compute_Delta_and_freq_modes_SIMD(slice_z, qz_vals,  torus_freqs_.Omega_z,
-                                 Delta_psi_z_, f_modes_.f_z_modes);
-    compute_Delta_and_freq_modes_SIMD(slice_t_z, qz_vals, torus_freqs_.Omega_z,
-                                 Delta_t_z_,   f_modes_.T_z_modes);
-    compute_Delta_and_freq_modes_SIMD(slice_phi_z, qz_vals, torus_freqs_.Omega_z,
-                                 Delta_phi_z_, f_modes_.Phi_z_modes);
+    compute_Delta_and_freq_modes_SIMD(slice_z, q_of_psi_z_vals, torus_freqs_.Ups_z,
+                                      Delta_psi_z_, f_modes_.f_z_modes);
+    compute_Delta_and_freq_modes_SIMD(slice_t_z, q_of_psi_z_vals, torus_freqs_.Ups_z,
+                                      Delta_t_z_,   f_modes_.T_z_modes);
+    compute_Delta_and_freq_modes_SIMD(slice_phi_z, q_of_psi_z_vals, torus_freqs_.Ups_z,
+                                      Delta_phi_z_, f_modes_.Phi_z_modes);
 }
 
 void orbit::KerrBoundOrbit::export_trajectory_stream(const std::string& filename,
@@ -625,7 +511,7 @@ void orbit::KerrBoundOrbit::export_trajectory_stream(const std::string& filename
     }
 
     // Header
-    out << "lambda,t,r,theta,phi\n";
+    out << "lambda,t,r,z,phi\n";
     out << std::fixed << std::setprecision(15);
 
     size_t step = 0;
@@ -633,13 +519,12 @@ void orbit::KerrBoundOrbit::export_trajectory_stream(const std::string& filename
         if (step % output_stride != 0) continue;  // skip to reduce file size
 
         BLCoords coords = eval_at_Mino(lambda);
-        Real t = torus_freqs_.Omega_t * lambda + interp_t_r.eval(torus_freqs_.Omega_r*lambda)
-                 + interp_t_z.eval(torus_freqs_.Omega_z*lambda);  // optional: total t
+        Real z = std::clamp(coords.x2, Real(-1.0), Real(1.0));
 
         out << lambda << ","
             << coords.x0 << ","
             << coords.x1 << ","
-            << acos(coords.x2) << ","
+            << z << ","
             << coords.x3 << "\n";
     }
 
@@ -653,11 +538,17 @@ void orbit::KerrBoundOrbit::prepare_fft_plans() {
         fftwl_destroy_plan(fft_plan_r_);
         fftwl_free(fft_in_r_);
         fftwl_free(fft_out_r_);
+        fft_plan_r_ = nullptr;
+        fft_in_r_ = nullptr;
+        fft_out_r_ = nullptr;
     }
     if (fft_plan_z_ != nullptr) {
         fftwl_destroy_plan(fft_plan_z_);
         fftwl_free(fft_in_z_);
         fftwl_free(fft_out_z_);
+        fft_plan_z_ = nullptr;
+        fft_in_z_ = nullptr;
+        fft_out_z_ = nullptr;
     }
 
     if (fft_plan_r_ == nullptr) {

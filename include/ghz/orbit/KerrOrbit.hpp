@@ -98,6 +98,8 @@ namespace orbit {
         vectorR qz_vals;
         vectorR psi_r_vals;
         vectorR psi_z_vals;
+        vectorR q_of_psi_r_vals;  // q_r(psi_r_i) at uniform psi_r_i
+        vectorR q_of_psi_z_vals;  // q_z(psi_z_j) at uniform psi_z_j
 
 
     private:
@@ -195,16 +197,17 @@ namespace orbit {
 
         // --- helper: build all splines ---
         void build_splines() {
-            interp_psi_r   = PeriodicSpline(qr_vals, psi_r_vals);
             interp_dpsi_r  = PeriodicSpline(qr_vals, Delta_psi_r_);
             interp_phi_r   = PeriodicSpline(qr_vals, Delta_phi_r_);
             interp_t_r     = PeriodicSpline(qr_vals, Delta_t_r_);
 
-            interp_psi_z   = PeriodicSpline(qz_vals, psi_z_vals);
             interp_dpsi_z  = PeriodicSpline(qz_vals, Delta_psi_z_);
             interp_phi_z   = PeriodicSpline(qz_vals, Delta_phi_z_);
             interp_t_z     = PeriodicSpline(qz_vals, Delta_t_z_);
         }
+        std::vector<Complex> resample_to_uniform_q(
+                const std::vector<Complex>& samples_in,
+                const std::vector<Real>& q_grid) const;
 
     protected:
         fftwl_plan fft_plan_r_{nullptr}; // for Nr
@@ -244,6 +247,8 @@ namespace orbit {
                    "Error: Inclination must be in [0, pi]!");
             assert((std::abs(chi_) == 1) &&
                    "Error: chi must be +1 (prograde) or -1 (retrograde)!");
+            assert((Nr_ % 2 == 1) && "Odd Nr is preferred to avoid Nyquist ambiguity.");
+            assert((Nz_ % 2 == 1) && "Odd Nz is preferred to avoid Nyquist ambiguity.");
 
             // physical roots and turning points
             // compute turning points in Keplerian parametrization
@@ -309,7 +314,6 @@ namespace orbit {
         void update_q_angles(const Real& mino_time_param);
         BLCoords eval_at_Mino(const Real& lambda) const;
 
-        void sample_T_and_Phi_for_fft(size_t Nr, size_t Nz); // for f_t and f_phi
         void sample_frequencies_for_fft(size_t Nr, size_t Nz); // f_a
         void compute_q_grids_from_samples(const size_t& Nr, const size_t& Nz,
                                           std::vector<Real> &qr_vals, std::vector<Real> &qz_vals);
@@ -343,8 +347,8 @@ namespace orbit {
         }
 
         // --- splines ---
-        PeriodicSpline interp_psi_r, interp_dpsi_r, interp_phi_r, interp_t_r;
-        PeriodicSpline interp_psi_z, interp_dpsi_z, interp_phi_z, interp_t_z;
+        PeriodicSpline interp_dpsi_r, interp_phi_r, interp_t_r;
+        PeriodicSpline interp_dpsi_z, interp_phi_z, interp_t_z;
 
 
 
@@ -354,16 +358,44 @@ namespace orbit {
                                           std::vector<Real> &Delta_out,
                                           std::vector<Complex> &modes_out);
 
-        void compute_Delta_and_freq_modes(const std::vector<Complex> &samples_in,
-                                          const std::vector<Real>& q_grid,
-                                          const Real& Omega,
-                                          std::vector<Real> &Delta_out,
-                                          std::vector<Complex> &modes_out);
 
         void export_trajectory_stream(const std::string& filename, const Real& lambda_max,
                                       const Real& dlambda, size_t output_stride = 1);
 
     };  //  class KerrBoundOrbit
+
+    class KerrCircularEquatorialOrbit : public KerrOrbitBase {
+    private:
+        Real r0_;
+        int chi_;
+        Real E_;
+        Real Lz_;
+        Real Ups_t_;
+        Real Ups_phi_;
+        Real Omega_phi_;
+
+    public:
+        KerrCircularEquatorialOrbit(const KerrMetric& km, Real r0, int chi);
+
+        [[nodiscard]] Real energy() const noexcept { return E_; }
+        [[nodiscard]] Real angular_momentum() const noexcept { return Lz_; }
+        [[nodiscard]] Real upsilon_t() const noexcept { return Ups_t_; }
+        [[nodiscard]] Real upsilon_phi() const noexcept { return Ups_phi_; }
+        [[nodiscard]] Real Omega_phi() const noexcept { return Omega_phi_; }
+
+        BLCoords eval_at_Mino(const Real& lambda) const {
+            return BLCoords{
+                    Ups_t_ * lambda,
+                    r0_,
+                    Real(0.0),   // z = cos(theta) = 0 on the equator
+                    Ups_phi_ * lambda
+            };
+        }
+
+        [[nodiscard]] orbit::SourceFrequencies source_frequencies() const noexcept {
+            return { Real(0.0), Real(0.0), Omega_phi_ };
+        }
+    };
 
 } // namespace orbit
 
