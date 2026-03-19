@@ -8,6 +8,7 @@
 
 # Exclude Mathematica notebook directory from language stats
 MathematicaNotebooks/** linguist-vendored
+Data/** linguist-vendored
 *nb.zip linguist-vendored
 *.np linguist-vendored
 *.mx linguist-vendored
