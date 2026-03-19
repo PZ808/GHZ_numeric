@@ -2,8 +2,8 @@
 // Created by Peter Zimmerman on 04.03.26.
 //
 
-#ifndef HS1DATA_DATA_SPECTRALFILTER_HPP
-#define HS1DATA_DATA_SPECTRALFILTER_HPP
+#ifndef GHZ_SPECTRAL_SPECTRALFILTER_HPP
+#define GHZ_SPECTRAL_SPECTRALFILTER_HPP
 
 #pragma once
 #include <vector>
@@ -50,10 +50,10 @@ namespace spectral {
         std::size_t Nr_{0}, Nz_{0};
         Params params_;
 
-        // --- Chebyshev (r) precomputations (DCT-I tables) ---
-        // cos_r_[k*Nr + j] = cos(pi * k * j / (Nr-1)), k,j=0..Nr-1
-        std::vector<Real> cos_r_;
-        std::vector<Real> sigma_r_;
+        // --- Chebyshev (x) precomputations (DCT-I tables) ---
+        // cos_x_[k*Nr + j] = cos(pi * k * j / (Nr-1)), k,j=0..Nr-1
+        std::vector<Real> cos_x_;
+        std::vector<Real> sigma_x_;
 
         // --- Legendre (z) precomputations ---
         // Pz_[ell*Nz + i] = P_ell(z_i), ell,i=0..Nz-1
@@ -71,13 +71,13 @@ namespace spectral {
         void leg_forward_(const std::vector<Complex>& f_i, std::vector<Complex>& a_ell) const;
         void leg_inverse_(const std::vector<Complex>& a_ell, std::vector<Complex>& f_i) const;
 
-        // Legendre helper: compute P_n(x) for all n up to N-1 (stable recurrence)
+        // Legendre helper: compute P_n(z) for all n up to N-1 (stable recurrence)
         static void legendre_all_(Real x, std::vector<Real>& P);
 
-        // LGL weights: w_i = 2/(N(N-1) P_{N-1}(x_i)^2)
+        // LGL weights: w_i = 2/(N(N-1) P_{N-1}(z_i)^2)
         static std::vector<Real> build_lgl_weights_(const std::vector<Real>& x);
     };
 
 } // namespace spectral
 
-#endif //HS1DATA_DATA_SPECTRALFILTER_HPP
+#endif //GHZ_SPECTRAL_SPECTRALFILTER_HPP

@@ -34,7 +34,7 @@ namespace spectral {
                 cos_r_[idx2(k, j, Nr_)] = std::cos(M_PI * Real(k) * Real(j) / denom_r);
             }
         }
-        sigma_r_ = build_sigma(Nr_, params_.alpha_r, params_.p_r);
+        sigma_x_ = build_sigma(Nr_, params_.alpha_r, params_.p_r);
 
         // ---- Legendre P_ell(z_i) table
         Pz_.resize(Nz_ * Nz_);
@@ -97,7 +97,7 @@ namespace spectral {
             sum += Real(0.5) * f_j[Nr_-1] * ( (k % 2 == 0) ? Real(1) : Real(-1) ); // (-1)^k
 
             for (std::size_t j = 1; j < Nr_-1; ++j) {
-                sum += f_j[j] * cos_r_[idx2(k, j, Nr_)];
+                sum += f_j[j] * cos_x_[idx2(k, j, Nr_)];
             }
             c_k[k] = scale * sum;
         }
