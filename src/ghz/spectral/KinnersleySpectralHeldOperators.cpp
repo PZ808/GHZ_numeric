@@ -236,10 +236,11 @@ void KinnersleyHeldOperators<OutgoingCoords>::thorn_inplace_ZSliceV(
             in_ZSlice.has_omega_mk() );
 
     diff_.dx_Dmatrix_ZSlice(in_ZSlice, dr_ZSlice);
+    const Real dxdr = r_map_.dxdr();
 
     for (size_t ir = 0; ir < Nr; ++ir) {
-        // Example placeholder:
-        const auto val = dr_ZSlice[ir].value();
+        // apply jacobian to change from x to r
+        const auto val = dxdr * dr_ZSlice[ir].value();
 
         out_ZSlice[ir] = GHPScalar<Complex>(val, p+1, q+1);
     }
@@ -268,7 +269,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::thornPHr_inplace_RSliceV(
     const auto& met = ktet.get_metric();
     // create lambda function for Delta(r,z)
     const size_t r_idx = in_RSlice.r_index();
-    const Real x = diff_.cl_nodes()[r_idx]; // Chebyshev nodes in r, but we want the actual r value at this index
+    const Real x = diff_.cl_nodes()[r_idx]; // Chebyshev nodes in x, but we want the actual r value at this index
     const Real rval = r_map_.toPhysical(x);
     const Real Delta = met.Delta(rval);
 
@@ -313,13 +314,14 @@ void KinnersleyHeldOperators<OutgoingCoords>::thornPHr_inplace_RSliceV(
 
     const int p = in_RSlice[0].p();
     const int q = in_RSlice[0].q();
+    const Real dxdr = r_map_.dxdr();
 
-#pragma omp parallel for default(none) shared(in_RSlice, met, rval, Delta, dr_in_RSlice, out_RSlice) firstprivate(Nz, iomega, p, q)
+#pragma omp parallel for default(none) shared(in_RSlice, met, rval, Delta, dr_in_RSlice, dxdr, out_RSlice) firstprivate(Nz, iomega, p, q)
     for (size_t i = 0; i < Nz; ++i) {
         const Real zval = diff_.lgl_nodes()[i];
         const Real Sigma = met.Sigma(rval, zval);
         const Real preDr = -Delta/(2.0_r*Sigma);
-        out_RSlice[i].value() = -iomega * in_RSlice[i].value() + preDr*dr_in_RSlice[i].value();
+        out_RSlice[i].value() = -iomega * in_RSlice[i].value() + preDr*dxdr*dr_in_RSlice[i].value();
         out_RSlice[i].set_pq(p - 1, q - 1);
     }
 }
