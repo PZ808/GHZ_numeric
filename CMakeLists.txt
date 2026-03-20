@@ -78,7 +78,7 @@ add_executable(GHZ_numeric
 
 
         include/ghz/special/EllipticIntegrals.hpp
-        include/ghz/orbit/KerrOrbit.hpp src/ghz/source/KerrOrbit.cpp
+        include/ghz/orbit/KerrOrbit.hpp src/ghz/orbit/KerrOrbit.cpp
 
         include/ghz/spectral/SpectralDiffer.hpp src/ghz/spectral/SpectralDiffer.cpp
         include/ghz/ghp/HeldScalars.hpp src/ghz/ghp/HeldScalars.cpp
@@ -137,7 +137,9 @@ add_executable(spectral_solve_unit_tests
         src/ghz/ghp/GHPScalars.cpp
         src/ghz/ghp/SpinCoeffNP.cpp
         )
-
+add_executable(cubic_splines_tests
+        tests/unit/cubic_splines_tests.cpp
+        )
 add_executable(kinnersley_held_operators_unit_tests
         tests/unit/kinnersley_held_operators_unit_tests.cpp
         src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
@@ -153,15 +155,43 @@ add_executable(kinnersley_held_operators_unit_tests
         )
 add_executable(effective_source_unit_tests
         tests/unit/effective_source_unit_tests.cpp
-        src/ghz/source/BinaryEffectiveSourceArchive.cpp src/ghz/source/ConditionSource.cpp)
+        src/ghz/source/BinaryEffectiveSourceArchive.cpp src/ghz/source/ConditionSource.cpp
+        )
+add_executable(bound_orbit_tests
+        tests/unit/bound_orbit_tests.cpp
+        src/ghz/orbit/KerrOrbit.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/KerrParams.cpp
+        )
+add_executable(corrector_tests
+        tests/unit/corrector_tests.cpp
+        src/ghz/transport/collocation/XmmbarWorldtubeSolve.cpp
+        src/ghz/transport/collocation/SpectralSliceSolve.cpp
+        src/ghz/source/ConditionSource.cpp
+        src/ghz/transport/Corrector.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/KerrParams.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        src/ghz/geom/KerrMetricOutgoing.cpp
+        )
 
 target_include_directories(spectral_physical_unit_tests PRIVATE include)
 target_include_directories(spectral_solve_unit_tests PRIVATE include)
+target_include_directories(cubic_splines_tests PRIVATE include)
+target_include_directories(corrector_tests PRIVATE include)
 
 target_include_directories(spectral_unit_tests PRIVATE include)
 target_include_directories(effective_source_unit_tests PRIVATE include)
 target_include_directories(kinnersley_held_operators_unit_tests PRIVATE include)
+target_include_directories(bound_orbit_tests PRIVATE include)
 
+target_link_libraries(bound_orbit_tests PRIVATE  OpenMP::OpenMP_CXX
+        fftw3l)
+
+target_link_libraries(corrector_tests PRIVATE  OpenMP::OpenMP_CXX
+        fftw3l)
 target_link_libraries(kinnersley_held_operators_unit_tests PRIVATE
         OpenMP::OpenMP_CXX
         fftw3)
