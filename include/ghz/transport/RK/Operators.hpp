@@ -11,16 +11,18 @@
 #include <string>
 
 #include "ghz/transport/Corrector.hpp"
+#include "ghz/geom/KinnersleyTetrad.hpp"
 
-namespace ghz {
+
+namespace ghz::transport {
 
     using StateVec = ode::StateVec;
     using StateMat = std::vector<std::vector<StateVec>>;
     using RVector  = std::vector<Real>;
     using GHPSpectral = spectral::SpectralGHPVectorized;
+    using ghp::GHPScalar;
 
     struct ModesMK { int m=0, kr=0, kz=0; };
-    struct GHPType { int p=0, q=0; };
 
     struct XDerivs {
         GHPSpectral X;          // (p,q)

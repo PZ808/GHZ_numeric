@@ -29,14 +29,14 @@ namespace ghz::source {
 // -----------------------------------------------------------------------------
 
     GHPSpectral source_xmmb(
-            size_t Nr, size_t Nz, ModesMK modes, GHPType out_type,
+            size_t Nr, size_t Nz, transport::ModesMK modes, ghp::GHPType out_type,
             const GHPSpectral *Tll) {
         if (Tll) return *Tll;
 
         return GHPSpectral(
                 Nr, Nz,
                 {modes.m, modes.kr, modes.kz},
-                GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
+                ghp::GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
     }
 
 // -----------------------------------------------------------------------------
@@ -44,13 +44,13 @@ namespace ghz::source {
 // -----------------------------------------------------------------------------
 
     GHPSpectral source_xnm(
-            const XDerivs &xmmbar,
+            const transport::XDerivs &xmmbar,
             const std::vector<Real> &r_grid,
             const std::vector<Real> &z_grid,
             const KerrMetricOutgoing &metric,
             const ghp::HeldBackgroundFieldsVectorized<OutgoingCoords> &held,
             const ghp::GHPBackgroundFieldsVectorized &ghp,
-            GHPType out_type,
+            ghp::GHPType out_type,
             const GHPSpectral *Tlm) {
         const size_t Nr = xmmbar.X.Nr();
         const size_t Nz = xmmbar.X.Nz();
@@ -60,7 +60,7 @@ namespace ghz::source {
 
         GHPSpectral source(
                 Nr, Nz, modes,
-                GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
+                ghp::GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
 
         const Real a = metric.a();
 
@@ -103,7 +103,7 @@ namespace ghz::source {
                 Complex rhs = N_of_xmmbar.value();
                 if (Tlm) rhs += (*Tlm)(ir, iz).value();
 
-                source.set_index(ir, iz, GHPScalar<Complex>(rhs, out_type.p, out_type.q));
+                source.set_index(ir, iz, ghp::GHPScalar<Complex>(rhs, out_type.p, out_type.q));
             }
         }
 
@@ -116,14 +116,14 @@ namespace ghz::source {
 // -----------------------------------------------------------------------------
 
     GHPSpectral source_xnn(
-            const XDerivs &xmmbar,
-            const XDerivs &xnm,
+            const transport::XDerivs &xmmbar,
+            const transport::XDerivs &xnm,
             const std::vector<Real> &r_grid,
             const std::vector<Real> &z_grid,
             const KerrMetricOutgoing &metric,
             const ghp::HeldBackgroundFieldsVectorized<OutgoingCoords> &held,
             const ghp::GHPBackgroundFieldsVectorized &ghp,
-            GHPType out_type,
+            ghp::GHPType out_type,
             const GHPSpectral *Tln) {
         const size_t Nr = xmmbar.X.Nr();
         const size_t Nz = xmmbar.X.Nz();
@@ -133,7 +133,7 @@ namespace ghz::source {
 
         GHPSpectral source(
                 Nr, Nz, modes,
-                GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
+                ghp::GHPScalar<Complex>(teuk::zeroC, out_type.p, out_type.q));
 
         const Real a = metric.a();
 
@@ -198,7 +198,7 @@ namespace ghz::source {
                 const auto bracket =
                         psi0*(rho_ghp*rho_ghp - rhob_ghp*rhob_ghp)
                         - two*rho_ghp*rhob_ghp*(rhob_ghp-rho_ghp)*tau0*taub0
-                        - four*rho_ghp*rhob_ghp*rhoP0*(GHPScalar<Complex>(1.0, 0, 0) + rho_ghp*Om0);
+                        - four*rho_ghp*rhob_ghp*rhoP0*(ghp::GHPScalar<Complex>(1.0, 0, 0) + rho_ghp*Om0);
 
                 const auto C = half*bracket*PX - two*rho_ghp*PX; // here need to fix with  PH'
                 // --- Block D: remaining purely multiplicative terms times X (no derivatives)
@@ -221,7 +221,7 @@ namespace ghz::source {
                         );
 
                 const Real rhs_real = std::real(T) + std::real(UXmmb.value()) + std::real(VXnm.value());
-                source.set_index(ir, iz, GHPScalar<Complex>(Complex(rhs_real, 0.0), out_type.p, out_type.q));
+                source.set_index(ir, iz, ghp::GHPScalar<Complex>(Complex(rhs_real, 0.0), out_type.p, out_type.q));
             }
         }
 

@@ -18,27 +18,27 @@ namespace ghz::source {
 
 // x_mmbar source: just returns T_ll if present, else zeros
     spectral::SpectralGHPVectorized
-    source_xmmb(size_t Nr, size_t Nz, ModesMK modes, GHPType out_type,
+    source_xmmb(size_t Nr, size_t Nz, transport::ModesMK modes, ghp::GHPType out_type,
                 const spectral::SpectralGHPVectorized *Tll);
 
 
 // x_nm source: N[x_mmbar] + T_lm
     spectral::SpectralGHPVectorized
-    source_xnm(const XDerivs& xmmbar,               // needs X, P_X, EH_X, EH_P_X, etc (whatever your formula uses)
+    source_xnm(const transport::XDerivs& xmmbar,               // needs X, P_X, EH_X, EH_P_X, etc (whatever your formula uses)
                const KerrMetricOutgoing& metric,
                const ghp::HeldBackgroundFieldsVectorized<OutgoingCoords>& held,
                const ghp::GHPBackgroundFieldsVectorized& ghp,
-               GHPType out_type,
+               ghp::GHPType out_type,
                const spectral::SpectralGHPVectorized* Tlm);
 
 // x_nn source: T_ln + Re(U[x_mmbar]) + Re(V[x_nm])
     spectral::SpectralGHPVectorized
-    source_xnn(const XDerivs& xmmbar,
-               const XDerivs& xnm,
+    source_xnn(const transport::XDerivs& xmmbar,
+               const transport::XDerivs& xnm,
                const KerrMetricOutgoing& metric,
                const ghp::HeldBackgroundFieldsVectorized<OutgoingCoords>& held,
                const ghp::GHPBackgroundFieldsVectorized& ghp,
-               GHPType out_type,
+               ghp::GHPType out_type,
                const spectral::SpectralGHPVectorized* Tln);
 
 
