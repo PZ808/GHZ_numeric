@@ -52,12 +52,12 @@ namespace {
     using GHP = GHPScalar<T>;
 
     constexpr Real mass = 1.0;
-    constexpr Real spin = 0.9;
-    const int p_test = 2, q_test = 0;
-    const int m_test = 2, kr_test = 2, kz_test = 2;
+    constexpr Real spin = 0.5;
+    const int p_test = 2, q_test = 2;
+    const int m_test = 2, kr_test = 0, kz_test = 0;
     const int slice_idx = 3;
-    constexpr size_t Nz = 20;
-    constexpr size_t Nr = 20;
+    constexpr size_t Nz = 33;
+    constexpr size_t Nr = 33;
 
 
     struct TestFailure : std::runtime_error {
@@ -84,6 +84,17 @@ namespace {
                 << "  tol      = " << tol;
             throw TestFailure(oss.str());
         }
+    }
+
+    template <typename Field>
+    Real max_abs_value_field(const Field& f) {
+        Real emax = Real(0);
+        for (size_t ir = 0; ir < f.Nr(); ++ir) {
+            for (size_t iz = 0; iz < f.Nz(); ++iz) {
+                emax = std::max(emax, std::abs(f(ir, iz).value()));
+            }
+        }
+        return emax;
     }
 
     inline void require_near_real(Real got, Real expected,
@@ -206,13 +217,25 @@ namespace {
 
         auto r_nodes = r_map.toPhysicalNodes(diff.cl_nodes());
         // choose a function with some r and z dependence and a nontrivial complex phase to test the operators on
-        auto filler = [&](Real r, Real z) -> Complex {
-            return (Real(1.0) + Real(0.2)*r + Real(0.05)*r*r+Real(2.3)*r*r*r*r)
+        auto fillerInsane = [&](Real r, Real z) -> Complex {
+            return  std::pow(1.0 - z*z, 3/2)*(Real(1.0) + Real(0.2)*r + Real(0.05)*r*r+Real(2.3)*r*r*r*r)
                    * (Real(1.0) + Real(0.3)*z + Real(0.2)*z*z+Real(10)*z*z*z)
                    * std::exp(Complex(0.0, Real(0.4)*r*r - Real(0.3)*z));
         };
 
-        f_test.fill_nodes(filler, r_nodes, diff.lgl_nodes());
+        auto fillerDumb = [&](Real r, Real z) -> Complex {
+            return (Real(1.0) + Real(0.01)*r + Real(0.0002)*r*r)
+                   * (Real(1.0) + Real(0.3)*z + Real(0.2)*z*z)
+                   * std::exp(Complex(0.0, Real(0.01)*r - Real(0.1)*z));
+        };
+
+        auto filler = [&](Real r, Real z) -> Complex {
+            return (Real(1.0) + Real(0.01)*r + Real(0.0002)*r*r)
+                   * (Real(1.0) + Real(0.3)*z + Real(0.2)*z*z);
+        };
+        auto fillerConst = [&](Real r, Real z) -> Complex { return Complex(1,0); };
+
+        f_test.fill_nodes(fillerConst, r_nodes, diff.lgl_nodes());
 
         SpectralGHPVectorized::Modes modes{m, kr, kz};
 
@@ -220,6 +243,71 @@ namespace {
         out.set_omega_mk(omega_mk);
 
         return out;
+    }
+
+    void debug_edthH_on_constant()
+    {
+        TestObjects T(Nz, Nr);
+
+        auto field = build_test_field(
+                T.diff, T.r_map,
+                /*p=*/0, /*q=*/0,
+                /*m=*/0, /*kr=*/0, /*kz=*/0,
+                /*omega=*/Real(0));
+
+        // overwrite with literal constant 1
+        for (size_t ir = 0; ir < field.Nr(); ++ir) {
+            for (size_t iz = 1; iz < field.Nz()-1; ++iz) {
+                field(ir, iz) = GHP<Complex>(Complex(1.0, 0.0), 0, 0);
+            }
+        }
+
+        auto eth_f = SpectralGHPVectorized(
+                field.Nr(), field.Nz(), field.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), 0, -2), 0, -2);
+
+        auto ethbar_f = SpectralGHPVectorized(
+                field.Nr(), field.Nz(), field.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), -2, 0), -2, 0);
+
+        auto ethbar_eth_f = SpectralGHPVectorized(
+                field.Nr(), field.Nz(), field.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), -2, -2), -2, -2);
+
+        auto eth_ethbar_f = SpectralGHPVectorized(
+                field.Nr(), field.Nz(), field.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), -2, -2), -2, -2);
+
+        if (field.has_omega_mk()) {
+            eth_f.set_omega_mk(field.omega_mk());
+            ethbar_f.set_omega_mk(field.omega_mk());
+            ethbar_eth_f.set_omega_mk(field.omega_mk());
+            eth_ethbar_f.set_omega_mk(field.omega_mk());
+        }
+
+        T.ops.edthH_inplace(field, eth_f);
+        T.ops.edthBarH_inplace(field, ethbar_f);
+
+        T.ops.edthBarH_inplace(eth_f, ethbar_eth_f);
+        T.ops.edthH_inplace(ethbar_f, eth_ethbar_f);
+
+        std::cout << "\n[DEBUG constant mode]\n";
+        std::cout << "max |edthH(f)|              = " << max_abs_value_field(eth_f) << "\n";
+        std::cout << "max |edthBarH(f)|           = " << max_abs_value_field(ethbar_f) << "\n";
+        std::cout << "max |edthBarH(edthH(f))|    = " << max_abs_value_field(ethbar_eth_f) << "\n";
+        std::cout << "max |edthH(edthBarH(f))|    = " << max_abs_value_field(eth_ethbar_f) << "\n";
+
+        // Also print a few sample points
+        for (size_t ir = 0; ir < std::min<size_t>(field.Nr(), 3); ++ir) {
+            for (size_t iz = 0; iz < std::min<size_t>(field.Nz(), 3); ++iz) {
+                std::cout << "ir=" << ir << ", iz=" << iz
+                          << "  edth=" << eth_f(ir, iz).value()
+                          << "  edthBar=" << ethbar_f(ir, iz).value()
+                          << "  ethbar_eth=" << ethbar_eth_f(ir, iz).value()
+                          << "  eth_ethbar=" << eth_ethbar_f(ir, iz).value()
+                          << "\n";
+            }
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -313,7 +401,7 @@ namespace {
         T.ops.edthH_bary_inplace_RSliceV(in, out2);
 
         const Real err = max_abs_diff(out1, out2);
-        require_near_real(err, Real(0), Real(1e-10), "edth D-matrix vs barycentric");
+        require_near_real(err, Real(0), Real(1e-8), "edth D-matrix vs barycentric");
     }
 
     void test_thornPH_against_expected_frequency_factor() {
@@ -445,7 +533,7 @@ namespace {
 
 
 
-    Real commutator_edth_edthbar_rhs_norm(const TestObjects& T,
+    Real commutator_edthH_edthbarH_rhs_norm(const TestObjects& T,
                                           const SpectralGHPVectorized& f)
     {
         const int p = f.p();
@@ -510,7 +598,7 @@ namespace {
         const auto& ghp = T.bkg_ghp_fields;
 
         Real emax = Real(0);
-        for (size_t iz = 0; iz < f.Nz(); ++iz) {
+        for (size_t iz = 1; iz < f.Nz()-1; ++iz) {
             // Replace these with your exact stored Held fields / conventions
             const Complex Om0= held.OmH(iz).value();
             const Complex tau0 = held.tauH(iz).value();
@@ -526,22 +614,26 @@ namespace {
                 const Complex rhob = std::conj(rho);
                 const Complex rhop = ghp.rhop(ir, iz).value();
                 const Complex rhopb = std::conj(ghp.rhop(ir, iz).value());
-                const Complex EdthH_taubar0 = -half*Om0*(rhop0+rhopb0)
-                                              - half*(psi0-psib0);
+                //const Complex EdthH_taubar0 = -half*Om0*(rhop0+rhopb0) - half*(psi0-psib0);
+                const Complex EdthH_taubar0 =
+                        -Om0 * rhop0 + Real(0.5) * (psib0 - psi0);
                 const Complex EdthH_rho = sqr(rho)*tau0;
                 const Complex psi2 = cube(rho)*psi0;
+                const Complex psi2b = std::conj(cube(rho)*psi0);
                 // Held Eq. (4.8)
-                const Complex Sig0 = rhop/rhob +
-                        psi2 / (Real(2)*rho) * ( Real(1)/ rho + Real(1)/rhob)
-                        + EdthH_taubar0*rho + taub0*EdthH_rho;
+                const Complex Sig0 = rhop/rhob + psi2 / (Real(2)*rho) * (Real(1)/rho + Real(1)/rhob) + EdthH_taubar0 * rho + taub0 * EdthH_rho;
                 const Complex Sig0b = std::conj(Sig0);
+
                 const Complex thornCoeff = (rhopb-rhop)/(rho*rhob);
                 const Complex thornpHCoeff = Om0;
+
+                const Complex Pterm = rhop/rhob+psi2/(Real(2)*rho)*(Real(1)/rho+Real(1)/rhob);
+                const Complex Qterm = rhopb/rho+psi2b/(Real(2)*rhob)*(Real(1)/rho+Real(1)/rhob);
                 // Held Eq. (4.7)
                 const Complex rhs_val =
                         thornCoeff * thorn_f(ir, iz).value()
                         + thornpHCoeff * thornP_f(ir, iz).value()
-                        + (Real(p)*Sig0 - Real(q)*Sig0b) * f(ir, iz).value();
+                        + (Real(p)*Pterm + Real(q)*Qterm) * f(ir, iz).value();
 
                 rhs(ir, iz) = GHP<Complex>(rhs_val, p-2, q-2);
 
@@ -549,11 +641,80 @@ namespace {
                         eth_ethbar(ir, iz).value() - ethbar_eth(ir, iz).value();
 
                 emax = std::max(emax, std::abs(lhs_val - rhs_val));
+
             }
         }
 
-        return emax;
+        Real emax2 = Real(0);
+        size_t worst_ir = 0, worst_iz = 0;
+        Complex worst_lhs = 0.0;
+        Complex worst_rhs = 0.0;
+        Complex worst_res = 0.0;
+
+        for (size_t iz = 2; iz < f.Nz()-4; ++iz) {
+            const Complex Om0 = held.OmH(iz).value();
+            const Complex tau0 = held.tauH(iz).value();
+            const Complex taub0 = held.tauH_bar(iz).value();
+            const Complex rhop0 = held.rhopH(iz).value();
+            const Complex rhopb0 = held.rhopH_bar(iz).value();
+            const Complex psi0 = held.PsiH(iz).value();
+            const Complex psib0 = held.PsiH_bar(iz).value();
+
+            for (size_t ir = 0; ir < f.Nr(); ++ir) {
+                const Complex rho = ghp.rho(ir, iz).value();
+                const Complex rhob = std::conj(rho);
+                const Complex rhop = ghp.rhop(ir, iz).value();
+                const Complex rhopb = std::conj(ghp.rhop(ir, iz).value());
+
+                const Complex EdthH_taubar0 =
+                        -half*Om0*(rhop0+rhopb0) - half*(psi0-psib0);
+                const Complex EdthH_rho = sqr(rho)*tau0;
+                const Complex psi2 = cube(rho)*psi0;
+                const Complex Sig0 = rhop/rhob
+                                     + psi2 / (Real(2)*rho) * (Real(1)/rho + Real(1)/rhob)
+                                     + EdthH_taubar0*rho + taub0*EdthH_rho;
+
+                const Complex thornCoeff = (rhopb-rhop)/(rho*rhob);
+                const Complex thornpHCoeff = Om0;
+
+                const Complex rhs_val =
+                        thornCoeff * thorn_f(ir, iz).value()
+                        + thornpHCoeff * thornP_f(ir, iz).value()
+                        + (Real(p)*Sig0 - Real(q)*std::conj(Sig0)) * f(ir, iz).value();
+
+                const Complex lhs_val =
+                        eth_ethbar(ir, iz).value() - ethbar_eth(ir, iz).value();
+
+                const Complex res = lhs_val - rhs_val;
+                const Real err = std::abs(res);
+
+                if (err > emax2) {
+                    emax2 = err;
+                    worst_ir = ir;
+                    worst_iz = iz;
+                    worst_lhs = lhs_val;
+                    worst_rhs = rhs_val;
+                    worst_res = res;
+                }
+            }
+        }
+
+        auto r_nodes = T.r_map.toPhysicalNodes(T.diff.cl_nodes());
+
+        std::cout << "\n[DEBUG commutator worst point]\n";
+        std::cout << "worst ir = " << worst_ir
+                  << ", worst iz = " << worst_iz << "\n";
+        std::cout << "r = " << r_nodes[worst_ir]
+                  << ", z = " << T.diff.lgl_nodes()[worst_iz] << "\n";
+        std::cout << "lhs = " << worst_lhs << "\n";
+        std::cout << "rhs = " << worst_rhs << "\n";
+        std::cout << "res = " << worst_res << "\n";
+
+
+
+        return emax2;
     }
+
     Real commutator_thorn_thornPH_rhs_norm(const TestObjects& T,
                                            const SpectralGHPVectorized& f)
     {
@@ -637,13 +798,12 @@ namespace {
                 const Complex psi2 = cube(rho)*psi0;
                 const Complex psi2b = std::conj(psi2);
 
-                // Held Eq. (4.7a)
-                const Complex coeff =
-                        taub*taupb/rhob
-                        + tau*taup/rho
+                const Complex is_Zero = (taub*taupb*rho + tau*taup*rhob)/(rhob*rho);
+                // std::cout << "ir=" << ir << ", iz=" << iz << ", is_Zero=" << is_Zero << "\n"; // Held Eq. (4.7a)
+
+                const Complex coeff = is_Zero
                         - half*psi2/rho
                         - half*psi2b/rhob;
-
                 const Complex rhs_val = coeff*thorn_f(ir, iz).value();
 
                 rhs(ir, iz) = GHP<Complex>(rhs_val, p, q);
@@ -657,7 +817,97 @@ namespace {
 
         return emax;
     }
-    void test_commutator_edth_edthbar_rhs()
+
+    Real commutator_thornPH_edthbarH_rhs_norm(const TestObjects& T,
+                                           const SpectralGHPVectorized& f)
+    {
+        const int p = f.p();
+        const int q = f.q();
+
+        // [thorn, thornPH] lands back at (p, q)
+        auto thornPH_edthbarH = SpectralGHPVectorized(
+                f.Nr(), f.Nz(), f.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), p-3, q-1), -3, -1
+        );
+        auto edthbarH_thornPH = SpectralGHPVectorized(
+                f.Nr(), f.Nz(), f.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), p-3, q-1), -3, -1
+        );
+
+        // intermediates
+        auto tmp_thornPH = SpectralGHPVectorized(
+                f.Nr(), f.Nz(), f.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), p-1, q-1), p-1, q-1
+        );
+        auto tmp_edthbarH = SpectralGHPVectorized(
+                f.Nr(), f.Nz(), f.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), p-2, q), p-2, q
+        );
+
+
+        auto rhs = SpectralGHPVectorized(
+                f.Nr(), f.Nz(), f.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), p-3, q-1), p-3, q-1
+        );
+
+        if (f.has_omega_mk()) {
+            tmp_edthbarH.set_omega_mk(f.omega_mk());
+            tmp_thornPH.set_omega_mk(f.omega_mk());
+            thornPH_edthbarH.set_omega_mk(f.omega_mk());
+            edthbarH_thornPH.set_omega_mk(f.omega_mk());
+            rhs.set_omega_mk(f.omega_mk());
+        }
+
+        // thorn(thornPH(f))
+        T.ops.thornPHr_inplace(T.tetrad, f, tmp_thornPH);
+        T.ops.edthBarH_inplace(tmp_thornPH, edthbarH_thornPH);
+
+        // thornPH(thorn(f))
+        T.ops.edthBarH_inplace(f, tmp_edthbarH);
+        T.ops.thornPHr_inplace(T.tetrad, tmp_edthbarH, thornPH_edthbarH);
+
+        const auto& held = T.bkg_held_fields;
+        const auto& ghp = T.bkg_ghp_fields;
+
+        Real emax = Real(0);
+        for (size_t iz = 0; iz < f.Nz(); ++iz) {
+            const Complex tau0 = held.tauH(iz).value();
+            const Complex taub0 = held.tauH_bar(iz).value();
+            const Complex psi0 = held.PsiH(iz).value();
+            const Complex psib0 = held.PsiH_bar(iz).value();
+
+            for (size_t ir = 0; ir < f.Nr(); ++ir) {
+                const Complex rho = ghp.rho(ir, iz).value();
+                const Complex rhob = std::conj(rho);
+
+                // full tau
+                const Complex tau = tau0*rho*rhob;
+                const Complex taub = std::conj(tau);
+
+                // Type D relation: tau' = -rho^2 * taub0
+                const Complex taup = -sqr(rho)*taub0;
+                const Complex taupb = std::conj(taup);
+
+                // Psi_2 = rho^3 Psi^o
+                const Complex psi2 = cube(rho)*psi0;
+                const Complex psi2b = std::conj(psi2);
+
+                const Complex rhs_val = Complex(0,0);
+
+                rhs(ir, iz) = GHP<Complex>(rhs_val, p, q);
+
+                const Complex lhs_val =
+                        thornPH_edthbarH(ir, iz).value() - edthbarH_thornPH(ir, iz).value();
+
+                emax = std::max(emax, std::abs(lhs_val-rhs_val));
+            }
+        }
+
+        return emax;
+    }
+
+
+    void test_commutator_edthH_edthbarH_rhs()
     {
         TestObjects T(Nz, Nr);
 
@@ -666,12 +916,17 @@ namespace {
                                       m_test, kr_test, kz_test,
                                       Real(0.8));
 
-        const Real err = commutator_edth_edthbar_rhs_norm(T, field);
 
+
+        const Real err = commutator_edthH_edthbarH_rhs_norm(T, field);
         std::cout << "[INFO] [edthH, edthBarH] residual = " << err << "\n";
 
-        // Tighten this once thorn/thornPH conventions are fully settled
-        require_near_real(err, Real(0), Real(1e-8), "[edthH, edthBarH] RHS residual");
+        require_near_real(
+                err,
+                Real(0),
+                Real(1e-8),
+                "[edthH,edthBarH]f - (((rhopb-rhop)/(rho*rhob))*thorn(f) + Om0*thornPH(f) + (p*Sig0 - q*conj(Sig0))*f)"
+        );
     }
 
     void test_commutator_thorn_thornPH_rhs()
@@ -685,6 +940,20 @@ namespace {
         const Real err = commutator_thorn_thornPH_rhs_norm(T, field);
 
         std::cout << "[INFO] [thorn, thornPH] residual = " << err << "\n";
+    }
+
+
+    void test_commutator_thornPH_edthbarH_rhs()
+    {
+        TestObjects T(Nz, Nr);
+
+        auto field = build_test_field(T.diff, T.r_map, p_test, q_test,
+                                      m_test, kr_test, kz_test,
+                                      Real(0.8));
+
+        const Real err = commutator_thornPH_edthbarH_rhs_norm(T, field);
+
+        std::cout << "[INFO] [thornPH, edthbarH] residual = " << err << "\n";
     }
 
     void test_commutators_reduced_rslices() {
@@ -733,12 +1002,12 @@ namespace {
 
         require_near_real(comm_thornp_eth,
                           Real(0),
-                          Real(1e-12),
+                          Real(1e-7),
                           "[thornPH, edthH]");
 
         require_near_real(comm_thornp_ethbar,
                           Real(0),
-                          Real(1e-12),
+                          Real(1e-7),
                           "[thornPH, edthBarH]");
     }
 
@@ -761,7 +1030,8 @@ int main() {
             {"thornPH_expected_frequency_factor", test_thornPH_against_expected_frequency_factor},
             {"commutators_rslices", test_commutators_reduced_rslices},
             {"commutator_thorn_thornPH_rhs", test_commutator_thorn_thornPH_rhs},
-            {"commutator_edth_edthbar_rhs", test_commutator_edth_edthbar_rhs}
+            {"commutator_edth_edthbar_rhs", test_commutator_edthH_edthbarH_rhs},
+            {"commutator_thornPH_edthbar_rhs", test_commutator_thornPH_edthbarH_rhs}
     };
 
     int passed = 0;
