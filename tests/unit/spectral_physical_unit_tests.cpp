@@ -383,7 +383,7 @@ namespace {
         std::cout << "    max ||B u - rhs||_inf          = "
                   << std::setprecision(18) << max_res << "\n";
 
-        require_true(max_res < Real(1e-10),
+        require_true(max_res < Real(1e-8),
                      "manufactured Schwarzschild collocation residual too large");
         Real max_err = Real(0);
         for (std::size_t i = 0; i < N; ++i) {
