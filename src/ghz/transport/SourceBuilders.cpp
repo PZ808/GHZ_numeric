@@ -74,8 +74,8 @@ namespace ghz::source {
                 const auto rho_ghp = ghp.rho(ir, iz);
                 const auto rhob_ghp = rho_ghp.conj();
 
-                // Geometric rho(r,z) (needed by the specific N[x] formula you used)
-                // rho = -1/(r - i a z), but here we need r,z. Prefer using your stored grids.
+                // Geometric rho(r,z) (needed by the specific N[x] formula )
+                // rho = -1/(r - i a z), but here we need r,z.
                 // We assume xmmbar.X stores/knows its grids; otherwise replace with your grid accessors.
                 const Real r = r_grid[ir];
                 const Real z = z_grid[iz];
@@ -87,7 +87,7 @@ namespace ghz::source {
                 const auto Xv = xmmbar.X(ir, iz);
                 const auto thXv = xmmbar.P_X(ir, iz);      // thorn X
                 const auto edXv = xmmbar.EH_X(ir, iz);     // edthH X
-                const auto thEdX = xmmbar.EH_P_X(ir, iz);   // edthH(thorn X) by commutation (this is what you used)
+                const auto thEdX = xmmbar.EH_P_X(ir, iz);   // edthH(thorn X) by commutation
 
                 // term1 = -1/2 * rhob * ( thorn(edthX) + (rho - rhob) edthX )
                 const auto term1 = -half * rhob * (thEdX + (rho - rhob) * edXv);
@@ -161,6 +161,7 @@ namespace ghz::source {
                 // ---- Pull xmmbar derivs you might need for U ----
                 const auto X = xmmbar.X(ir, iz);
                 const auto PX = xmmbar.P_X(ir, iz);
+                const auto PpX = xmmbar.PpHr_X(ir, iz);
                 const auto EX = xmmbar.EH_X(ir, iz);
                 const auto EbX = xmmbar.EbH_X(ir, iz);
                 const auto EbEX = xmmbar.EbH_EH_X(ir, iz);
@@ -171,8 +172,8 @@ namespace ghz::source {
                 // ---- Pull xnm derivs you might need for V ----
                 const auto Xn = xnm.X(ir, iz);
                 const auto PXn = xnm.P_X(ir, iz);
-                const auto EbXn = xnm.EbH_X(ir, iz);     // if you included it in xnm deriv pack
-                const auto EbPXn = xnm.EbH_P_X(ir, iz);  // if you included it
+                const auto EbXn = xnm.EbH_X(ir, iz);
+                const auto EbPXn = xnm.EbH_P_X(ir, iz);
 
                 // -----------------------------------------------------------------
                 // Implement U[xmmbar]
@@ -186,8 +187,8 @@ namespace ghz::source {
                 //
                 const auto A =
                         (rho_ghp * rhob_ghp) * (
-                                -1_r*(rho_ghp+rhob_ghp)*EX
-                                - EbEX + tau0*EPX
+                                -1_r*taub0*(rho_ghp+rhob_ghp)*EX
+                                - EbEX + taub0*EPX
                                 + tau0*(rhob_ghp-rho_ghp)*EbX
                                 + tau0*EbPX
                         );
@@ -200,11 +201,11 @@ namespace ghz::source {
                         - two*rho_ghp*rhob_ghp*(rhob_ghp-rho_ghp)*tau0*taub0
                         - four*rho_ghp*rhob_ghp*rhoP0*(ghp::GHPScalar<Complex>(1.0, 0, 0) + rho_ghp*Om0);
 
-                const auto C = half*bracket*PX - two*rho_ghp*PX; // here need to fix with  PH'
+                const auto C = half*bracket*PX - two*rho_ghp*PpX;
                 // --- Block D: remaining purely multiplicative terms times X (no derivatives)
                 const auto D =
                         (rho_ghp*rho_ghp) * psi0 * (two*rho_ghp-rhob_ghp)
-                        + two * (rhob_ghp*rhob_ghp) * ( rhoP0-rho_ghp * (two*rho_ghp-rho_ghp) * tau0*taub0 )
+                        + two * (rhob_ghp*rhob_ghp) * ( rhoP0-rho_ghp * (two*rho_ghp-rhob_ghp) * tau0*taub0 )
                         - rho_ghp*rhob_ghp * (rho_ghp-three*rhob_ghp) * rhoP0*Om0;
 
                 const auto UXmmb = (A+B+C+D);
