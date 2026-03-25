@@ -1,3 +1,6 @@
+//
+// Created by Peter Zimmerman on 17.03.26.
+//
 #ifndef GHZ_SOURCE_BINARY_EFFECTIVE_SOURCE_ARCHIVE_HPP
 #define GHZ_SOURCE_BINARY_EFFECTIVE_SOURCE_ARCHIVE_HPP
 #pragma once

@@ -1,3 +1,6 @@
+//
+// Created by Peter Zimmerman on 17.03.26.
+//
 #ifndef GHZ_SOURCE_CONDITIONSOURCE_HPP
 #define GHZ_SOURCE_CONDITIONSOURCE_HPP
 #pragma once
