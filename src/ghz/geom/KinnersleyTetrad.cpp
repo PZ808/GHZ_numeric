@@ -317,9 +317,12 @@ Tetrad::Scalars KinnersleyTetrad<OutgoingCoords>::get_scalars_at(
     sc_local.set(SpinCoeffType::mu, rhobar*sqr(rho)*del/2.0_r);
     sc_local.set(SpinCoeffType::tau, -I*a*s1/(math::Sqrt(2.0_r)*sig));
     sc_local.set(SpinCoeffType::pi, I*a*s1*sqr(rho)/math::Sqrt(2.0_r));
-    sc_local.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu)+ rho*rhobar*(r-M)/2.0_r);
+    sc_local.set(SpinCoeffType::gamma, sc_local.get(SpinCoeffType::mu)+ rho*rhobar*(r-M)/2.0_r);
     sc_local.set(SpinCoeffType::beta, -rhobar*z/(two*s1*math::Sqrt(two)) );
-    sc_local.set(SpinCoeffType::alpha, sc.get(SpinCoeffType::beta) + sc.get(SpinCoeffType::pi));
+    //sc_local.set(SpinCoeffType::alpha, sc_local.get(SpinCoeffType::beta) + sc.get(SpinCoeffType::pi));
+    sc_local.set(SpinCoeffType::alpha,
+                 sc_local.get(SpinCoeffType::pi)
+                 - std::conj(sc_local.get(SpinCoeffType::beta)));
 
     sc_local.set(SpinCoeffType::kappa, teuk::zeroC);
     sc_local.set(SpinCoeffType::sigma, teuk::zeroC);
