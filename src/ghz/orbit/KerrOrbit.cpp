@@ -113,37 +113,70 @@ void orbit::KerrBoundOrbit::compute_torus_frequencies() {
     const Real four = teuk::two*teuk::two;
 
 
-    Real kr = (ra_-rp_)/(ra_-r3_)*(r3_-r4_)/(rp_-r4_);
-    Real kz = sqr(zmax_/z1_);
+    Real kr = Sqrt((ra_-rp_)/(ra_-r3_)*(r3_-r4_)/(rp_-r4_));
+    Real kz = Real(0);
+
     Real M = gKerr.M();
     Real a = gKerr.a();
     Real rplus = gKerr.r_plus();
     Real rminus = gKerr.r_minus();
 
+
+    // kz==a^2 (1-En^2)(zm/zp)^2 = ktheta^2 in the notation of https://arxiv.org/pdf/1301.3918 where z1[here] = zp
+    if (!is_equatorial_) {
+        // stable z1^2 and kz
+        kz = (zmax_) / z1_;
+        kz = std::clamp(kz, Real(0), Real(1));
+    }
+    else
+        kz = Real(0);
+
     std::cout << "ra = " << ra_ << ", rp = " << rp_ << ", r3 = " << r3_ << ", r4 = " << r4_ << std::endl;
-    std::cout << "kr = " << kr << ", kz = " << kz << std::endl;
+    std::cout << "E = " << E_ << ", Lz = " << Lz_ << ", Q = " << Q_ << std::endl;
 
+    if (!is_equatorial_) {
+        mino_torus_freqs.Ups_t = E_ / two * (
+                r3_ * (ra_ + rp_ + r3_) - ra_ * rp_ + (ra_ + rp_ + r3_ + r4_) * Fr_(kr) +
+                (ra_ - r3_) * (rp_ - r4_) * G_(kr)
+        )
+                                 + two * M / (rplus - rminus) * (
+                ((four * M * M * E_ - a * Lz_) * rplus - two * M * a * a * E_) / (r3_ - rplus) * (
+                        one - F_pm_(rplus, kr) / (rp_ - rplus))
+                - ((four * M * M * E_ - a * Lz_) * rminus - two * M * a * a * E_) / (r3_ - rminus) * (
+                        one - F_pm_(rminus, kr) / (rp_ - rminus))
+        )
+                                 + four * M * M * E_
+                                 + E_ * Q_ * (one - G_(kz)) / (gamma_ * zmax_ * zmax_)
+                                 + two * M * E_ * (r3_ + Fr_(kr));
+    }
+    else {
+        mino_torus_freqs.Ups_t = E_ / two * (
+                r3_ * (ra_ + rp_ + r3_) - ra_ * rp_ + (ra_ + rp_ + r3_ + r4_) * Fr_(kr) +
+                (ra_ - r3_) * (rp_ - r4_) * G_(kr)
+        )
+                                 + two * M / (rplus - rminus) * (
+                ((four * M * M * E_ - a * Lz_) * rplus - two * M * a * a * E_) / (r3_ - rplus) * (
+                        one - F_pm_(rplus, kr) / (rp_ - rplus))
+                - ((four * M * M * E_ - a * Lz_) * rminus - two * M * a * a * E_) / (r3_ - rminus) * (
+                        one - F_pm_(rminus, kr) / (rp_ - rminus))
+        )
+                                 + four * M * M * E_
+                                 + two * M * E_ * (r3_ + Fr_(kr));
+    }
 
-    mino_torus_freqs.Ups_r = Real(M_PI)*sqrt(gamma_*(ra_-r3_)*(rp_-r4_)) /
+    mino_torus_freqs.Ups_r = Real(M_PI)*sqrt( gamma_*(ra_-r3_)*(rp_-r4_) ) /
                  ( two*EllipticIntegrals::computeFirstKind(kr));
-    mino_torus_freqs.Ups_z = Real(M_PI)*z1_*sqrt(sqr(gKerr.a()*gamma_)) /
+
+    mino_torus_freqs.Ups_z = Real(M_PI)*z1_*sqrt(sqr(gKerr.a())*gamma_) /
                  (two*EllipticIntegrals::computeFirstKind(kz));
 
-    mino_torus_freqs.Ups_t = E_ /two * (
-            r3_*(ra_+rp_+r3_)-ra_*rp_+(ra_+rp_+r3_+r4_)* Fr_(kr)+(ra_-r3_)*(rp_-r4_)* G_(kr) )
-                 + two*M/(rplus-rminus) * (
-            ((four*M*M*E_-a*Lz_)*rplus - two*M*a*a*E_)/(r3_-rplus)*(
-                   one - F_pm_(rplus,kr)/(rp_-rplus))
-            - ((four*M*M*E_-a*Lz_)*rminus - two*M*a*a*E_)/(r3_-rminus)*(
-                one- F_pm_(rminus,kr)/(rp_-rminus))
-    )
-                 + four*M*M*E_
-                 + E_*Q_*(one-G_(kz))/(gamma_*zmax_*zmax_)
-                 + two*M*E_*(r3_- Fr_(kr));
-    mino_torus_freqs.Ups_phi = a/(rplus-rminus) * (
-            (two*M*E_*rplus-a*Lz_)/(r3_-rplus)*(one- F_pm_(rplus,kr)/(rp_-rplus))
-            -(two*M*E_*rminus-a*Lz_)/(r3_-rminus)*(one- F_pm_(rminus,kr)/(rp_-rminus))
-    ) + Lz_*EllipticIntegrals::computeThirdKind(zmax_*zmax_,kz)/EllipticIntegrals::computeFirstKind(kz);
+     mino_torus_freqs.Ups_phi = a/(rplus-rminus) * (
+            (2.0*M*E_*rplus - a*Lz_)/(r3_-rplus)*(one- F_pm_(rplus,kr)/(rp_-rplus))
+            -(2.0*M*E_*rminus - a*Lz_)/(r3_-rminus)*(one- F_pm_(rminus,kr)/(rp_-rminus))
+   ) + Lz_*EllipticIntegrals::computeThirdKind(zmax_*zmax_,kz)/EllipticIntegrals::computeFirstKind(kz);
+
+
+
 
     // set the torus frequencies with the Mino time frequencies
     torus_freqs_.Ups_t = mino_torus_freqs.Ups_t;
@@ -157,7 +190,19 @@ void orbit::KerrBoundOrbit::compute_torus_frequencies() {
     torus_freqs_.Omega_z = mino_torus_freqs.Ups_z/mino_torus_freqs.Ups_t;
     torus_freqs_.Omega_phi = mino_torus_freqs.Ups_phi/mino_torus_freqs.Ups_t;
 
+    // print out roots for debugging
+    std::cout << "KerrBoundOrbit initialized with frequencies: \n"
+              << " Ups_t = " << torus_freqs_.Ups_t  << ", Ups_r = " <<  torus_freqs_.Ups_r
+              << ", Ups_z = " << torus_freqs_.Ups_z  << ", Ups_phi = " << torus_freqs_.Ups_phi << "\n";
+
+    // print out roots for debugging
+    std::cout << "KerrBoundOrbit initialized with frequencies: \n"
+              << " Omega_t = " << torus_freqs_.Omega_t  << ", Omega_r = " <<  torus_freqs_.Omega_r
+            << ", Omega_z = " << torus_freqs_.Omega_z  << ", Omega_phi = " << torus_freqs_.Omega_phi << "\n";
+
 } // compute_torus_frequencies
+
+
 /**
  * get_T_r() returns T_r(r) (209) of Pound and Wardell
  * https://arxiv.org/pdf/2101.04592
@@ -210,7 +255,7 @@ void orbit::KerrBoundOrbit::compute_frequencies() {
     Real p3 = r3_*(one-e_)/M_;
     Real p4 = r4_*(one+e_)/M_;
     freqs_.f_t = get_T_r() + get_T_z() + a_*Lz_;  // Mino f_t = dt/d\lambda = Sigma dt/d\tau
-    freqs_.f_phi = get_Phi_r() + get_Phi_z() - a_*Lz_;  // Mino f_phi = dphi/d\lambda = Sigma dphi/d\tau
+    freqs_.f_phi = get_Phi_r() + get_Phi_z() - a_*E_;  // Mino f_phi = dphi/d\lambda = Sigma dphi/d\tau
 
     Real term1 = p_ - p3 - e_*(p_+p3*cos(phases_.psi_r));
     Real term2 = p_ - p4 + e_*(p_-p4*cos(phases_.psi_r));
@@ -575,4 +620,88 @@ void orbit::KerrBoundOrbit::free_fft() {
     fft_plan_r_ = nullptr; fft_in_r_ = nullptr;
     fft_out_r_ = nullptr; fft_plan_z_ = nullptr;
     fft_in_z_ = nullptr; fft_out_z_ = nullptr;
+}
+
+void orbit::KerrBoundOrbit::export_equatorial_fft_data(const std::string& filename) const
+{
+    std::ofstream out(filename);
+    if (!out) {
+        throw std::runtime_error("Cannot open file for writing FFT data.");
+    }
+
+    out << std::setprecision(std::numeric_limits<Real>::max_digits10);
+    out << "q_r,DeltaPsi_r,psi_r,DeltaT_r,DeltaPhi_r,R,sgn_r,Kuu\n";
+
+    const Real dpsi0  = Delta_psi_r_.empty()  ? Real(0) : Delta_psi_r_.front();
+    const Real dt0    = Delta_t_r_.empty()    ? Real(0) : Delta_t_r_.front();
+    const Real dphi0  = Delta_phi_r_.empty()  ? Real(0) : Delta_phi_r_.front();
+
+    for (size_t i = 0; i < Nr_; ++i) {
+        // uniform radial torus angle q_r in [0,2π)
+        const Real q_r = qr_vals[i];   // <-- replace if your member has a different name
+
+        // oscillatory pieces normalized so they vanish at q_r = 0
+        const Real DeltaPsi_r = Delta_psi_r_[i] - dpsi0;
+        const Real DeltaT_r   = Delta_t_r_[i]   - dt0;
+        const Real DeltaPhi_r = Delta_phi_r_[i] - dphi0;
+
+        // instantaneous radial phase
+        const Real psi_r = q_r + DeltaPsi_r;
+
+        // equatorial radius
+        const Real R = p_ * M_ / (Real(1) + e_ * std::cos(psi_r));
+
+        // sign(dot r) = sign(sin psi_r) away from turning points
+        int sgn_r = 0;
+        const Real s = std::sin(psi_r);
+        if (s > Real(0)) sgn_r = 1;
+        else if (s < Real(0)) sgn_r = -1;
+
+        // exact equatorial Kerr ingredients
+        const Real Delta = gKerr.Delta(R);
+        const Real P = E_ * (R*R + a_*a_) - a_ * Lz_;
+
+        const Real T = a_ * (Lz_ - a_ * E_) + (R*R + a_*a_) * P / Delta;
+        const Real Phi = (Lz_ - a_ * E_) + a_ * P / Delta;
+
+        const Real ut   = T   / (R*R);
+        const Real uphi = Phi / (R*R);
+
+        const Real sqrtDelta = std::sqrt(Delta);
+        const Real Ktt     = -M_ * sqrtDelta / (R*R*R);
+        const Real Ktphi   =  M_ * a_ * sqrtDelta / (R*R*R);
+        const Real Kphiphi =  sqrtDelta / R * (R - M_ * a_ * a_ / (R*R));
+
+        const Real Kuu = Ktt * ut * ut + Real(2) * Ktphi * ut * uphi + Kphiphi * uphi * uphi;
+
+        out << q_r << ","
+            << DeltaPsi_r << ","
+            << psi_r << ","
+            << DeltaT_r << ","
+            << DeltaPhi_r << ","
+            << R << ","
+            << sgn_r << ","
+            << Kuu << "\n";
+    }
+}
+
+void orbit::KerrBoundOrbit::export_equatorial_fft_metadata(const std::string& filename) const
+{
+    std::ofstream out(filename);
+    if (!out) {
+        throw std::runtime_error("Cannot open file for writing metadata.");
+    }
+
+    out << std::setprecision(std::numeric_limits<Real>::max_digits10);
+    out << "M " << M_ << "\n";
+    out << "a " << a_ << "\n";
+    out << "p " << p_ << "\n";
+    out << "e " << e_ << "\n";
+    out << "E " << E_ << "\n";
+    out << "Lz " << Lz_ << "\n";
+    out << "Upsilon_t " << torus_freqs_.Ups_t << "\n";
+    out << "Upsilon_r " << torus_freqs_.Ups_r << "\n";
+    out << "Upsilon_phi " << torus_freqs_.Ups_phi << "\n";
+    out << "Omega_r " << torus_freqs_.Omega_r << "\n";
+    out << "Omega_phi " << torus_freqs_.Omega_phi << "\n";
 }

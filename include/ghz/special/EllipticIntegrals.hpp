@@ -30,8 +30,9 @@ public:
     }
 
     // Function to compute the complete elliptic integral of the third kind Pi(n, k)
+    // ellint_3(k, n, phi = NULL) = \int d\theta \frac{1}{(1-n\sin^2\theta)\sqrt{1-k^2\sin^2\theta}} note the order of arguments in boost
     static Real computeThirdKind(const Real& n, const Real& k) {
-        return boost::math::ellint_3(n, k);
+        return boost::math::ellint_3(k, n);
     }
 };
 

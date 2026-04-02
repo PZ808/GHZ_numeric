@@ -112,6 +112,7 @@ namespace orbit {
         Real z1_, z2_;       // unphysical roots z2 =  zmax
         signed int  chi_;   //  prograde or retrograde
         size_t Nz_, Nr_;
+        bool is_equatorial_;
 
         std::vector<Frequencies> f_samples_;
         std::vector<Phases> psi_samples_;
@@ -145,17 +146,17 @@ namespace orbit {
         inline const Real r4() const { return beta_/r3(); }
 
         inline const Real d_(Real r) const {
-            return (gKerr.Delta(r)*(r*r + gKerr.a()*gKerr.a()*zmax_)) /
-                   (gKerr.M()*gKerr.M()* gKerr.M()*gKerr.M());
+            return (gKerr.Delta(r)*(r*r + gKerr.a()*gKerr.a()*zmax_*zmax_)) /
+                   (gKerr.M()*gKerr.M()*gKerr.M()*gKerr.M());
         }
         inline const Real f_(Real r) const {
-            return ( r*r*r*r + gKerr.a()*gKerr.a() * (r*(r+Real(2.0)) + zmax_*zmax_*gKerr.Delta(r)) ) /
+            return ( r*r*r*r + gKerr.a()*gKerr.a() * (r*(r+Real(2.0)*gKerr.M()) + zmax_*zmax_*gKerr.Delta(r)) ) /
                    (gKerr.M()*gKerr.M()* gKerr.M()*gKerr.M());
         }
         inline const Real g_(Real r) const { return (Real(2.0)*gKerr.a()*r) / (gKerr.M()*gKerr.M());
         }
         inline const Real h_(Real r) const {
-            return ( r*(r-Real(2.0)*gKerr.M()) + zmax_*zmax_*gKerr.Delta(r)/(1-zmax_*zmax_) ) /
+            return ( r*(r-Real(2.0)*gKerr.M()) + zmax_*zmax_*gKerr.Delta(r)/(Real(1)-zmax_*zmax_) ) /
                    (gKerr.M()*gKerr.M()) ;
         }
         // helper functions appearing the mino frequencies \Upsilon_\mu
@@ -163,12 +164,12 @@ namespace orbit {
             return EllipticIntegrals::computeSecondKind(ka)/EllipticIntegrals::computeFirstKind(ka);
         }
         inline const Real F_pm_(const Real & r_plus_or_minus, const Real& kr) const {
-            Real h = (ra_-rp_)*(r3_-r_plus_or_minus)/((ra_-r3_)*(rp_-r_plus_or_minus));
+            Real h =  (ra_-rp_)*(r3_-r_plus_or_minus)/((ra_-r3_)*(rp_-r_plus_or_minus));
             return (rp_-r3_)*EllipticIntegrals::computeThirdKind(h,kr)
                    /EllipticIntegrals::computeFirstKind(kr);
         }
         inline const Real Fr_(const Real& kr) const {
-            Real h =(ra_-rp_)/(ra_-r3_);
+            Real h = (ra_-rp_)/(ra_-r3_);
             return (rp_-r3_)*EllipticIntegrals::computeThirdKind(h,kr)
                    /EllipticIntegrals::computeFirstKind(kr);
         }
@@ -250,25 +251,44 @@ namespace orbit {
             assert((Nr_ % 2 == 1) && "Odd Nr is preferred to avoid Nyquist ambiguity.");
             assert((Nz_ % 2 == 1) && "Odd Nz is preferred to avoid Nyquist ambiguity.");
 
+            is_equatorial_ = (std::abs(inc_) < std::numeric_limits<Real>::epsilon());
             // physical roots and turning points
             // compute turning points in Keplerian parametrization
             zmax_  = abs(sin(inc_));
             zmin_ = -zmax_;
             z2_ =  zmax_; //  polar turning point
-            rp_ = p_ * M_ / (Real(1.0) + e_);  // periapsis radial turning point
-            ra_  = p_ * M_/ (Real(1.0) - e_); // apoapsis radial turning point
+            rp_ = p_ * gKerr.M() / (Real(1.0) + e_);  // periapsis radial turning point
+            ra_  = p_ * gKerr.M()/ (Real(1.0) - e_); // apoapsis radial turning point
 
             // set constants of motion
             set_constants_of_motion(); // computes E_, Lz_, Q_, alpha_, beta_, gamma_;
             // roots (unphysical, but needed for freq computations)
-            z1_ = sqrt(Q_/(a_*a_*gamma_*zmax_*zmax_));
+
+            Real z1sq, z1, kz;
+
+            if (is_equatorial_ || std::abs(Q_) < std::numeric_limits<Real>::epsilon()) {
+                // exact equatorial limit
+                z1sq = 1.0L + (Lz_*Lz_) / (a_*a_ * gamma_);
+                z1_  = std::sqrt(z1sq);
+               // kz   = 0.0L;
+            } else {
+                z1sq = Q_ / (a_*a_ * gamma_ * zmax_ * zmax_);
+                z1_   = std::sqrt(z1sq);
+               // kz   = (zmax_ * zmax_) / z1sq;
+            }
 
             r3_ = r3();
             r4_ = r4();
-            assert(r4_ < r3_ && r3_ < rp_ && rp_ < ra_ &&
-                   "Error: Root ordering violation!");
-            assert(z2_ < z1_ &&
-                   "Error: Polar root ordering violation!");
+
+            if (e_ > 0.0L) {
+                assert(r4_ < r3_ && r3_ < rp_ && rp_ < ra_ &&
+                       "Error: Root ordering violation!");
+            }
+
+            if (inc_ > 0.0L && inc_ < M_PI) {
+                assert(z2_ < z1_ &&
+                       "Error: Polar root ordering violation!");
+            }
 
             // print out roots for debugging
             std::cout << "KerrBoundOrbit initialized with roots: \n"
@@ -361,6 +381,10 @@ namespace orbit {
 
         void export_trajectory_stream(const std::string& filename, const Real& lambda_max,
                                       const Real& dlambda, size_t output_stride = 1);
+
+        void export_equatorial_fft_data(const std::string &filename) const;
+
+        void export_equatorial_fft_metadata(const std::string& filename) const;
 
     };  //  class KerrBoundOrbit
 
