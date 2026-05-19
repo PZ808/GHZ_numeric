@@ -1,0 +1,8 @@
+//
+// Created by Peter Zimmerman on 24.04.26.
+//
+
+#ifndef FFT_DATA_CSV_COMPLEXRATIONAL_HPP
+#define FFT_DATA_CSV_COMPLEXRATIONAL_HPP
+
+#endif //FFT_DATA_CSV_COMPLEXRATIONAL_HPP
