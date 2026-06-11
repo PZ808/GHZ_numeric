@@ -283,8 +283,8 @@ namespace teuk::eigenTypes {
     using VectorR = Eigen::Matrix<double, Eigen::Dynamic, 1>;
     // Dynamic column vector with Complex entries
     using VectorC = Eigen::Matrix<Complex, Eigen::Dynamic, 1>;
-}
-// namespace teuk::eigenTypes
+
+} // namespace teuk::eigenTypes
 
 
 #endif // GHZ_NUMERIC_GHZTYPES_HPP
