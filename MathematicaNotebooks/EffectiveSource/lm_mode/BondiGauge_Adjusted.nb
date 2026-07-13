@@ -1,0 +1,427 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     14260,        419]
+NotebookOptionsPosition[     13506,        399]
+NotebookOutlinePosition[     13895,        415]
+CellTagsIndexPosition[     13852,        412]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"data", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"FileNameJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+        "\"\<RadialModeCache_sPlus2\>\"", ",", 
+        "\"\<psi0LargeRdata_lmax40_rOutbd1212.wxf\>\""}], "}"}], "]"}], ",", 
+     RowBox[{"{", "\"\<wxf\>\"", "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.992938546365881*^9, 3.992938618817193*^9}, 
+   3.992942521121195*^9, {3.9929429258541737`*^9, 3.992942933764431*^9}},
+ CellLabel->"In[26]:=",ExpressionUUID->"c8b44208-4fa6-4de5-b3d4-2c60ac595a6e"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   SubscriptBox["\[CapitalOmega]", "p"], "=", 
+   SqrtBox[
+    FractionBox["M", 
+     SuperscriptBox[
+      SubscriptBox["r", "0"], "3"]]]}], ";"}]], "Input",
+ CellChangeTimes->{{3.9929398992900457`*^9, 3.992939931243293*^9}, 
+   3.992940335163994*^9},
+ CellLabel->"In[27]:=",ExpressionUUID->"e45a4336-a54c-466a-976d-f6d0b34cf720"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[Psi]05H", "[", 
+     RowBox[{"\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{
+     RowBox[{"Lookup", "[", 
+      RowBox[{
+       RowBox[{"\[Psi]0data", "[", "\"\<LeadingCoefficients\>\"", "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"{", 
+         RowBox[{"l", ",", "m"}], "}"}], "}"}], ",", 
+       RowBox[{"Missing", "[", "\"\<Not Computed\>\"", "]"}]}], "]"}], "[", 
+     RowBox[{"[", "1", "]"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"fH", "[", 
+     RowBox[{"\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{
+     FractionBox[
+      RowBox[{"2", "\[ImaginaryI]", "*", 
+       SuperscriptBox["m", "3"], "*", 
+       SuperscriptBox[
+        SubscriptBox["\[CapitalOmega]", "p"], "3"]}], 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "16"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "2"}], ")"}], "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "1"}], ")"}], "2"], 
+        SuperscriptBox["l", "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "-", "1"}], ")"}], "2"]}], "+", 
+       RowBox[{"9", 
+        SuperscriptBox["M", "2"], 
+        SuperscriptBox["m", "2"], 
+        SuperscriptBox[
+         SubscriptBox["\[CapitalOmega]", "p"], "2"]}]}]], 
+     RowBox[{
+      RowBox[{"Lookup", "[", 
+       RowBox[{
+        RowBox[{"\[Psi]0data", "[", "\"\<LeadingCoefficients\>\"", "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"{", 
+          RowBox[{"l", ",", "m"}], "}"}], "}"}], ",", 
+        RowBox[{"Missing", "[", "\"\<Not Computed\>\"", "]"}]}], "]"}], "[", 
+      RowBox[{"[", "1", "]"}], "]"}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[CapitalPhi]0H", "[", 
+     RowBox[{"\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{
+     FractionBox[
+      RowBox[{
+       RowBox[{"-", 
+        FractionBox["1", "3"]}], "\[ImaginaryI]", "*", "m", "*", 
+       SubscriptBox["\[CapitalOmega]", "p"], 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{"-", "1"}], ")"}], "m"]}], 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "16"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "2"}], ")"}], "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "1"}], ")"}], "2"], 
+        SuperscriptBox["l", "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "-", "1"}], ")"}], "2"]}], "+", 
+       RowBox[{"9", 
+        SuperscriptBox["M", "2"], 
+        SuperscriptBox["m", "2"], 
+        SuperscriptBox[
+         SubscriptBox["\[CapitalOmega]", "p"], "2"]}]}]], 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "8"], 
+        RowBox[{"(", 
+         RowBox[{"l", "+", "2"}], ")"}], 
+        RowBox[{"(", 
+         RowBox[{"l", "+", "1"}], ")"}], 
+        SuperscriptBox["l", "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "-", "1"}], ")"}], "2"]}], "-", 
+       RowBox[{"3", "\[ImaginaryI]", "*", "M", "*", "m", "*", 
+        SubscriptBox["\[CapitalOmega]", "p"], 
+        RowBox[{"(", 
+         RowBox[{"1", "+", 
+          RowBox[{
+           FractionBox["1", "2"], 
+           SqrtBox[
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"l", "+", "2"}], ")"}], 
+             RowBox[{"(", 
+              RowBox[{"l", "+", "1"}], ")"}], "l", 
+             RowBox[{"(", 
+              RowBox[{"l", "-", "1"}], ")"}]}]]}]}], ")"}]}]}], ")"}], 
+     RowBox[{"Conjugate", "@", 
+      RowBox[{
+       RowBox[{"Lookup", "[", 
+        RowBox[{
+         RowBox[{"\[Psi]0data", "[", "\"\<LeadingCoefficients\>\"", "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"{", 
+           RowBox[{"l", ",", 
+            RowBox[{"-", "m"}]}], "}"}], "}"}], ",", 
+         RowBox[{"Missing", "[", "\"\<Not Computed\>\"", "]"}]}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}]}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[CapitalPhi]1H", "[", 
+     RowBox[{"\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{
+     FractionBox[
+      RowBox[{
+       SuperscriptBox["m", "2"], "*", 
+       SuperscriptBox[
+        SubscriptBox["\[CapitalOmega]", "p"], "2"], 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{"-", "1"}], ")"}], "m"]}], 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "16"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "2"}], ")"}], "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "1"}], ")"}], "2"], 
+        SuperscriptBox["l", "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "-", "1"}], ")"}], "2"]}], "+", 
+       RowBox[{"9", 
+        SuperscriptBox["M", "2"], 
+        SuperscriptBox["m", "2"], 
+        SuperscriptBox[
+         SubscriptBox["\[CapitalOmega]", "p"], "2"]}]}]], 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "4"], 
+        RowBox[{"(", 
+         RowBox[{"l", "+", "2"}], ")"}], 
+        RowBox[{"(", 
+         RowBox[{"l", "+", "1"}], ")"}], "l", 
+        RowBox[{"(", 
+         RowBox[{"l", "-", "1"}], ")"}]}], "-", 
+       RowBox[{"3", "\[ImaginaryI]", "*", "M", "*", "m", "*", 
+        SubscriptBox["\[CapitalOmega]", "p"]}]}], ")"}], 
+     RowBox[{"Conjugate", "@", 
+      RowBox[{
+       RowBox[{"Lookup", "[", 
+        RowBox[{
+         RowBox[{"\[Psi]0data", "[", "\"\<LeadingCoefficients\>\"", "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"{", 
+           RowBox[{"l", ",", 
+            RowBox[{"-", "m"}]}], "}"}], "}"}], ",", 
+         RowBox[{"Missing", "[", "\"\<Not Computed\>\"", "]"}]}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}]}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[CapitalPhi]2H", "[", 
+     RowBox[{"\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{
+     FractionBox[
+      RowBox[{"\[ImaginaryI]", "*", 
+       SuperscriptBox["m", "3"], "*", 
+       SuperscriptBox[
+        SubscriptBox["\[CapitalOmega]", "p"], "3"], 
+       RowBox[{"(", 
+        RowBox[{"l", "+", "2"}], ")"}], 
+       RowBox[{"(", 
+        RowBox[{"l", "-", "1"}], ")"}], 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{"-", "1"}], ")"}], "m"]}], 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "16"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "2"}], ")"}], "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "1"}], ")"}], "2"], 
+        SuperscriptBox["l", "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "-", "1"}], ")"}], "2"]}], "+", 
+       RowBox[{"9", 
+        SuperscriptBox["M", "2"], 
+        SuperscriptBox["m", "2"], 
+        SuperscriptBox[
+         SubscriptBox["\[CapitalOmega]", "p"], "2"]}]}]], 
+     RowBox[{"Conjugate", "@", 
+      RowBox[{
+       RowBox[{"Lookup", "[", 
+        RowBox[{
+         RowBox[{"\[Psi]0data", "[", "\"\<LeadingCoefficients\>\"", "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"{", 
+           RowBox[{"l", ",", 
+            RowBox[{"-", "m"}]}], "}"}], "}"}], ",", 
+         RowBox[{"Missing", "[", "\"\<Not Computed\>\"", "]"}]}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}]}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[CapitalPhi]3H", "[", 
+     RowBox[{"\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer"}], 
+     "]"}], ":=", 
+    RowBox[{
+     FractionBox[
+      RowBox[{
+       RowBox[{"-", "2"}], 
+       SuperscriptBox["m", "4"], "*", 
+       SuperscriptBox[
+        SubscriptBox["\[CapitalOmega]", "p"], "4"], 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{"-", "1"}], ")"}], "m"]}], 
+      RowBox[{
+       RowBox[{
+        FractionBox["1", "16"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "2"}], ")"}], "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "+", "1"}], ")"}], "2"], 
+        SuperscriptBox["l", "2"], 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"l", "-", "1"}], ")"}], "2"]}], "+", 
+       RowBox[{"9", 
+        SuperscriptBox["M", "2"], 
+        SuperscriptBox["m", "2"], 
+        SuperscriptBox[
+         SubscriptBox["\[CapitalOmega]", "p"], "2"]}]}]], 
+     RowBox[{"Conjugate", "@", 
+      RowBox[{
+       RowBox[{"Lookup", "[", 
+        RowBox[{
+         RowBox[{"\[Psi]0data", "[", "\"\<LeadingCoefficients\>\"", "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"{", 
+           RowBox[{"l", ",", 
+            RowBox[{"-", "m"}]}], "}"}], "}"}], ",", 
+         RowBox[{"Missing", "[", "\"\<Not Computed\>\"", "]"}]}], "]"}], "[", 
+       RowBox[{"[", "1", "]"}], "]"}]}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[CapitalPhi]Adjustment", "[", 
+    RowBox[{
+    "\[Psi]0data_Association", ",", "l_Integer", ",", "m_Integer", ",", 
+     "r_Real"}], "]"}], ":=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{
+     RowBox[{"\[CapitalPhi]0H", "[", 
+      RowBox[{"data", ",", "l", ",", "m"}], "]"}], "-", 
+     RowBox[{
+      RowBox[{"\[CapitalPhi]1H", "[", 
+       RowBox[{"data", ",", "l", ",", "m"}], "]"}], "r"}], "+", 
+     RowBox[{
+      RowBox[{"\[CapitalPhi]2H", "[", 
+       RowBox[{"data", ",", "l", ",", "m"}], "]"}], 
+      SuperscriptBox["r", "2"]}], "-", 
+     RowBox[{
+      RowBox[{"\[CapitalPhi]3H", "[", 
+       RowBox[{"data", ",", "l", ",", "m"}], "]"}], 
+      SuperscriptBox["r", "3"]}]}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->CompressedData["
+1:eJxTTMoPSmViYGAQAWIQvWH33m1v97917GP8tBtE6x3adxZEW53Yew1Et++2
+ugOi9+UYPwPzE96wvAPSM5REeED0E8YPAiB6ebOXEoi+09KmBaIvRJ7QBtGr
+3tsbg+gDkwIsQPSOuhmBINrgVEoEiP5kUx4LolXWnYoD0SfOuSaD6LUbudJB
+9CvukhwQLXf+UC6IlkiZWwgW/76rCEQ3TDpaBqLnZAvUgNXNcGsC0X6uym0g
++gvj+x6wO28E9oH1BTNPB9Fbot1WgGi1hPR/IDpi1wYwvWJXVMd7IM1bMAVM
+K8S294Lo/Zo+fSA6JSf11gcgfWli0x0QDQBsXMWI
+  "],ExpressionUUID->"84b14f0a-5d1e-4fee-b720-7e8ac0c0ae29"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Simplify", "[", 
+  RowBox[{
+   RowBox[{"\[CapitalPhi]Adjustment", "[", 
+    RowBox[{"data", ",", "2", ",", "2", ",", 
+     RowBox[{"10", "M"}]}], "]"}], "//.", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["r", "0"], "\[RuleDelayed]", 
+      RowBox[{"5", "M"}]}], ",", 
+     RowBox[{"M", "\[RuleDelayed]", "2"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.992940909709695*^9, 3.9929409157855735`*^9}, {
+  3.9929410478159647`*^9, 3.9929410512050486`*^9}, {3.992941307403982*^9, 
+  3.9929413083869925`*^9}, {3.992941709078418*^9, 3.992941709242669*^9}, {
+  3.992943703510993*^9, 3.992943714399263*^9}, {3.9929437793682747`*^9, 
+  3.992943928380601*^9}},
+ CellLabel->"In[57]:=",ExpressionUUID->"099248e3-aa73-4d04-9746-7b303a65c50a"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "-", "7.6197533361278703705115236247752039430824148318470981936364`46.\
+741395508620066"}], "-", 
+  RowBox[{
+  "24.0899122324524832287290649931441558149633719838350827739689`47.\
+32560360027761", " ", "\[ImaginaryI]"}]}]], "Output",
+ CellChangeTimes->{
+  3.9929419723055487`*^9, 3.992942550764052*^9, 3.9929432240868483`*^9, 
+   3.992943629815462*^9, {3.992943690464735*^9, 3.992943735055984*^9}, {
+   3.992943796953609*^9, 3.992943810132762*^9}, 3.9929438734815598`*^9, 
+   3.992943931839954*^9},
+ CellLabel->"Out[57]=",ExpressionUUID->"05f361e4-dc70-47a3-a902-bd35957766fa"]
+}, Open  ]]
+},
+WindowSize->{1920, 923},
+WindowMargins->{{0, Automatic}, {0, Automatic}},
+FrontEndVersion->"12.1 for Linux x86 (64-bit) (June 19, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"8c8e5741-ebee-453b-8f07-a33fcc873cde"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 626, 14, 30, "Input",ExpressionUUID->"c8b44208-4fa6-4de5-b3d4-2c60ac595a6e"],
+Cell[1187, 36, 366, 10, 61, "Input",ExpressionUUID->"e45a4336-a54c-466a-976d-f6d0b34cf720"],
+Cell[1556, 48, 10514, 312, 493, "Input",ExpressionUUID->"84b14f0a-5d1e-4fee-b720-7e8ac0c0ae29"],
+Cell[CellGroupData[{
+Cell[12095, 364, 779, 17, 30, "Input",ExpressionUUID->"099248e3-aa73-4d04-9746-7b303a65c50a"],
+Cell[12877, 383, 613, 13, 34, "Output",ExpressionUUID->"05f361e4-dc70-47a3-a902-bd35957766fa"]
+}, Open  ]]
+}
+]
+*)
+
