@@ -1,2 +1,4 @@
 mMode_Teff_ab_NP_comoving_windowed/*.mx filter=lfs diff=lfs merge=lfs -text
 MathematicaNotebooks/EffectiveSource/lm_mode/Teuk_hS1_lm_Projection_mixedCMBLcoords_trimmed.nb filter=lfs diff=lfs merge=lfs -text
+RadialModeCache_sMinus2/* filter=lfs diff=lfs merge=lfs -text
+RadialModeCache_sPlus2/* filter=lfs diff=lfs merge=lfs -text
