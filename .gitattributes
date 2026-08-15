@@ -11,11 +11,12 @@ Data/** linguist-vendored
 *nb.zip linguist-vendored
 *.np linguist-vendored
 *.mx linguist-vendored
-Data/hS_puncture/PDs.mx filter=lfs diff=lfs merge=lfs -text
-Data/hS_puncture/hS1Pdata.mx filter=lfs diff=lfs merge=lfs -text
-Data/hS_puncture/hS1TetradRules.mx filter=lfs diff=lfs merge=lfs -text
-Data/hS_puncture/hS1data.mx filter=lfs diff=lfs merge=lfs -text
-Data/hS_puncture/PDSModes.mx filter=lfs diff=lfs merge=lfs -text
+MathematicaNotebooks/Data/mMode_hS_puncture/hS1data.mx filter=lfs diff=lfs merge=lfs -text
+MathematicaNotebooks/Data/mMode_hS_puncture/hS1Pdata.mx filter=lfs diff=lfs merge=lfs -text
+MathematicaNotebooks/Data/mMode_hS_puncture/hS1TetradRules.mx filter=lfs diff=lfs merge=lfs -text
+MathematicaNotebooks/Data/mMode_hS_puncture/PDSModes.mx filter=lfs diff=lfs merge=lfs -text
+MathematicaNotebooks/Data/mMode_hS_puncture/windowed/PDs_hS1MModes_2ndOrderPuncW.mx filter=lfs diff=lfs merge=lfs -text
 MathematicaNotebooks/EffectiveSource/lm_mode/Plus2ProjectionData/Plus2Projections_a0p667_paramsb79e916517be12e5/ellMax13/gridcefb02214242688f/xgrid1111da8845183971_conv19e2d045c808dce6/*.mx filter=lfs diff=lfs merge=lfs -text
 MathematicaNotebooks/EffectiveSource/lm_mode/Plus2ProjectionData/Plus2Projections_a0p667_paramsb79e916517be12e5/ellMax13/gridcefb02214242688f/xgrid1111da8845183971_conv19e2d045c808dce6/*.wl filter=lfs diff=lfs merge=lfs -text
 MathematicaNotebooks/EffectiveSource/lm_mode/Teuk_hS1_lm_Projection_mixedCMBLcoords_trimmed.nb filter=lfs diff=lfs merge=lfs -text
+MathematicaNotebooks/Data/TeukScalars_and_Hertz_Schw_lm/* filter=lfs diff=lfs merge=lfs -text
