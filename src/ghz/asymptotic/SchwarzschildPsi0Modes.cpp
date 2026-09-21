@@ -179,10 +179,10 @@ teuk::Real SchwarzschildPsi0Modes::reduced_spin2_spherical_harmonic(
 std::vector<teuk::Complex> SchwarzschildPsi0Modes::summed_reduced_mode(
     int m, const std::vector<teuk::Real>& z) const {
     std::vector<teuk::Complex> values(z.size(), teuk::zeroC);
-    for (int ell = std::max(ell_min_, m); ell <= ell_max_; ++ell) {
+    for (int ell = std::max(ell_min_, std::abs(m)); ell <= ell_max_; ++ell) {
         const teuk::Complex amplitude = coefficient(ell, m);
         for (std::size_t i = 0; i < z.size(); ++i)
-            values[i] += amplitude * reduced_spin2_spherical_harmonic(ell, m, z[i]);
+            values[i] += amplitude * reduced_spin_weighted_spherical_harmonic(2, ell, m, z[i]);
     }
     return values;
 }
@@ -190,7 +190,7 @@ std::vector<teuk::Complex> SchwarzschildPsi0Modes::summed_reduced_mode(
 std::vector<teuk::Complex> SchwarzschildPsi0Modes::exact_reduced_seed(
     int m, teuk::Real omega, const std::vector<teuk::Real>& z) const {
     std::vector<teuk::Complex> values(z.size(), teuk::zeroC);
-    for (int ell = std::max(ell_min_, m); ell <= ell_max_; ++ell) {
+    for (int ell = std::max(ell_min_, std::abs(m)); ell <= ell_max_; ++ell) {
         const teuk::Real starobinsky = teuk::Real(
             (ell + 2) * (ell + 1) * ell * (ell - 1));
         const teuk::Real denominator = starobinsky * starobinsky / 16 +
@@ -198,7 +198,7 @@ std::vector<teuk::Complex> SchwarzschildPsi0Modes::exact_reduced_seed(
         const teuk::Complex amplitude =
             teuk::Complex(0, 2) * omega * omega * omega * coefficient(ell, m) / denominator;
         for (std::size_t i = 0; i < z.size(); ++i)
-            values[i] += amplitude * reduced_spin2_spherical_harmonic(ell, m, z[i]);
+            values[i] += amplitude * reduced_spin_weighted_spherical_harmonic(2, ell, m, z[i]);
     }
     return values;
 }

@@ -257,6 +257,8 @@ add_executable(bondi_schwarzschild_data_collocation_tests
         tests/unit/bondi_schwarzschild_data_collocation_tests.cpp
         src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp
         src/ghz/asymptotic/BondiHeldSeedSolve.cpp
+        src/ghz/asymptotic/BondiHeldMetricGrid.cpp
+        src/ghz/asymptotic/SchwarzschildBondiMetric.cpp
         src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
         src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp
         src/ghz/spectral/SpectralDiffer.cpp
@@ -275,6 +277,27 @@ add_executable(bondi_zeta_circular_orbit_tests
         src/ghz/orbit/KerrOrbit.cpp
         src/ghz/geom/KerrMetric.cpp
         src/ghz/geom/KerrParams.cpp)
+add_executable(bondi_plot_data
+        tools/bondi_plot_data.cpp
+        src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp
+        src/ghz/asymptotic/SchwarzschildBondiGauge.cpp
+        src/ghz/asymptotic/BondiHeldSeedSolve.cpp
+        src/ghz/orbit/KerrOrbit.cpp
+        src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+        src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        src/ghz/geom/KerrParams.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/Coords.cpp
+        src/ghz/geom/KinnersleyTetrad.cpp
+        src/ghz/ghp/WeylScalars.cpp
+        src/ghz/ghp/HeldScalars.cpp)
+add_executable(bondi_metric_falloff_tests
+        tests/unit/bondi_metric_falloff_tests.cpp
+        src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp
+        src/ghz/asymptotic/SchwarzschildBondiMetric.cpp)
 
 
 FetchContent_MakeAvailable(Catch2)
@@ -297,6 +320,8 @@ target_include_directories(kinnersley_held_operators_unit_tests PRIVATE include)
 target_include_directories(bound_orbit_tests PRIVATE include)
 target_include_directories(bondi_schwarzschild_data_collocation_tests PRIVATE include)
 target_include_directories(bondi_zeta_circular_orbit_tests PRIVATE include)
+target_include_directories(bondi_plot_data PRIVATE include)
+target_include_directories(bondi_metric_falloff_tests PRIVATE include)
 
 target_link_libraries(bound_orbit_tests PRIVATE  OpenMP::OpenMP_CXX
         fftw3l)
@@ -311,6 +336,8 @@ target_link_libraries(bondi_schwarzschild_data_collocation_tests PRIVATE
         OpenMP::OpenMP_CXX fftw3)
 target_link_libraries(bondi_zeta_circular_orbit_tests PRIVATE
         OpenMP::OpenMP_CXX fftw3l)
+target_link_libraries(bondi_plot_data PRIVATE OpenMP::OpenMP_CXX fftw3l)
+target_link_libraries(bondi_metric_falloff_tests PRIVATE OpenMP::OpenMP_CXX fftw3l)
 #catch_discover_tests(kinnersley_held_operators_unit_tests)
 
 add_test(NAME spectral_unit_tests COMMAND spectral_unit_tests)
@@ -328,4 +355,7 @@ add_test(NAME bondi_schwarzschild_data_collocation_tests
         ${CMAKE_SOURCE_DIR}/tests/data/psi0_schwarzschild_r0_10_lmax20_mostly_minus.csv)
 add_test(NAME bondi_zeta_circular_orbit_tests
         COMMAND bondi_zeta_circular_orbit_tests
+        ${CMAKE_SOURCE_DIR}/tests/data/psi0_schwarzschild_r0_10_lmax20_mostly_minus.csv)
+add_test(NAME bondi_metric_falloff_tests
+        COMMAND bondi_metric_falloff_tests
         ${CMAKE_SOURCE_DIR}/tests/data/psi0_schwarzschild_r0_10_lmax20_mostly_minus.csv)
