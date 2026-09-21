@@ -391,6 +391,89 @@ namespace ghz::collocation {
         return sol;
     }
 
+    TwoDomainSolutionSlice solve_first_order_two_domain_slice(
+            const ghz::numeric::PhysicalChebRadialOps& rops_left,
+            const ghz::numeric::PhysicalChebRadialOps& rops_right,
+            const TwoDomainEquationSlice& eq,
+            const BoundaryCondition& bc_left,
+            const InterfaceCondition& iface)
+    {
+        const std::size_t NL = rops_left.r().size();
+        const std::size_t NR = rops_right.r().size();
+        const std::size_t NT = NL + NR;
+
+        if (NL < 2 || NR < 2) {
+            throw std::runtime_error(
+                    "solve_first_order_two_domain_slice: domains must have at least 2 nodes.");
+        }
+        if (bc_left.side != BCSide::Left || bc_left.kind != BCKind::Value) {
+            throw std::runtime_error(
+                    "solve_first_order_two_domain_slice: only a left value boundary condition is supported.");
+        }
+        if (iface.derivative_jump != Complex(0.0, 0.0)) {
+            throw std::runtime_error(
+                    "solve_first_order_two_domain_slice: derivative interface data are invalid for a first-order equation.");
+        }
+
+        check_scalar_equation_sizes(eq.left, NL,
+                                    "solve_first_order_two_domain_slice(left)");
+        check_scalar_equation_sizes(eq.right, NR,
+                                    "solve_first_order_two_domain_slice(right)");
+
+        const auto& DrL = rops_left.Dr_matrix();
+        const auto& DrR = rops_right.Dr_matrix();
+        CMatrix B(NT, NT, Complex(0.0, 0.0));
+        std::vector<Complex> rhs(NT, Complex(0.0, 0.0));
+
+        // Left outer value row.
+        B(0, 0) = Complex(1.0, 0.0);
+        rhs[0] = bc_left.value;
+
+        std::size_t row = 1;
+        for (std::size_t i = 1; i < NL; ++i, ++row) {
+            for (std::size_t j = 0; j < NL; ++j) {
+                const Complex Iij = (i == j) ? Complex(1.0, 0.0)
+                                             : Complex(0.0, 0.0);
+                B(row, j) = eq.left.a1[i] * Complex(DrL(i, j), 0.0)
+                            + eq.left.a0[i] * Iij;
+            }
+            rhs[row] = eq.left.rhs[i];
+        }
+
+        // Interface value row: u_R(r_p) - u_L(r_p) = jump.
+        B(row, NL - 1) = Complex(-1.0, 0.0);
+        B(row, NL) = Complex(1.0, 0.0);
+        rhs[row] = iface.value_jump;
+        ++row;
+
+        for (std::size_t i = 1; i < NR; ++i, ++row) {
+            for (std::size_t j = 0; j < NR; ++j) {
+                const Complex Iij = (i == j) ? Complex(1.0, 0.0)
+                                             : Complex(0.0, 0.0);
+                B(row, NL + j) = eq.right.a1[i] * Complex(DrR(i, j), 0.0)
+                                 + eq.right.a0[i] * Iij;
+            }
+            rhs[row] = eq.right.rhs[i];
+        }
+
+        if (row != NT) {
+            throw std::runtime_error(
+                    "solve_first_order_two_domain_slice: internal row count mismatch.");
+        }
+
+        const auto u = solve_complex_linear_system(B, rhs);
+        TwoDomainSolutionSlice sol;
+        sol.left.resize(NL);
+        sol.right.resize(NR);
+        for (std::size_t i = 0; i < NL; ++i) {
+            sol.left[i] = u[i];
+        }
+        for (std::size_t i = 0; i < NR; ++i) {
+            sol.right[i] = u[NL + i];
+        }
+        return sol;
+    }
+
     // -------------------------------------------------------------------------
     // Solve all z-slices
     // -------------------------------------------------------------------------

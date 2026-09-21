@@ -43,6 +43,11 @@ namespace ghp {
     };
 
     struct HeldCoefficients {
+        // Analytic Kerr/Kinnersley Held coefficients in the (+---) convention.
+        // These depend only on z = cos(theta), not on the radial coordinate.
+        HeldCoefficients(teuk::Real mass, teuk::Real spin, teuk::Real z);
+
+        // Generic fallback for callers that only have GHP and Weyl scalars.
         HeldCoefficients(const ghp::SpinCoefficientsGHP &sc_ghp, const WeylScalars &weyl_scs);
 
         HeldScalar rhopH, tauH, rhopH_bar, tauH_bar;
@@ -217,6 +222,7 @@ namespace ghp {
 
             // assign directly to HeldFieldVectorized
             held_fields.rhopH(iz) = scalars.held_scalars.rhopH;
+            held_fields.rhopH_bar(iz) = scalars.held_scalars.rhopH_bar;
             held_fields.tauH(iz) = scalars.held_scalars.tauH;
             held_fields.tauH_bar(iz) = scalars.held_scalars.tauH_bar;
             held_fields.PsiH(iz) = scalars.held_scalars.PsiH;

@@ -13,7 +13,9 @@
 using namespace  math;
 Complex I = teuk::I;
 
-
+/*
+ * Here we use the mosly minus signature for the metric, i.e. (+,-,-,-)
+ */
 KerrMetricBL::KerrMetricBL(const KerrParams& p, const KerrMetric& km)
         : params(p) , kerr_metric(km) {
         // No cached values yet
@@ -57,14 +59,15 @@ teuk::SymmetricMatrix4 KerrMetricBL::ginv(const BLCoords Xbl) const {
     assert(cache_valid_ && "KerrMetricBL::g() called before build()");
 
     Real r = Xbl.x1;
-    Real th = Xbl.x2;
-    Real lam = kerr_metric.Lambda(r, th);
+    Real z = Xbl.x2;
+    Real lam = kerr_metric.Lambda_z(r, z);
 
-    Real ginv_tt     = -lam/(sig_*del_);
-    Real ginv_rr     = del_/sig_;
-    Real ginv_zz   = s2_/sig_;
-    Real ginv_tphi   = -two*params.M*params.a*r/(sig_*del_);
-    Real ginv_phiphi = (del_-math::sqr(params.a)*s2_)/(sig_*del_*s2_);
+    // Inverse of the (+---) Boyer-Lindquist metric returned by g().
+    Real ginv_tt     = lam/(sig_*del_);
+    Real ginv_rr     = -del_/sig_;
+    Real ginv_zz     = -s2_/sig_;
+    Real ginv_tphi   = two*params.M*params.a*r/(sig_*del_);
+    Real ginv_phiphi = -(del_-math::sqr(params.a)*s2_)/(sig_*del_*s2_);
 
     return { ginv_tt, 0, 0, ginv_tphi, ginv_rr, 0, 0, ginv_zz, 0, ginv_phiphi };
 }

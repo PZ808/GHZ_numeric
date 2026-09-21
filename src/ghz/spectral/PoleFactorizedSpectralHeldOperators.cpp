@@ -27,8 +27,6 @@ namespace {
         return (p - q) / 2;
     }
 
-// Replace this with your actual metadata accessor for m.
-// For example, this might be `sl.modes_.m`, `sl.modes_.m()`, or `sl.mode_m()`.
     template <typename SliceLike>
     inline int slice_mode_m(const SliceLike& sl)
     {
@@ -201,7 +199,7 @@ void KinnersleyHeldOperators<OutgoingCoords>::edthHRed_inplace_RSliceV(
 
     diff_.dz_Dmatrix(in_span, dz_span);
 
-    apply_edthH_red_core(in_RSlice, dz_RSlice, out_RSlice, diff_, a_); // <-- use your spin param member
+    apply_edthH_red_core(in_RSlice, dz_RSlice, out_RSlice, diff_, a_); // <-- use correct spin param member
 }
 
 template <>

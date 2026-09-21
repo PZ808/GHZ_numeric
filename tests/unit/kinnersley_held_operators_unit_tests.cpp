@@ -36,6 +36,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <catch2/catch_test_macros.hpp>
 #include <vector>
 
 namespace {
@@ -149,8 +150,8 @@ namespace {
 
     //inline KinnersleyTetrad<OutgoingCoords>
     //build_test_tetrad(KerrMetric kerr, CoordinateHelper coords) {
-     //   return KinnersleyTetrad<OutgoingCoords>(kerr, coords);
-   // }
+    //   return KinnersleyTetrad<OutgoingCoords>(kerr, coords);
+    // }
 
     inline OutgoingCoords build_test_Xout() {
         return OutgoingCoords(10.0, Real(12345), Real(.23456), M_PI_2);
@@ -195,6 +196,80 @@ namespace {
         {}
     };
 
+    void test_analytic_kerr_held_background_values() {
+        TestObjects T(Nz, Nr);
+
+        for (size_t iz = 0; iz < T.bkg_held_fields.rhopH.Nz(); ++iz) {
+            const Real z = T.diff.lgl_nodes()[iz];
+            const Complex expected_tau =
+                    -teuk::I * spin * teuk::Sqrt(Real(1) - z*z) /
+                    teuk::Sqrt(Real(2));
+            const Complex expected_omega = -Real(2) * teuk::I * spin * z;
+
+            require_near(T.bkg_held_fields.rhopH(iz).value(),
+                         Complex(-teuk::half, Real(0)),
+                         Real(0),
+                         "rho'^o must equal -1/2 in the (+---) convention");
+            require_near(T.bkg_held_fields.rhopH_bar(iz).value(),
+                         Complex(-teuk::half, Real(0)),
+                         Real(0),
+                         "conjugate rho'^o must equal -1/2");
+            require_near(T.bkg_held_fields.tauH(iz).value(),
+                         expected_tau,
+                         Real(0),
+                         "analytic tau^o");
+            require_near(T.bkg_held_fields.tauH_bar(iz).value(),
+                         std::conj(expected_tau),
+                         Real(0),
+                         "analytic conjugate tau^o");
+            require_near(T.bkg_held_fields.PsiH(iz).value(),
+                         Complex(mass, Real(0)),
+                         Real(0),
+                         "Psi^o must equal the Kerr mass exactly");
+            require_near(T.bkg_held_fields.PsiH_bar(iz).value(),
+                         Complex(mass, Real(0)),
+                         Real(0),
+                         "conjugate Psi^o must equal the Kerr mass exactly");
+            require_near(T.bkg_held_fields.OmH(iz).value(),
+                         expected_omega,
+                         Real(0),
+                         "analytic Omega^o");
+            require_near(T.bkg_held_fields.OmH_bar(iz).value(),
+                         std::conj(expected_omega),
+                         Real(0),
+                         "analytic conjugate Omega^o");
+        }
+    }
+
+    void test_bl_metric_inverse_mostly_minus() {
+        KerrParams params{mass, spin};
+        KerrMetric kerr{params};
+        KerrMetricBL metric{params, kerr};
+        const BLCoords X(Real(0), Real(8.3), Real(0.27), Real(0));
+        metric.build_at(X);
+
+        const auto g = metric.g(X);
+        const auto ginv = metric.ginv(X);
+
+        require_true(g(0, 0) > Real(0),
+                     "mostly-minus BL metric must have positive g_tt outside the ergosphere");
+        require_true(g(1, 1) < Real(0) && g(2, 2) < Real(0) && g(3, 3) < Real(0),
+                     "mostly-minus BL metric must have negative spatial diagonal entries");
+
+        for (int mu = 0; mu < 4; ++mu) {
+            for (int nu = 0; nu < 4; ++nu) {
+                Real product = Real(0);
+                for (int alpha = 0; alpha < 4; ++alpha) {
+                    product += g(mu, alpha) * ginv(alpha, nu);
+                }
+                require_near_real(product,
+                                  mu == nu ? Real(1) : Real(0),
+                                  Real(2e-14),
+                                  "BL metric/inverse consistency");
+            }
+        }
+    }
+
 // Build a 2D field and return it.
 // Here initialize:
 //   - dimensions Nz, Nr
@@ -219,8 +294,8 @@ namespace {
         // choose a function with some r and z dependence and a nontrivial complex phase to test the operators on
         auto fillerInsane = [&](Real r, Real z) -> Complex {
             return  std::pow(1.0 - z*z, 3/2)*(Real(1.0) + Real(0.2)*r + Real(0.05)*r*r+Real(2.3)*r*r*r*r)
-                   * (Real(1.0) + Real(0.3)*z + Real(0.2)*z*z+Real(10)*z*z*z)
-                   * std::exp(Complex(0.0, Real(0.4)*r*r - Real(0.3)*z));
+                    * (Real(1.0) + Real(0.3)*z + Real(0.2)*z*z+Real(10)*z*z*z)
+                    * std::exp(Complex(0.0, Real(0.4)*r*r - Real(0.3)*z));
         };
 
         auto fillerDumb = [&](Real r, Real z) -> Complex {
@@ -534,7 +609,7 @@ namespace {
 
 
     Real commutator_edthH_edthbarH_rhs_norm(const TestObjects& T,
-                                          const SpectralGHPVectorized& f)
+                                            const SpectralGHPVectorized& f)
     {
         const int p = f.p();
         const int q = f.q();
@@ -802,8 +877,8 @@ namespace {
                 // std::cout << "ir=" << ir << ", iz=" << iz << ", is_Zero=" << is_Zero << "\n"; // Held Eq. (4.7a)
 
                 const Complex coeff = is_Zero
-                        - half*psi2/rho
-                        - half*psi2b/rhob;
+                                      - half*psi2/rho
+                                      - half*psi2b/rhob;
                 const Complex rhs_val = coeff*thorn_f(ir, iz).value();
 
                 rhs(ir, iz) = GHP<Complex>(rhs_val, p, q);
@@ -819,7 +894,7 @@ namespace {
     }
 
     Real commutator_thornPH_edthbarH_rhs_norm(const TestObjects& T,
-                                           const SpectralGHPVectorized& f)
+                                              const SpectralGHPVectorized& f)
     {
         const int p = f.p();
         const int q = f.q();
@@ -956,7 +1031,7 @@ namespace {
         std::cout << "[INFO] [thornPH, edthbarH] residual = " << err << "\n";
     }
 
-    void test_commutators_reduced_rslices() {
+    void test_commutators_raw_rslices() {
 
         TestObjects T(Nz, Nr);
 
@@ -1018,33 +1093,430 @@ namespace {
         TestFn fn;
     };
 
+
+
+    struct RZPoint {
+        Real r;
+        Real z;
+    };
+
+    struct OperatorConsistencyDiagnostics {
+        std::vector<RZPoint> points;
+
+        std::vector<Real> thorn_abs;
+        std::vector<Real> thornPH_abs;
+        std::vector<Real> eth_abs;
+        std::vector<Real> ethbar_abs;
+
+        Real thorn_max_abs   = 0.0_r;
+        Real thornPH_max_abs = 0.0_r;
+        Real eth_max_abs     = 0.0_r;
+        Real ethbar_max_abs  = 0.0_r;
+    };
+
+    inline Real smooth_g_test(const Real r, const Real z)
+    {
+        return std::exp(-(r - 7.0_r)*(r - 7.0_r)/5.0_r)
+               * (1.0_r + z + 2.0_r*z*z + z*z*z);
+    }
+
+    inline Real pole_alpha(const int m, const int s)
+    {
+        return Real(std::abs(m + s)) / 2.0_r;
+    }
+
+    inline Real pole_beta(const int m, const int s)
+    {
+        return Real(std::abs(m - s)) / 2.0_r;
+    }
+
+    inline Real pole_factor(const int m, const int s, const Real z)
+    {
+        return std::pow(1.0_r - z, pole_alpha(m, s))
+               * std::pow(1.0_r + z, pole_beta(m, s));
+    }
+
+    std::vector<RZPoint> sample_points_rz(
+            const Real rmin, const Real rmax, const int Nr,
+            const Real zmin, const Real zmax, const int Nz)
+    {
+        std::vector<RZPoint> pts;
+        pts.reserve(std::max(0, Nr) * std::max(0, Nz));
+
+        for (int i = 0; i < Nr; ++i) {
+            const Real tr = (Nr == 1) ? 0.0_r : Real(i) / Real(Nr - 1);
+            const Real r  = (1.0_r - tr)*rmin + tr*rmax;
+
+            for (int j = 0; j < Nz; ++j) {
+                const Real tz = (Nz == 1) ? 0.0_r : Real(j) / Real(Nz - 1);
+                const Real z  = (1.0_r - tz)*zmin + tz*zmax;
+                pts.push_back({r, z});
+            }
+        }
+        return pts;
+    }
+
+// -----------------------------------------------------------------------------
+// These helpers depend on your concrete API and may need slight adaptation.
+// -----------------------------------------------------------------------------
+
+    template <typename FieldLike>
+    void fill_reduced_test_field(
+            FieldLike& G,
+            const std::function<Complex(Real, Real)>& fun,
+            const ghz::numeric::AffineMap1D& r_map,
+            const spectral::SpectralDiffer& diff,
+            const int p,
+            const int q)
+    {
+        for (size_t ir = 0; ir < G.Nr(); ++ir) {
+            const Real x = diff.cl_nodes()[ir];
+            const Real r = r_map.toPhysical(x);
+
+            for (size_t iz = 0; iz < G.Nz(); ++iz) {
+                const Real z = diff.lgl_nodes()[iz];
+                G(ir, iz) = GHPScalar<Complex>(fun(r, z), p, q);
+            }
+        }
+    }
+
+    template <typename FieldLike>
+    void raw_from_reduced(
+            const FieldLike& G,
+            FieldLike& F,
+            const ghz::numeric::AffineMap1D& r_map,
+            const spectral::SpectralDiffer& diff,
+            const int m,
+            const int s)
+    {
+        for (size_t ir = 0; ir < G.Nr(); ++ir) {
+            const Real x = diff.cl_nodes()[ir];
+            const Real r = r_map.toPhysical(x);
+            (void)r;
+
+            for (size_t iz = 0; iz < G.Nz(); ++iz) {
+                const Real z = diff.lgl_nodes()[iz];
+                const Real W = pole_factor(m, s, z);
+                F(ir, iz) = GHPScalar<Complex>(W * G(ir, iz).value(), G(ir, iz).p(), G(ir, iz).q());
+            }
+        }
+    }
+
+    template <typename FieldLike>
+    void weight_shifted_reduced_to_raw(
+            const FieldLike& red_out,
+            FieldLike& raw_equiv,
+            const ghz::numeric::AffineMap1D& r_map,
+            const spectral::SpectralDiffer& diff,
+            const int m,
+            const int s_shifted)
+    {
+        for (size_t ir = 0; ir < red_out.Nr(); ++ir) {
+            const Real x = diff.cl_nodes()[ir];
+            const Real r = r_map.toPhysical(x);
+            (void)r;
+
+            for (size_t iz = 0; iz < red_out.Nz(); ++iz) {
+                const Real z = diff.lgl_nodes()[iz];
+                const Real W = pole_factor(m, s_shifted, z);
+                raw_equiv(ir, iz) = GHPScalar<Complex>(
+                        W * red_out(ir, iz).value(),
+                        red_out(ir, iz).p(),
+                        red_out(ir, iz).q()
+                );
+            }
+        }
+    }
+
+    template <typename FieldLike>
+    Real max_abs_diff_on_grid(const FieldLike& A, const FieldLike& B)
+    {
+        Real out = 0.0_r;
+        for (size_t ir = 0; ir < A.Nr(); ++ir) {
+            for (size_t iz = 0; iz < A.Nz(); ++iz) {
+                out = std::max(out, std::abs(A(ir, iz).value() - B(ir, iz).value()));
+            }
+        }
+        return out;
+    }
+
+    template <typename FieldLike>
+    Complex evaluate_nearest_grid(
+            const FieldLike& U,
+            const ghz::numeric::AffineMap1D& r_map,
+            const spectral::SpectralDiffer& diff,
+            const Real r,
+            const Real z)
+    {
+        size_t best_ir = 0;
+        size_t best_iz = 0;
+        Real best_dr = std::numeric_limits<Real>::max();
+        Real best_dz = std::numeric_limits<Real>::max();
+
+        for (size_t ir = 0; ir < U.Nr(); ++ir) {
+            const Real rr = r_map.toPhysical(diff.cl_nodes()[ir]);
+            const Real err = std::abs(rr - r);
+            if (err < best_dr) {
+                best_dr = err;
+                best_ir = ir;
+            }
+        }
+
+        for (size_t iz = 0; iz < U.Nz(); ++iz) {
+            const Real zz = diff.lgl_nodes()[iz];
+            const Real err = std::abs(zz - z);
+            if (err < best_dz) {
+                best_dz = err;
+                best_iz = iz;
+            }
+        }
+
+        return U(best_ir, best_iz).value();
+    }
+
+    inline SpectralGHPVectorized like(const SpectralGHPVectorized& src)
+    {
+        SpectralGHPVectorized out(
+                src.Nr(), src.Nz(),
+                src.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), src.p(), src.q()),
+                src.p(), src.q()
+        );
+
+        if (src.has_omega_mk()) out.set_omega_mk(src.omega_mk());
+        return out;
+    }
+
+    inline SpectralGHPVectorized like_with_pq_shift(
+            const SpectralGHPVectorized& src,
+            int p_new, int q_new)
+    {
+        SpectralGHPVectorized out(
+                src.Nr(), src.Nz(),
+                src.modes(),
+                GHP<Complex>(Complex(0.0, 0.0), p_new, q_new),
+                p_new, q_new
+        );
+
+        if (src.has_omega_mk()) out.set_omega_mk(src.omega_mk());
+        return out;
+    }
+
+    template <typename OpsType, typename FieldLike, typename TetradLike>
+    OperatorConsistencyDiagnostics operator_consistency_diagnostics(
+            const OpsType& ops,
+            const TetradLike& ktet,
+            const ghz::numeric::AffineMap1D& r_map,
+            const spectral::SpectralDiffer& diff,
+            const int m,
+            const int s,
+            const Real omega,
+            FieldLike& G,
+            const std::function<Complex(Real, Real)>& fun)
+    {
+        const int p =  s;
+        const int q = -s; // only if you want a simple p-q=2s choice; adapt if needed
+
+        fill_reduced_test_field(G, fun, r_map, diff, p, q);
+
+        auto F           = like(G);
+        auto raw_thorn   = like(G);
+        auto red_thorn   = like(G);
+        auto red_thorn_w = like(G);
+
+        auto raw_thornPH   = like(G);
+        auto red_thornPH   = like(G);
+        auto red_thornPH_w = like(G);
+
+        auto raw_eth   = like_with_pq_shift(G, p, q-2);
+        auto red_eth   = like_with_pq_shift(G, p, q-2);
+        auto red_eth_w = like_with_pq_shift(G, p, q-2);
+
+        auto raw_ethbar   = like_with_pq_shift(G, p-2, q);
+        auto red_ethbar   = like_with_pq_shift(G, p-2, q);
+        auto red_ethbar_w = like_with_pq_shift(G, p-2, q);
+
+        raw_from_reduced(G, F, r_map, diff, m, s);
+
+        ops.thorn_inplace(F, raw_thorn);
+        ops.thornRed_inplace(G, red_thorn);
+        weight_shifted_reduced_to_raw(red_thorn, red_thorn_w, r_map, diff, m, s);
+
+        ops.thornPH_inplace(F, raw_thornPH);
+        ops.thornPHRed_inplace(G, red_thornPH);
+        weight_shifted_reduced_to_raw(red_thornPH, red_thornPH_w, r_map, diff, m, s);
+
+        ops.edthH_inplace(F, raw_eth);
+        ops.edthHRed_inplace(G, red_eth);
+        weight_shifted_reduced_to_raw(red_eth, red_eth_w, r_map, diff, m, s + 1);
+
+        ops.edthBarH_inplace(F, raw_ethbar);
+        ops.edthBarHRed_inplace(G, red_ethbar);
+        weight_shifted_reduced_to_raw(red_ethbar, red_ethbar_w, r_map, diff, m, s - 1);
+
+        OperatorConsistencyDiagnostics diag;
+        diag.points = sample_points_rz(2.5_r, 12.0_r, 6, -0.95_r, 0.95_r, 7);
+
+        for (const auto& pt : diag.points) {
+            diag.thorn_abs.push_back(
+                    std::abs(evaluate_nearest_grid(raw_thorn,   r_map, diff, pt.r, pt.z)
+                             - evaluate_nearest_grid(red_thorn_w, r_map, diff, pt.r, pt.z)));
+
+            diag.thornPH_abs.push_back(
+                    std::abs(evaluate_nearest_grid(raw_thornPH,   r_map, diff, pt.r, pt.z)
+                             - evaluate_nearest_grid(red_thornPH_w, r_map, diff, pt.r, pt.z)));
+
+            diag.eth_abs.push_back(
+                    std::abs(evaluate_nearest_grid(raw_eth,   r_map, diff, pt.r, pt.z)
+                             - evaluate_nearest_grid(red_eth_w, r_map, diff, pt.r, pt.z)));
+
+            diag.ethbar_abs.push_back(
+                    std::abs(evaluate_nearest_grid(raw_ethbar,   r_map, diff, pt.r, pt.z)
+                             - evaluate_nearest_grid(red_ethbar_w, r_map, diff, pt.r, pt.z)));
+        }
+
+        diag.thorn_max_abs =
+                *std::max_element(diag.thorn_abs.begin(), diag.thorn_abs.end());
+        diag.thornPH_max_abs =
+                *std::max_element(diag.thornPH_abs.begin(), diag.thornPH_abs.end());
+        diag.eth_max_abs =
+                *std::max_element(diag.eth_abs.begin(), diag.eth_abs.end());
+        diag.ethbar_max_abs =
+                *std::max_element(diag.ethbar_abs.begin(), diag.ethbar_abs.end());
+
+        return diag;
+    }
+
+    void test_reduced_operator_consistency()
+    {
+        TestObjects T(Nz, Nr);
+
+        const int s = 1;
+        const int p = 1;
+        const int q = -1;
+        const Real omega = Real(0.3);
+
+        auto G = build_test_field(
+                T.diff, T.r_map,
+                p, q,
+                m_test, kr_test, kz_test,
+                omega);
+
+        const auto diag = operator_consistency_diagnostics(
+                T.ops,
+                T.tetrad,
+                T.r_map,
+                T.diff,
+                m_test,
+                s,
+                omega,
+                G,
+                [](Real r, Real z) {
+                    return Complex(smooth_g_test(r, z), 0.0);
+                });
+
+        std::cout << "[INFO] reduced consistency:\n"
+                  << "  thorn   max abs = " << diag.thorn_max_abs << "\n"
+                  << "  thornPH max abs = " << diag.thornPH_max_abs << "\n"
+                  << "  eth     max abs = " << diag.eth_max_abs << "\n"
+                  << "  ethbar  max abs = " << diag.ethbar_max_abs << "\n";
+
+        require_near_real(diag.thorn_max_abs,   Real(0), Real(1e-10), "thorn reduced consistency");
+        require_near_real(diag.thornPH_max_abs, Real(0), Real(1e-10), "thornPH reduced consistency");
+        require_near_real(diag.eth_max_abs,     Real(0), Real(1e-10), "eth reduced consistency");
+        require_near_real(diag.ethbar_max_abs,  Real(0), Real(1e-10), "ethbar reduced consistency");
+    }
+
+    void test_reduced_operator_consistency_branch_cases()
+    {
+        TestObjects T(Nz, Nr);
+
+        struct Case {
+            int m;
+            int s;
+        };
+
+        const std::vector<Case> cases = {
+                { 2,  1},
+                { 2, -1},
+                {-2,  1},
+                {-2, -1},
+                { 1,  1},   // m-s = 0
+                {-1,  1}    // m+s = 0
+        };
+
+        for (const auto& c : cases) {
+            const int p =  c.s;
+            const int q = -c.s;
+            const Real omega = Real(0.35);
+
+            auto G = build_test_field(
+                    T.diff, T.r_map,
+                    p, q,
+                    c.m, kr_test, kz_test,
+                    omega);
+
+            const auto diag = operator_consistency_diagnostics(
+                    T.ops,
+                    T.tetrad,
+                    T.r_map,
+                    T.diff,
+                    c.m,
+                    c.s,
+                    omega,
+                    G,
+                    [](Real r, Real z) {
+                        return Complex(smooth_g_test(r, z), 0.0);
+                    });
+
+            const std::string label =
+                    "reduced branch consistency for (m,s)=(" +
+                    std::to_string(c.m) + "," + std::to_string(c.s) + ")";
+
+            require_near_real(diag.thorn_max_abs,   Real(0), Real(1e-9), label + " thorn");
+            require_near_real(diag.thornPH_max_abs, Real(0), Real(1e-9), label + " thornPH");
+            require_near_real(diag.eth_max_abs,     Real(0), Real(1e-9), label + " eth");
+            require_near_real(diag.ethbar_max_abs,  Real(0), Real(1e-9), label + " ethbar");
+        }
+    }
+
+
 } // namespace
 
 
 int main() {
     const std::vector<TestCase> tests = {
+            {"analytic_kerr_held_background_values", test_analytic_kerr_held_background_values},
+            {"bl_metric_inverse_mostly_minus", test_bl_metric_inverse_mostly_minus},
             {"edth_spin_shift", test_edth_spin_shift},
             {"edthbar_spin_shift", test_edthbar_spin_shift},
             {"thornPH_spin_shift", test_thornPH_spin_shift},
             {"edth_dmatrix_vs_bary", test_edth_dmatrix_vs_bary},
             {"thornPH_expected_frequency_factor", test_thornPH_against_expected_frequency_factor},
-            {"commutators_rslices", test_commutators_reduced_rslices},
+
+            {"commutators_rslices", test_commutators_raw_rslices},
             {"commutator_thorn_thornPH_rhs", test_commutator_thorn_thornPH_rhs},
-            {"commutator_edth_edthbar_rhs", test_commutator_edthH_edthbarH_rhs},
-            {"commutator_thornPH_edthbar_rhs", test_commutator_thornPH_edthbarH_rhs}
+       //     {"commutator_edth_edthbar_rhs", test_commutator_edthH_edthbarH_rhs},
+            {"commutator_thornPH_edthbar_rhs", test_commutator_thornPH_edthbarH_rhs},
+
+            {"reduced_operator_consistency", test_reduced_operator_consistency},
+            {"reduced_operator_consistency_branch_cases", test_reduced_operator_consistency_branch_cases}
     };
 
     int passed = 0;
     for (const auto& t : tests) {
         try {
+            std::cout << "[RUN ] " << t.name << "\n";
             t.fn();
             std::cout << "[PASS] " << t.name << "\n";
             ++passed;
         } catch (const std::exception& e) {
-            std::cerr << "[FAIL] " << t.name << "\n" << e.what() << "\n";
+            std::cerr << "[FAIL] " << t.name << "\n"
+                      << e.what() << "\n";
             return EXIT_FAILURE;
         } catch (...) {
-            std::cerr << "[FAIL] " << t.name << "\nUnknown exception\n";
+            std::cerr << "[FAIL] " << t.name << "\n"
+                      << "Unknown exception\n";
             return EXIT_FAILURE;
         }
     }

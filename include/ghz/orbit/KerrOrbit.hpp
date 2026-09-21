@@ -363,7 +363,11 @@ namespace orbit {
 
         // expose the torus source frequencies
         [[nodiscard]] orbit::SourceFrequencies source_frequencies() const noexcept {
-            return { torus_freqs_.Omega_r, torus_freqs_.Omega_z, torus_freqs_.Omega_phi };
+            return {
+                .Omega_phi = torus_freqs_.Omega_phi,
+                .Omega_r = torus_freqs_.Omega_r,
+                .Omega_z = torus_freqs_.Omega_z
+            };
         }
 
         // --- splines ---
@@ -399,13 +403,33 @@ namespace orbit {
         Real Omega_phi_;
 
     public:
+        struct OutgoingFourVelocity {
+            Real u;
+            Real r;
+            Real z;
+            Real phi;
+        };
+
+        struct KinnersleyFourVelocity {
+            teuk::Complex l;
+            teuk::Complex n;
+            teuk::Complex m;
+            teuk::Complex mbar;
+        };
+
         KerrCircularEquatorialOrbit(const KerrMetric& km, Real r0, int chi);
 
+        [[nodiscard]] Real radius() const noexcept { return r0_; }
+        [[nodiscard]] int orientation() const noexcept { return chi_; }
         [[nodiscard]] Real energy() const noexcept { return E_; }
         [[nodiscard]] Real angular_momentum() const noexcept { return Lz_; }
         [[nodiscard]] Real upsilon_t() const noexcept { return Ups_t_; }
         [[nodiscard]] Real upsilon_phi() const noexcept { return Ups_phi_; }
         [[nodiscard]] Real Omega_phi() const noexcept { return Omega_phi_; }
+        [[nodiscard]] Real gamma() const noexcept { return Ups_t_ / (r0_ * r0_); }
+
+        [[nodiscard]] OutgoingFourVelocity outgoing_four_velocity() const noexcept;
+        [[nodiscard]] KinnersleyFourVelocity kinnersley_four_velocity() const noexcept;
 
         BLCoords eval_at_Mino(const Real& lambda) const {
             return BLCoords{
@@ -417,7 +441,11 @@ namespace orbit {
         }
 
         [[nodiscard]] orbit::SourceFrequencies source_frequencies() const noexcept {
-            return { Real(0.0), Real(0.0), Omega_phi_ };
+            return {
+                .Omega_phi = Omega_phi_,
+                .Omega_r = Real(0.0),
+                .Omega_z = Real(0.0)
+            };
         }
     };
 

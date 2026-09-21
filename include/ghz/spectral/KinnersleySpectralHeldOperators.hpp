@@ -92,68 +92,67 @@ public:
         const int out_p = (kind==EthKind::Eth) ? p : p-2;
         const int out_q = (kind==EthKind::Eth) ? q-2 : q;
 
-        const Complex pref=Complex(-Real(1.0)/Real(std::sqrt(2.0)),0.0);
+
 
         const auto& z_nodes=diff_.lgl_nodes();
         assert(z_nodes.size()==N);
 
 #pragma omp parallel for default(none) shared(in_RSlice,df_dz,out,z_nodes,kind) \
-    firstprivate(N,s,m,aw,pref,out_p,out_q)
+    firstprivate(N, s,m,aw, out_p, out_q)
         for (size_t i=1; i<N-1; ++i) {
-            const Real z=z_nodes[i];
-            const Real fac_r=std::sqrt(std::max<Real>(Real(0.0), Real(1.0)-z*z));
+            const Real z = z_nodes[i];
+            const Real fac_r = std::sqrt(std::max<Real>(Real(0.0), Real(1.0)-z*z));
 
-            if (fac_r<=Real(0.0)) {
-                out[i]=GHPScalar<Complex>(Complex(0.0,0.0),out_p,out_q);
+            if (fac_r <= Real(0.0)) {
+                out[i] = GHPScalar<Complex>(Complex(0.0,0.0),out_p,out_q);
                 continue;
             }
 
-            const Complex factor(fac_r,0.0);
+            const Complex factor(fac_r, 0.0);
 
             const Complex fval = in_RSlice[i].value();
             const Complex dfz = df_dz[i].value();
 
-            Complex singular_num;
+            const Real inv_sqrt2_r = Real(1.0) / Real(std::sqrt(2.0));
+            const Complex invSqrt2(inv_sqrt2_r, 0.0);
+            const Complex cz(z, 0.0);
+            const Complex camw(aw, 0.0);
+            const Complex cm(m, 0.0);
+
+            const Complex A = (cm + s*cz)/factor - camw*factor;
+
             if (kind == EthKind::Eth) {
-                singular_num = Complex(-m,0.0)*fval-s*Complex(z,0.0)*fval;
+                out[i] = GHPScalar<Complex>(invSqrt2 * (factor*dfz + A*fval), out_p, out_q);
             } else {
-                singular_num = Complex(+m,0.0)*fval+s*Complex(z,0.0)*fval;
+                out[i] = GHPScalar<Complex>(invSqrt2 * (factor*dfz - A*fval), out_p, out_q);
             }
-            const Complex singular = singular_num/factor;
-
-            const Complex aw_term = (kind==EthKind::Eth)
-                                  ? Complex(aw,0.0)*factor*fval
-                                  : Complex(-aw,0.0)*factor*fval;
-
-            const Complex dz_term = -factor*dfz;
-
-            out[i]=GHPScalar<Complex>(pref*(dz_term+singular+aw_term),out_p,out_q);
         }
 
+
         if (N==1) {
-            out[0]=GHPScalar<Complex>(Complex(0.0,0.0),out_p,out_q);
+            out[0] = GHPScalar<Complex>(Complex(0.0,0.0),out_p,out_q);
             return;
         }
 
         if (N>=4) {
-            out[0].value()=detail::quad_extrapolate_endpoint(
+            out[0].value() = detail::quad_extrapolate_endpoint(
                     z_nodes[0],
                     z_nodes[1],out[1].value(),
                     z_nodes[2],out[2].value(),
                     z_nodes[3],out[3].value());
             out[0].set_pq(out_p,out_q);
 
-            out[N-1].value()=detail::quad_extrapolate_endpoint(
+            out[N-1].value() = detail::quad_extrapolate_endpoint(
                     z_nodes[N-1],
                     z_nodes[N-2],out[N-2].value(),
                     z_nodes[N-3],out[N-3].value(),
                     z_nodes[N-4],out[N-4].value());
             out[N-1].set_pq(out_p,out_q);
         } else {
-            out[0]=out[1];
+            out[0] = out[1];
             out[N-1]=out[N-2];
-            out[0].set_pq(out_p,out_q);
-            out[N-1].set_pq(out_p,out_q);
+            out[0].set_pq(out_p, out_q);
+            out[N-1].set_pq(out_p, out_q);
         }
     }
     //void edth_core_RSlice_with_extrapolation(const spectral::SpectralGHPVectorized::RSlice& in, const spectral::SpectralGHPVectorized::RSlice& df_dz, spectral::SpectralGHPVectorized::RSlice& out, EthKind kind) const;
@@ -207,6 +206,63 @@ public:
     void thornPHr_inplace(const KinnersleyTetrad<OutgoingCoords> &ktet,
                           const SpectralGHPVectorized& in, SpectralGHPVectorized& out) const;
     void thorn_inplace(const SpectralGHPVectorized& in, SpectralGHPVectorized& out) const;
+
+
+
+    // ------------------------------------------------------------------------
+    // Reduced / pole-factorized Held operators
+    // ------------------------------------------------------------------------
+
+    // First-order angular reduced operators
+    void edthHRed_inplace(const SpectralGHPVectorized& in,
+                          SpectralGHPVectorized& out) const;
+
+    void edthBarHRed_inplace(const SpectralGHPVectorized& in,
+                             SpectralGHPVectorized& out) const;
+
+    // Reduced radial operators = raw radial operators
+    void thornRed_inplace(const SpectralGHPVectorized& in,
+                          SpectralGHPVectorized& out) const;
+
+    void thornPHRed_inplace(const SpectralGHPVectorized& in,
+                            SpectralGHPVectorized& out) const;
+
+    void thornPHrRed_inplace(const KinnersleyTetrad<OutgoingCoords>& ktet,
+                             const SpectralGHPVectorized& in,
+                             SpectralGHPVectorized& out) const;
+
+    // R-slice reduced angular operators, D-matrix versions
+    void edthHRed_inplace_RSliceV(const SpectralGHPVectorized::RSlice& in_RSlice,
+                                  SpectralGHPVectorized::RSlice& out_RSlice) const;
+
+    void edthHRed_inplace_RSliceV(const SpectralGHPVectorized::ConstRSlice& in_RSlice,
+                                  SpectralGHPVectorized::RSlice& out_RSlice) const;
+
+    void edthBarHRed_inplace_RSliceV(const SpectralGHPVectorized::RSlice& in_RSlice,
+                                     SpectralGHPVectorized::RSlice& out_RSlice) const;
+
+    void edthBarHRed_inplace_RSliceV(const SpectralGHPVectorized::ConstRSlice& in_RSlice,
+                                     SpectralGHPVectorized::RSlice& out_RSlice) const;
+
+    // Optional barycentric reduced angular operators
+    void edthHRed_bary_inplace_RSliceV(const SpectralGHPVectorized::RSlice& in_RSlice,
+                                       SpectralGHPVectorized::RSlice& out_RSlice) const;
+
+    void edthBarHRed_bary_inplace_RSliceV(const SpectralGHPVectorized::RSlice& in_RSlice,
+                                          SpectralGHPVectorized::RSlice& out_RSlice) const;
+
+    // ------------------------------------------------------------------------
+    // Optional second-order reduced compositions
+    // ------------------------------------------------------------------------
+
+    void edthHEdthBarHRed_inplace(const SpectralGHPVectorized& in,
+                                  SpectralGHPVectorized& out) const;
+
+    void edthBarHEdthHRed_inplace(const SpectralGHPVectorized& in,
+                                  SpectralGHPVectorized& out) const;
+
+    void commutatorEthsRed_inplace(const SpectralGHPVectorized& in,
+                                   SpectralGHPVectorized& out) const;
 
 };
 

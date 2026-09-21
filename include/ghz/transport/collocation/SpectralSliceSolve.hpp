@@ -83,6 +83,16 @@ namespace ghz::collocation {
             const BoundaryCondition& bc_row1,
             const InterfaceCondition& iface);
 
+    // Solve a first-order radial equation on two domains.  The left boundary
+    // value and the value jump at the interface provide the two integration
+    // constants; derivative interface data are not part of this problem.
+    TwoDomainSolutionSlice solve_first_order_two_domain_slice(
+            const ghz::numeric::PhysicalChebRadialOps& rops_left,
+            const ghz::numeric::PhysicalChebRadialOps& rops_right,
+            const TwoDomainEquationSlice& eq,
+            const BoundaryCondition& bc_left,
+            const InterfaceCondition& iface);
+
     TwoDomainSolutionGrid solve_scalar_two_domain_grid(
             const ghz::numeric::PhysicalChebRadialOps& rops_left,
             const ghz::numeric::PhysicalChebRadialOps& rops_right,

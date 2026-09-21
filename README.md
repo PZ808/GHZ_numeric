@@ -187,59 +187,46 @@ Below are the main classes and their purposes.
 
 ---
 
-# 0. `GHZTypes`
+# 0. Core 
+
+## 0.1.`GhzTypes`
 Core type definitions and utilities supporting boost multiprecision, complex numbers, and linear algebra.
 
-## 1. `KerrMetric`
-Coordinate-independent Kerr metric object.
+# 1. `geom`
+## 1.0 `Metric`, `KerrMetric`, `KerrParams`, `KerrMetric{Coords}` 
+ - defines metric, physical parameters (e.g `r_plus`) and compactification/conformal parameters as in https://arxiv.org/pdf/1910.13452
+## 1.1 `Coords`
+- Coordinate classes and helpers to build coordinate charts for BoyerLindquist,
+IngoingKerr, OutgoingKerr, OutgoingKerrCompact, Outgoing conformally compactified coordinates 
+- `CoordinateHelper` providing transformations and basic metric functions in each coordinate system
+## 1.2 `KerrCharts`
+ -  classes for each chart based containing `Coords` for each
+ - `build_at` functionality to generate the metric at a coordinate point
+## 1.3 `Tetrads` and `KinnersleyTetrad`
+ - Base class `Tetrads`  with containers for $$l$$, $n$$, 
+   $$m$$, $$\bar m$$ `SpinCoefficients`, `SpinCoefficientsGHP`, `HeldCoefficients`,
+   `WeylScalars` 
+ - `KinnersleyTetrad<Coordtype T>`` builds a Kinnersley tetrad at spacetime point in various templated 
+  charts 
+ - Computes:
+Basis vectors
+-- Newman–Penrose spin coefficients
+-- GHP coefficients
+-- Weyl scalars
+-- Held coefficients
+## 1.4 `DataDomain`
 
-- Stores Kerr parameters $$(M, a)$$
-- Provides metric functions, $$\Delta, \Sigma, \kappa_\pm, \Omega_\pm$$ etc and conformal parameters 
- as in https://arxiv.org/pdf/1910.13452
-- Backend used by all coordinate-specific metrics
-
----
-
-## 2. `CoordinateHelper`
-Constructs quantities in and provides functions to transforms between:
-
-- Boyer–Lindquist coordinates
-- Ingoing Kerr coordinates
-- Outgoing Kerr coordinates
-- Outgoing conformally compactified coordinates
-
-Provides:
-
-- Metric components in each coordinate chart
-- Transformations between charts
-- Useful geometric quantities for tetrads and scalars
----
-
-## 3. `KinnersleyTetrad<Coordtype T>`
-Builds the Kinnersley tetrad and derived bkg quantities in all supported coordinates.
-
-Computes:
-
-- Basis vectors 
-- Newman–Penrose spin coefficients
-- GHP coefficients
-- Weyl scalars
-- Held coefficients
-
----
-
-## 4. `GHPScalar<Complex T>`
-Complex scalar with GHP weights $$(p,q)$$ and 
-covariant boost/spin transformations.
-
+# 2. GHP
+## 2.0 `SpinCoeffNP`, `WeylScalars`
+## 2.1  `GHPScalars 
+### 2.1.a ``GHPScalar<Complex T>`
 - Operator overloads: `+, -, *, / with correct GHP transformation behavior
 - Type-safe representation of weighted scalars
 
 This is the basic algebraic object used everywhere.
+## 2.2 `GHPFieldVectorized`
 
----
-
-## 5.   `FieldVectorized<typename T,size_type dim>`
+### 2.2.a   `FieldVectorized<typename T,size_type dim>`
 
 As base class of `GHPFieldVectorized (base on FieldVectorized<GHPScalar<Complex>,2>)
 and HeldFieldVectorized (based on FieldVectorized<GHPScalar<Complex>,1>;)`
@@ -258,7 +245,8 @@ on an $$N_r \times N_z$$   grid of $$r,z$$ values.
 
 ---
 
-## 6.  Spectral Fields (`ghz/spectral`)
+# 3 `spectral`
+## 3.0  Spectral Fields (`ghz/spectral`)
 - **`SpectralFieldVectorized<T>`**: generic 2D spectral field container with contiguous storage and fast slice views.
   - stores mode metadata (e.g. $$m$$, $$\omega$$, and/or $$\{m,k_r,k_z\}$$ depending on configuration)
   - provides `RSlice`/`ZSlice` views via `std::span`/raw pointers
@@ -271,7 +259,8 @@ on an $$N_r \times N_z$$   grid of $$r,z$$ values.
   - provides row/column slicing via `std::span` and pointer-backed views
   - uses a fully contiguous memory layout for cache efficiency
 
-## 7. `SpectralDiffer`
+## 3.1 `SpectralGHPFieldVectorized`
+## 3.2. `SpectralDiffer`
 Legendre–Gauss–Lobatto collocation, barycentric interpolation and differentiation.
 - builds nodes and differentiation matrices for spectral fields
 
@@ -284,12 +273,14 @@ Provides:
 
 Used to operate on `ZSlice` objects of a `SpectralField`.
 
-## 8. `KinnersleyHeldOperators<CoordType T>`
+## 3.3 `KinnersleyHeldOperators<CoordType T>`
 Implements Held operators on spectral field slices
  - used to build the transport operators in the GHZ hierarchy
+## 3.4 `SpectralCoordinateMaps` and `PhysicalChebRadialOps` 
 
 
-## 9. `KerrBoundOrbit`
+# 4 `orbit`
+## 4.0 `KerrBoundOrbit`
 Action–angle parametrization of bound orbits in Kerr spacetime.
 
 - Computes mino and BL frequencies via elliptic integrals
@@ -298,6 +289,9 @@ Action–angle parametrization of bound orbits in Kerr spacetime.
 - Keplerian parametrization
 - Supplies data needed for constructing puncture sources
 
+# 5 `source`
+
+# 6 `transport`
 ---
 
 ## ⚙️ Build Instructions

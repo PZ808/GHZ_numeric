@@ -8,12 +8,76 @@
 #include <fftw3.h>
 #include <fstream>
 #include <iomanip>
+#include <stdexcept>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
 // make math::sqr available
 using math::sqr;
+
+orbit::KerrCircularEquatorialOrbit::KerrCircularEquatorialOrbit(
+    const KerrMetric& km, Real r0, int chi)
+    : KerrOrbitBase(km), r0_(r0), chi_(chi), E_(0), Lz_(0), Ups_t_(0),
+      Ups_phi_(0), Omega_phi_(0) {
+    if (r0_ <= Real(0))
+        throw std::invalid_argument("circular orbit radius must be positive");
+    if (chi_ != -1 && chi_ != 1)
+        throw std::invalid_argument("circular orbit orientation must be +1 or -1");
+
+    using std::pow;
+    using std::sqrt;
+    const Real sqrt_M = sqrt(M_);
+    const Real sqrt_r = sqrt(r0_);
+    const Real r_three_halves = r0_ * sqrt_r;
+    const Real signed_a_sqrt_M = Real(chi_) * a_ * sqrt_M;
+    const Real radial_factor = r_three_halves - Real(3) * M_ * sqrt_r
+        + Real(2) * signed_a_sqrt_M;
+    if (radial_factor <= Real(0))
+        throw std::domain_error("circular timelike orbit lies at or inside the photon orbit");
+
+    const Real common_denominator =
+        pow(r0_, Real(0.75)) * sqrt(radial_factor);
+    E_ = (r_three_halves - Real(2) * M_ * sqrt_r + signed_a_sqrt_M)
+        / common_denominator;
+    Lz_ = Real(chi_) * sqrt_M
+        * (r0_ * r0_ - Real(2 * chi_) * a_ * sqrt(M_ * r0_) + a_ * a_)
+        / common_denominator;
+
+    Omega_phi_ = Real(chi_) * sqrt_M / (r_three_halves + signed_a_sqrt_M);
+    const Real gamma_numerator = r_three_halves + signed_a_sqrt_M;
+    const Real gamma_denominator = sqrt(
+        r0_ * r0_ * r0_ - Real(3) * M_ * r0_ * r0_
+        + Real(2) * signed_a_sqrt_M * r_three_halves);
+    const Real gamma_value = gamma_numerator / gamma_denominator;
+
+    // On the equator d tau / d lambda = Sigma = r0^2.
+    Ups_t_ = r0_ * r0_ * gamma_value;
+    Ups_phi_ = Ups_t_ * Omega_phi_;
+}
+
+orbit::KerrCircularEquatorialOrbit::OutgoingFourVelocity
+orbit::KerrCircularEquatorialOrbit::outgoing_four_velocity() const noexcept {
+    const Real gamma_value = gamma();
+    return {gamma_value, Real(0), Real(0), gamma_value * Omega_phi_};
+}
+
+orbit::KerrCircularEquatorialOrbit::KinnersleyFourVelocity
+orbit::KerrCircularEquatorialOrbit::kinnersley_four_velocity() const noexcept {
+    using std::sqrt;
+    const Real gamma_value = gamma();
+    const Real A = Real(1) - a_ * Omega_phi_;
+    const Real B = (r0_ * r0_ + a_ * a_) * Omega_phi_ - a_;
+    const Real v_l = gamma_value * A;
+    const Real v_n = gamma_value * gKerr.Delta(r0_) * A / (Real(2) * r0_ * r0_);
+    const teuk::Complex v_m(Real(0), -gamma_value * B / (sqrt(Real(2)) * r0_));
+    return {
+        teuk::Complex(v_l, Real(0)),
+        teuk::Complex(v_n, Real(0)),
+        v_m,
+        std::conj(v_m)
+    };
+}
 
 /** @brief Initializes the KerrBoundOrbit object by computing frequencies, sampling data,
 * and building splines for the orbital parameters.

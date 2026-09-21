@@ -44,7 +44,7 @@ namespace {
     int q_test = -3;
 
     template <typename T>
-    using GHP = GHPScalar<T>;
+    using GHP = ghp::GHPScalar<T>;
 
     struct TestFailure : std::runtime_error {
         using std::runtime_error::runtime_error;
@@ -390,10 +390,10 @@ namespace {
         std::vector<GHP<Complex>> outD(Nr, make_scalar(Complex(0,0), p_test, q_test));
         std::vector<GHP<Complex>> outB(Nr, make_scalar(Complex(0,0), p_test, q_test));
 
-        diff.dr_Dmatrix(std::span<const GHP<Complex>>(in.data(), in.size()),
+        diff.dx_Dmatrix(std::span<const GHP<Complex>>(in.data(), in.size()),
                         std::span<GHP<Complex>>(outD.data(), outD.size()));
 
-        diff.dr_barycentric_inplace(std::span<const GHP<Complex>>(in.data(), in.size()),
+        diff.dx_barycentric_inplace(std::span<const GHP<Complex>>(in.data(), in.size()),
                                     std::span<GHP<Complex>>(outB.data(), outB.size()));
 
         check_derivative_vector(r, outD, df, Real(5e-11), "dr_Dmatrix polynomial exactness");

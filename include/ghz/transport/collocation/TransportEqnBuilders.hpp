@@ -15,8 +15,75 @@
 #include <stdexcept>
 #include <vector>
 #include <complex>
+#include <algorithm>
+#include <limits>
+#include <string>
 
 namespace ghz::collocation {
+
+    namespace detail {
+        inline void check_rhs_size(const std::vector<teuk::Complex>& rhs,
+                                   std::size_t n,
+                                   const char* where)
+        {
+            if (rhs.size() != n) {
+                throw std::runtime_error(std::string(where) +
+                                         ": right-hand side size mismatch");
+            }
+        }
+
+        inline teuk::Complex rho_at(teuk::Real r, teuk::Real z, teuk::Real a)
+        {
+            return -teuk::Real(1) /
+                   (teuk::Complex(r, -a * z));
+        }
+    }
+
+    // Generic source form of the seed equation.  Archive-specific code can
+    // condition T_ll and call this without coupling the solver to an archive.
+    inline TwoDomainEquationSlice
+    build_xmmbar_two_domain_eq_slice(
+            const ghz::numeric::PhysicalChebRadialOps& rops_left,
+            const ghz::numeric::PhysicalChebRadialOps& rops_right,
+            teuk::Real z,
+            teuk::Real a,
+            const std::vector<teuk::Complex>& rhs_left,
+            const std::vector<teuk::Complex>& rhs_right)
+    {
+        using Real = teuk::Real;
+        using Complex = teuk::Complex;
+        const auto& rL = rops_left.r();
+        const auto& rR = rops_right.r();
+        detail::check_rhs_size(rhs_left, rL.size(),
+                               "build_xmmbar_two_domain_eq_slice(left)");
+        detail::check_rhs_size(rhs_right, rR.size(),
+                               "build_xmmbar_two_domain_eq_slice(right)");
+
+        TwoDomainEquationSlice eq;
+        eq.left.a2.assign(rL.size(), Complex(1.0, 0.0));
+        eq.left.a1.resize(rL.size());
+        eq.left.a0.resize(rL.size());
+        eq.left.rhs = rhs_left;
+        eq.right.a2.assign(rR.size(), Complex(1.0, 0.0));
+        eq.right.a1.resize(rR.size());
+        eq.right.a0.resize(rR.size());
+        eq.right.rhs = rhs_right;
+
+        auto fill = [&](const std::vector<Real>& r,
+                        ScalarEquationSlice& out) {
+            for (std::size_t i = 0; i < r.size(); ++i) {
+                const Complex rho = detail::rho_at(r[i], z, a);
+                const Complex rhob = std::conj(rho);
+                const Real P = (rho + rhob).real();
+                const Real Q = ((rho - rhob) * (rho - rhob)).real();
+                out.a1[i] = Complex(-P, 0.0);
+                out.a0[i] = Complex(-Q, 0.0);
+            }
+        };
+        fill(rL, eq.left);
+        fill(rR, eq.right);
+        return eq;
+    }
 
     /**
      * @brief Build the two-domain collocation equation for X_{m\bar m}
@@ -88,51 +155,102 @@ namespace ghz::collocation {
             }
         }
 
+        return build_xmmbar_two_domain_eq_slice(
+                rops_left, rops_right, z, a,
+                src_left.Tll_on_r_grid(rops_left.r()),
+                src_right.Tll_on_r_grid(rops_right.r()));
+    }
+
+    // X_nm equation in direct second-order collocation form.  The source is
+    // T_lm + N[X_mmbar] and is deliberately supplied by the caller.
+    inline TwoDomainEquationSlice
+    build_xnm_two_domain_eq_slice(
+            const ghz::numeric::PhysicalChebRadialOps& rops_left,
+            const ghz::numeric::PhysicalChebRadialOps& rops_right,
+            teuk::Real z,
+            teuk::Real a,
+            const std::vector<teuk::Complex>& rhs_left,
+            const std::vector<teuk::Complex>& rhs_right)
+    {
+        using Complex = teuk::Complex;
         const auto& rL = rops_left.r();
         const auto& rR = rops_right.r();
-
-        const std::size_t NL = rL.size();
-        const std::size_t NR = rR.size();
+        detail::check_rhs_size(rhs_left, rL.size(),
+                               "build_xnm_two_domain_eq_slice(left)");
+        detail::check_rhs_size(rhs_right, rR.size(),
+                               "build_xnm_two_domain_eq_slice(right)");
 
         TwoDomainEquationSlice eq;
-        eq.left.a2.resize(NL);
-        eq.left.a1.resize(NL);
-        eq.left.a0.resize(NL);
-        eq.left.rhs = src_left.Tll_on_r_grid(rL);
+        auto fill = [&](const std::vector<teuk::Real>& r,
+                        const std::vector<Complex>& rhs,
+                        ScalarEquationSlice& out) {
+            out.a2.resize(r.size(), Complex(0.5, 0.0));
+            out.a1.resize(r.size());
+            out.a0.resize(r.size());
+            out.rhs = rhs;
 
-        eq.right.a2.resize(NR);
-        eq.right.a1.resize(NR);
-        eq.right.a0.resize(NR);
-        eq.right.rhs = src_right.Tll_on_r_grid(rR);
+            for (std::size_t i = 0; i < r.size(); ++i) {
+                const Complex rho = detail::rho_at(r[i], z, a);
+                const Complex rhob = std::conj(rho);
+                const Complex s = rho + rhob;
+                const Complex sp = rho * rho + rhob * rhob;
+                const Complex spp = Complex(2.0, 0.0) *
+                                    (rho * rho * rho + rhob * rhob * rhob);
+                const Complex A = rho * s;
+                const Complex Ap = rho * rho * s + rho * sp;
+                const Complex App = Complex(2.0, 0.0) * rho * rho * rho * s
+                                    + Complex(2.0, 0.0) * rho * rho * sp
+                                    + rho * spp;
 
-        // Left coefficients
-        for (std::size_t i = 0; i < NL; ++i) {
-            const Real r = rL[i];
-            const Complex rho  = -Real(1) / (r - Complex(0.0, a*z));
-            const Complex rhob = std::conj(rho);
+                // rho/(2s) d_r[s^2 d_r(u/(rho s))] = source.
+                out.a1[i] = -rho;
+                out.a0[i] = (Ap / A) * (Ap / A)
+                            - App / (Complex(2.0, 0.0) * A)
+                            - (sp / s) * (Ap / A);
+            }
+        };
+        fill(rL, rhs_left, eq.left);
+        fill(rR, rhs_right, eq.right);
+        return eq;
+    }
 
-            const Real P = (rho + rhob).real();
-            const Real Q = ((rho - rhob) * (rho - rhob)).real();
+    // X_nn is first order after expanding the Held form:
+    // 1/2 (rho+rhobar)^2 d_r[X_nn/(rho+rhobar)] = source.
+    inline TwoDomainEquationSlice
+    build_xnn_two_domain_eq_slice(
+            const ghz::numeric::PhysicalChebRadialOps& rops_left,
+            const ghz::numeric::PhysicalChebRadialOps& rops_right,
+            teuk::Real z,
+            teuk::Real a,
+            const std::vector<teuk::Complex>& rhs_left,
+            const std::vector<teuk::Complex>& rhs_right)
+    {
+        using Complex = teuk::Complex;
+        const auto& rL = rops_left.r();
+        const auto& rR = rops_right.r();
+        detail::check_rhs_size(rhs_left, rL.size(),
+                               "build_xnn_two_domain_eq_slice(left)");
+        detail::check_rhs_size(rhs_right, rR.size(),
+                               "build_xnn_two_domain_eq_slice(right)");
 
-            eq.left.a2[i] = Complex(1.0, 0.0);
-            eq.left.a1[i] = Complex(-P, 0.0);
-            eq.left.a0[i] = Complex(-Q, 0.0);
-        }
-
-        // Right coefficients
-        for (std::size_t i = 0; i < NR; ++i) {
-            const Real r = rR[i];
-            const Complex rho  = -Real(1) / (r - Complex(0.0, a * z));
-            const Complex rhob = std::conj(rho);
-
-            const Real P = (rho + rhob).real();
-            const Real Q = ((rho - rhob) * (rho - rhob)).real();
-
-            eq.right.a2[i] = Complex(1.0, 0.0);
-            eq.right.a1[i] = Complex(-P, 0.0);
-            eq.right.a0[i] = Complex(-Q, 0.0);
-        }
-
+        TwoDomainEquationSlice eq;
+        auto fill = [&](const std::vector<teuk::Real>& r,
+                        const std::vector<Complex>& rhs,
+                        ScalarEquationSlice& out) {
+            out.a2.assign(r.size(), Complex(0.0, 0.0));
+            out.a1.resize(r.size());
+            out.a0.resize(r.size());
+            out.rhs = rhs;
+            for (std::size_t i = 0; i < r.size(); ++i) {
+                const Complex rho = detail::rho_at(r[i], z, a);
+                const Complex rhob = std::conj(rho);
+                out.a1[i] = Complex(0.5, 0.0) * (rho + rhob);
+                out.a0[i] = -Complex(0.5, 0.0) *
+                            (rho * rho + rhob * rhob);
+            }
+        };
+        fill(rL, rhs_left, eq.left);
+        fill(rR, rhs_right, eq.right);
         return eq;
     }
 

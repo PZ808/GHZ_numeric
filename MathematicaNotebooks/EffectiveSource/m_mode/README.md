@@ -4,7 +4,7 @@ This README documents the current Mathematica workflow for computing spheroidal-
 
 The main output is a set of radial functions
 
-\[
+$$
 T^s_{\ell m}(X)
 =
 2\pi
@@ -12,7 +12,7 @@ T^s_{\ell m}(X)
 \overline{{}_sS_{\ell m}(\arccos y,0;a\omega)}
 \,
 T^s_m(X,Y=-r_0 y),
-\]
+$$
 
 where
 

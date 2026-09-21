@@ -9,6 +9,7 @@
 #include "ghz/core/GhzTypes.hpp"
 #include "ghz/spectral/SpectralGHPFieldVectorized.hpp"
 #include "ghz/spectral/SpectralDiffer.hpp"
+#include "ghz/core/ComplexRational.hpp"
 
 #include <vector>
 #include <span>
@@ -113,7 +114,12 @@ namespace ghz {
     };
 
 
-
+    /**
+     * @name InitialDataXnm
+     * @brief Initial data for X_nm, which is complex-valued.
+     *  This assumes a box window on the puncture.
+     *
+     */
     class InitialDataXnm {
     public:
         using Real     = teuk::Real;
@@ -122,10 +128,14 @@ namespace ghz {
 
         struct BoundaryData {
             // all on the z-grid at r = r_min
-            std::span<const Complex> Tlm_deltaPrime_minus;
-            std::span<const Complex> Tlm_delta_minus;
-            std::span<const Complex> tedth_Tlm_deltaPrime_minus;
+            std::span<const Complex> Tlm_deltaPrime_minus; // T_{lm}^{(δ',-)}
+            std::span<const Complex> Tlm_delta_minus;  // T_{lm}^{(δ,-)}
+
+            std::span<const Complex> Tll_deltaPrime_minus; // T_{ll}^{(δ',-)}
+            std::span<const Complex> tedth_Tll_deltaPrime_minus; // \tilde\edth T_{ll}^{(δ',-)}
+
             std::span<const Complex> rho_at_rmin;
+            std::span<const Complex> tau0_at_rmin;   // tau^\circ at r = r_min
         };
 
         explicit InitialDataXnm(std::vector<Real> zvals, std::size_t ir_min = 0)
@@ -150,10 +160,18 @@ namespace ghz {
 
             const Complex rho  = bd.rho_at_rmin[iz];
             const Complex rhob = std::conj(rho);
+            const Complex tau0  = bd.tau0_at_rmin[iz];
 
-            return Real(4) * rho  * bd.Tlm_deltaPrime_minus[iz]
-                   + Real(2) * bd.Tlm_delta_minus[iz]
-                   - rhob * bd.tedth_Tlm_deltaPrime_minus[iz];
+            const Complex TlmDp = bd.Tlm_deltaPrime_minus[iz]; // T_{lm}^{(δ',-)}
+            const Complex TlmD  = bd.Tlm_delta_minus[iz]; // T_{lm}^{(δ,-)}
+
+            const Complex TllDp       = bd.Tll_deltaPrime_minus[iz]; // T_{ll}^{(δ',-)}
+            const Complex tedthTllDp  = bd.tedth_Tll_deltaPrime_minus[iz]; // T_edth T_{ll}^{(δ',-)}
+
+            return Real(4) * rho * TlmDp
+                   + Real(2) * TlmD
+                   - rhob * tedthTllDp
+                   + rhob * (Real(3) * rhob + rho) * tau0 * TllDp;
         }
 
         [[nodiscard]] StateVec make_state(std::size_t iz, const BoundaryData& bd) const {
@@ -199,16 +217,19 @@ namespace ghz {
         std::size_t ir_min_{0};
 
         void check_sizes_(const BoundaryData& bd) const {
-            const std::size_t Nz = zvals_.size();
-            if (bd.Tlm_deltaPrime_minus.size()       != Nz ||
-                bd.Tlm_delta_minus.size()            != Nz ||
-                bd.tedth_Tlm_deltaPrime_minus.size() != Nz ||
-                bd.rho_at_rmin.size()                != Nz)
-            {
-                throw std::runtime_error(
-                        "InitialDataXnm: boundary arrays must all have size zvals.size()."
-                );
-            }
+            const auto n = zvals_.size();
+            auto check = [n](std::size_t m, const char* name) {
+                if (m != n) {
+                    throw std::runtime_error(std::string("InitialDataXnm: size mismatch for ") + name);
+                }
+            };
+
+            check(bd.Tlm_deltaPrime_minus.size(), "Tlm_deltaPrime_minus");
+            check(bd.Tlm_delta_minus.size(), "Tlm_delta_minus");
+            check(bd.Tll_deltaPrime_minus.size(), "Tll_deltaPrime_minus");
+            check(bd.tedth_Tll_deltaPrime_minus.size(), "tedth_Tll_deltaPrime_minus");
+            check(bd.rho_at_rmin.size(), "rho_at_rmin");
+            check(bd.tau0_at_rmin.size(), "tau0_at_rmin");
         }
 
         template <typename Field>
@@ -230,14 +251,15 @@ namespace ghz {
         using StateVec = std::vector<Real>;
 
         struct BoundaryData {
-            // all quantities evaluated on the z-grid at r = r_min
-
+            // all bd quantities are define on the z-grid at r = r_min
+            //
             std::span<const Complex> Tln_delta_minus;                 // T_ln^{(δ,-)}
             std::span<const Complex> Tll_delta_minus;                 // T_ll^{(δ,-)}
             std::span<const Complex> du_Tll_deltaPrime_minus;         // ∂_u T_ll^{(δ',-)}
             std::span<const Complex> Tll_deltaPrime_minus;            // T_ll^{(δ',-)}
+            std::span<const Complex> Tln_deltaPrime_minus;            // T_ln^{(δ',-)}
 
-            std::span<const Complex> tedth_Tlm_deltaPrime_minus;      // \tilde{edth} T_lm^{(δ',-)}
+            std::span<const Complex> tedthPrime_Tlm_deltaPrime_minus; // \tilde{edth}' T_lm^{(δ',-)}
             std::span<const Complex> tedth_Tlmbar_deltaPrime_minus;   // \tilde{edth} T_l\bar{m}^{(δ',-)}
 
             std::span<const Complex> Tlm_deltaPrime_minus;            // T_lm^{(δ',-)}
@@ -275,19 +297,23 @@ namespace ghz {
                     - bd.delta_over_2Sigma_at_rmin[iz] * bd.Tll_delta_minus[iz]
                     + bd.u_coeff_at_rmin[iz] * bd.du_Tll_deltaPrime_minus[iz]
                     - (rho + rhob) * bd.rhoPrimeOverRho_at_rmin[iz] * bd.Tll_deltaPrime_minus[iz]
-                    - (rho  * bd.tedth_Tlm_deltaPrime_minus[iz]
+                    - (rho  * bd.tedthPrime_Tlm_deltaPrime_minus[iz]
                        + rhob * bd.tedth_Tlmbar_deltaPrime_minus[iz])
                     + Real(2) * rho * rhob *
                       (bd.tau0_at_rmin[iz]    * bd.Tlmbar_deltaPrime_minus[iz]
                        + bd.tau0bar_at_rmin[iz] * bd.Tlm_deltaPrime_minus[iz]);
 
-            const Real denom = (rho + rhob).real();
-            if (std::abs(denom) < 1e-14) {
-                throw std::runtime_error("InitialDataXnn: denominator (rho+rhob) too small.");
-            }
+
+            const Real denom = teuk::floating::denominator_checked(
+                    teuk::cx::rho_plus_rhob(rho),
+                    "InitialDataXnn: rho+rhob");
+
+            const Real rhs_real = teuk::floating::real_part_checked(
+                    rhs,
+                    "InitialDataXnn: rhs");
 
             // x_nn is real; discard tiny imaginary numerical pollution
-            return Real(2) * rhs.real() / denom;
+            return Real(2)*rhs_real / denom;
         }
 
         [[nodiscard]] StateVec make_state(std::size_t iz, const BoundaryData& bd) const {
@@ -322,20 +348,21 @@ namespace ghz {
         void check_sizes_(const BoundaryData& bd) const {
             const std::size_t Nz = zvals_.size();
 
-            if (bd.Tln_delta_minus.size()               != Nz ||
-                bd.Tll_delta_minus.size()               != Nz ||
-                bd.du_Tll_deltaPrime_minus.size()       != Nz ||
-                bd.Tll_deltaPrime_minus.size()          != Nz ||
-                bd.tedth_Tlm_deltaPrime_minus.size()    != Nz ||
-                bd.tedth_Tlmbar_deltaPrime_minus.size() != Nz ||
-                bd.Tlm_deltaPrime_minus.size()          != Nz ||
-                bd.Tlmbar_deltaPrime_minus.size()       != Nz ||
-                bd.rho_at_rmin.size()                   != Nz ||
-                bd.rhoPrimeOverRho_at_rmin.size()       != Nz ||
-                bd.tau0_at_rmin.size()                  != Nz ||
-                bd.tau0bar_at_rmin.size()               != Nz ||
-                bd.delta_over_2Sigma_at_rmin.size()     != Nz ||
-                bd.u_coeff_at_rmin.size()               != Nz)
+            if (bd.Tln_delta_minus.size()                   != Nz ||
+                bd.Tll_delta_minus.size()                   != Nz ||
+                bd.du_Tll_deltaPrime_minus.size()           != Nz ||
+                bd.Tll_deltaPrime_minus.size()              != Nz ||
+                bd.tedthPrime_Tlm_deltaPrime_minus.size()   != Nz ||
+                bd.tedth_Tlmbar_deltaPrime_minus.size()     != Nz ||
+                bd.Tlm_deltaPrime_minus.size()              != Nz ||
+                bd.Tlmbar_deltaPrime_minus.size()           != Nz ||
+                bd.rho_at_rmin.size()                       != Nz ||
+                bd.rhoPrimeOverRho_at_rmin.size()           != Nz ||
+                bd.tau0_at_rmin.size()                      != Nz ||
+                bd.tau0bar_at_rmin.size()                   != Nz ||
+                bd.delta_over_2Sigma_at_rmin.size()         != Nz ||
+                bd.u_coeff_at_rmin.size()                   != Nz
+                )
             {
                 throw std::runtime_error(
                         "InitialDataXnn: all boundary arrays must have size zvals.size()."
@@ -352,7 +379,17 @@ namespace ghz {
                 throw std::runtime_error("InitialDataXnn: Nz mismatch for " + name);
             }
         }
-    };
+        void check_delta_prime_consistency_(std::size_t iz, const BoundaryData& bd) const {
+            const Complex expected =
+                    - bd.rhoPrimeOverRho_at_rmin[iz] * bd.Tll_deltaPrime_minus[iz];
+
+            teuk::floating::require_nearly_equal(
+                    bd.Tln_deltaPrime_minus[iz],
+                    expected,
+                    "InitialDataXnn: inconsistent delta-prime boundary data");
+        }
+
+    }; // class InitialDataXnn
 
 
 } // namespace ghz

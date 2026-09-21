@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
+
+# Force Homebrew LLVM before project() so CMake does not enter a compiler-cache
+# reconfigure loop.
+set(CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm/bin/clang++)
+set(CMAKE_C_COMPILER   /opt/homebrew/opt/llvm/bin/clang)
+
 project(GHZ_numeric LANGUAGES CXX)
 
 # --------------------------
@@ -8,9 +14,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+
 # Force Homebrew LLVM
-set(CMAKE_C_COMPILER   "/opt/homebrew/opt/llvm@20/bin/clang")
-set(CMAKE_CXX_COMPILER "/opt/homebrew/opt/llvm@20/bin/clang++")
+#set(CMAKE_C_COMPILER   "/opt/homebrew/opt/llvm@21/bin/clang")
+#set(CMAKE_CXX_COMPILER "/opt/homebrew/opt/llvm@21/bin/clang++")
+
+include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.14.0
+)
 
 add_compile_definitions(TEUK_PRECISION=2)
 
@@ -41,11 +56,20 @@ if(OpenMP_CXX_FOUND)
     message(STATUS "Found OpenMP: ${OpenMP_CXX_FLAGS}")
 endif()
 
+
 # --------------------------
 # External dependencies
 # --------------------------
 find_package(Eigen3 REQUIRED)
 find_package(FFTW3 REQUIRED)
+
+include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.14.0
+)
 
 # --------------------------
 # Executable
@@ -89,22 +113,42 @@ add_executable(GHZ_numeric
 
         include/ghz/orbit/Splines.hpp
 
-        include/ghz/transport/RK/ODE.hpp
         include/ghz/transport/Corrector.hpp
         src/ghz/transport/Corrector.cpp
-        include/ghz/transport/RK/Builders.hpp
-        include/ghz/transport/RK/ZSliceSolver.hpp
-        #include/ghz/transport/Operators.hpp
-        # src/ghz/transport/Operators.cpp
+        #include/ghz/transport/RK/ODE.hpp
+        #include/ghz/transport/RK/Builders.hpp
+        #include/ghz/transport/RK/ZSliceSolver.hpp
 
-        # src/ghz/transport/Operators.cpp
         src/ghz/transport/SourceBuilders.cpp
         include/ghz/source/EffectiveSource.hpp
+
         include/ghz/source/BinaryEffectiveSourceArchive.hpp
         src/ghz/source/BinaryEffectiveSourceArchive.cpp
+
         include/ghz/source/ConditionSource.hpp
         src/ghz/source/ConditionSource.cpp
-        include/ghz/transport/collocation/SpectralSliceSolve.hpp src/ghz/transport/collocation/SpectralSliceSolve.cpp)
+        include/ghz/source/TeukolskySource.hpp
+        src/ghz/source/TeukolskySource.cpp
+        include/ghz/source/AngularProjection.hpp
+        src/ghz/source/AngularProjection.cpp
+
+        include/ghz/asymptotic/SchwarzschildPsi0Modes.hpp
+        src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp
+        include/ghz/asymptotic/BondiHeldSeedSolve.hpp
+        src/ghz/asymptotic/BondiHeldSeedSolve.cpp
+        include/ghz/asymptotic/SchwarzschildBondiGauge.hpp
+        src/ghz/asymptotic/SchwarzschildBondiGauge.cpp
+
+        include/ghz/transport/collocation/SpectralSliceSolve.hpp
+        src/ghz/transport/collocation/SpectralSliceSolve.cpp
+
+        include/ghz/source/ConditionBoundaryData.hpp
+
+        src/ghz/source/BinaryBoundaryDataArchive.cpp
+        src/ghz/source/ConditionBoundaryData.cpp
+        src/ghz/transport/collocation/XmmbarWorldtubeSolve.cpp
+        src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp include/ghz/core/Floating.hpp)
+
 
 # --------------------------
 # Target include directories
@@ -148,26 +192,51 @@ add_executable(kinnersley_held_operators_unit_tests
         src/ghz/ghp/SpinCoeffNP.cpp
         src/ghz/geom/KerrParams.cpp
         src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/KerrMetricBL.cpp
         src/ghz/geom/Coords.cpp
         src/ghz/geom/KinnersleyTetrad.cpp
         src/ghz/ghp/WeylScalars.cpp
         src/ghz/ghp/HeldScalars.cpp
+        src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp
         )
 add_executable(effective_source_unit_tests
         tests/unit/effective_source_unit_tests.cpp
         src/ghz/source/BinaryEffectiveSourceArchive.cpp src/ghz/source/ConditionSource.cpp
+        )
+add_executable(teukolsky_source_unit_tests
+        tests/unit/teukolsky_source_unit_tests.cpp
+        src/ghz/source/TeukolskySource.cpp
+        src/ghz/source/AngularProjection.cpp
+        src/ghz/geom/KerrParams.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/Coords.cpp
+        src/ghz/geom/KinnersleyTetrad.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/WeylScalars.cpp
+        src/ghz/ghp/HeldScalars.cpp
         )
 add_executable(bound_orbit_tests
         tests/unit/bound_orbit_tests.cpp
         src/ghz/orbit/KerrOrbit.cpp
         src/ghz/geom/KerrMetric.cpp
         src/ghz/geom/KerrParams.cpp
-        )
+        src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp
+        src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        src/ghz/geom/Coords.cpp
+        src/ghz/geom/KinnersleyTetrad.cpp
+        src/ghz/ghp/WeylScalars.cpp
+        src/ghz/ghp/HeldScalars.cpp)
 add_executable(corrector_tests
         tests/unit/corrector_tests.cpp
         src/ghz/transport/collocation/XmmbarWorldtubeSolve.cpp
         src/ghz/transport/collocation/SpectralSliceSolve.cpp
         src/ghz/source/ConditionSource.cpp
+        src/ghz/source/BinaryBoundaryDataArchive.cpp
+        src/ghz/source/ConditionBoundaryData.cpp
         src/ghz/transport/Corrector.cpp
         src/ghz/spectral/SpectralDiffer.cpp
         src/ghz/ghp/GHPScalars.cpp
@@ -176,22 +245,87 @@ add_executable(corrector_tests
         src/ghz/ghp/SpinCoeffNP.cpp
         src/ghz/geom/KerrMetricOutgoing.cpp
         )
+add_executable(proxy_solver_tests
+        tests/unit/proxy_solver_tests.cpp
+        src/ghz/transport/Corrector.cpp
+        src/ghz/transport/collocation/SpectralSliceSolve.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        )
+add_executable(bondi_schwarzschild_data_collocation_tests
+        tests/unit/bondi_schwarzschild_data_collocation_tests.cpp
+        src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp
+        src/ghz/asymptotic/BondiHeldSeedSolve.cpp
+        src/ghz/spectral/KinnersleySpectralHeldOperators.cpp
+        src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp
+        src/ghz/spectral/SpectralDiffer.cpp
+        src/ghz/ghp/GHPScalars.cpp
+        src/ghz/ghp/SpinCoeffNP.cpp
+        src/ghz/geom/KerrParams.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/Coords.cpp
+        src/ghz/geom/KinnersleyTetrad.cpp
+        src/ghz/ghp/WeylScalars.cpp
+        src/ghz/ghp/HeldScalars.cpp)
+add_executable(bondi_zeta_circular_orbit_tests
+        tests/unit/bondi_zeta_circular_orbit_tests.cpp
+        src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp
+        src/ghz/asymptotic/SchwarzschildBondiGauge.cpp
+        src/ghz/orbit/KerrOrbit.cpp
+        src/ghz/geom/KerrMetric.cpp
+        src/ghz/geom/KerrParams.cpp)
+
+
+FetchContent_MakeAvailable(Catch2)
+
+
+include(CTest)
+#include(Catch)
+
 
 target_include_directories(spectral_physical_unit_tests PRIVATE include)
 target_include_directories(spectral_solve_unit_tests PRIVATE include)
 target_include_directories(cubic_splines_tests PRIVATE include)
 target_include_directories(corrector_tests PRIVATE include)
+target_include_directories(proxy_solver_tests PRIVATE include)
 
 target_include_directories(spectral_unit_tests PRIVATE include)
 target_include_directories(effective_source_unit_tests PRIVATE include)
+target_include_directories(teukolsky_source_unit_tests PRIVATE include)
 target_include_directories(kinnersley_held_operators_unit_tests PRIVATE include)
 target_include_directories(bound_orbit_tests PRIVATE include)
+target_include_directories(bondi_schwarzschild_data_collocation_tests PRIVATE include)
+target_include_directories(bondi_zeta_circular_orbit_tests PRIVATE include)
 
 target_link_libraries(bound_orbit_tests PRIVATE  OpenMP::OpenMP_CXX
         fftw3l)
 
 target_link_libraries(corrector_tests PRIVATE  OpenMP::OpenMP_CXX
         fftw3l)
+target_link_libraries(proxy_solver_tests PRIVATE OpenMP::OpenMP_CXX fftw3l)
 target_link_libraries(kinnersley_held_operators_unit_tests PRIVATE
-        OpenMP::OpenMP_CXX
+        OpenMP::OpenMP_CXX  Catch2::Catch2WithMain
         fftw3)
+target_link_libraries(bondi_schwarzschild_data_collocation_tests PRIVATE
+        OpenMP::OpenMP_CXX fftw3)
+target_link_libraries(bondi_zeta_circular_orbit_tests PRIVATE
+        OpenMP::OpenMP_CXX fftw3l)
+#catch_discover_tests(kinnersley_held_operators_unit_tests)
+
+add_test(NAME spectral_unit_tests COMMAND spectral_unit_tests)
+add_test(NAME spectral_physical_unit_tests COMMAND spectral_physical_unit_tests)
+add_test(NAME spectral_solve_unit_tests COMMAND spectral_solve_unit_tests)
+add_test(NAME cubic_splines_tests COMMAND cubic_splines_tests)
+add_test(NAME kinnersley_held_operators_unit_tests COMMAND kinnersley_held_operators_unit_tests)
+add_test(NAME effective_source_unit_tests COMMAND effective_source_unit_tests)
+add_test(NAME teukolsky_source_unit_tests COMMAND teukolsky_source_unit_tests)
+add_test(NAME bound_orbit_tests COMMAND bound_orbit_tests)
+add_test(NAME corrector_tests COMMAND corrector_tests)
+add_test(NAME proxy_solver_tests COMMAND proxy_solver_tests)
+add_test(NAME bondi_schwarzschild_data_collocation_tests
+        COMMAND bondi_schwarzschild_data_collocation_tests
+        ${CMAKE_SOURCE_DIR}/tests/data/psi0_schwarzschild_r0_10_lmax20_mostly_minus.csv)
+add_test(NAME bondi_zeta_circular_orbit_tests
+        COMMAND bondi_zeta_circular_orbit_tests
+        ${CMAKE_SOURCE_DIR}/tests/data/psi0_schwarzschild_r0_10_lmax20_mostly_minus.csv)

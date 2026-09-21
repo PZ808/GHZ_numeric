@@ -75,7 +75,7 @@ void KinnersleyTetrad<BLCoords>::build_tetrad_at(const BLCoords& Xbl) {
 
     //SpinCoefficientsGHP sc_ghp(sc);
     sc_ghp = ghp::SpinCoefficientsGHP(sc);
-    sc_held = ghp::HeldCoefficients(sc_ghp, weyls);
+    sc_held = ghp::HeldCoefficients(M, a, z);
 
     weyls.set(ghp::WeylScalarType::Psi0,teuk::zeroC);
     weyls.set(ghp::WeylScalarType::Psi1,teuk::zeroC);
@@ -134,7 +134,7 @@ void KinnersleyTetrad<OutgoingCoords>::build_tetrad_at(const OutgoingCoords & Xo
 
     //SpinCoefficientsGHP sc_ghp(sc);
     sc_ghp = ghp::SpinCoefficientsGHP(sc);
-    sc_held = ghp::HeldCoefficients(sc_ghp, weyls);
+    sc_held = ghp::HeldCoefficients(M, a, z);
 
     weyls.set(ghp::WeylScalarType::Psi0,0.0_r);
     weyls.set(ghp::WeylScalarType::Psi1,0.0_r);
@@ -203,7 +203,7 @@ void KinnersleyTetrad<OutgoingCoordsCompact>::build_tetrad_at(const OutgoingCoor
 
     //SpinCoefficientsGHP sc_ghp(sc);
     sc_ghp = ghp::SpinCoefficientsGHP(sc);
-    sc_held = ghp::HeldCoefficients(sc_ghp, weyls);
+    sc_held = ghp::HeldCoefficients(M, a, z);
 
     weyls.set(ghp::WeylScalarType::Psi0,0.0_r);
     weyls.set(ghp::WeylScalarType::Psi1,0.0_r);
@@ -250,21 +250,14 @@ Tetrad::Scalars KinnersleyTetrad<BLCoords>::get_scalars_at(
     sc_local.set(SpinCoeffType::lambda, teuk::zeroC);
     sc_local.set(SpinCoeffType::nu, teuk::zeroC);
     sc_local.set(SpinCoeffType::epsilon, teuk::zeroC);
-    sc_local.set(SpinCoeffType::gamma, sc.get(SpinCoeffType::mu) + rho * rhobar*(r-M) / 2.0_r);
+    sc_local.set(SpinCoeffType::gamma, sc_local.get(SpinCoeffType::mu) + rho * rhobar*(r-M) / 2.0_r);
     sc_local.set(SpinCoeffType::beta, -rhobar*z / (two * s1 * math::Sqrt(two)));
-    sc_local.set(SpinCoeffType::alpha, -std::conj(sc.get(SpinCoeffType::beta))
-                                       + sc.get(SpinCoeffType::pi));
+    sc_local.set(SpinCoeffType::alpha, -std::conj(sc_local.get(SpinCoeffType::beta))
+                                       + sc_local.get(SpinCoeffType::pi));
 
     //SpinCoefficientsGHP sc_ghp(sc);
     auto sc_ghp_local = ghp::SpinCoefficientsGHP(sc_local);
-    ghp::WeylScalars W_local;
-
-    W_local.set(ghp::WeylScalarType::Psi0, teuk::zeroC);
-    W_local.set(ghp::WeylScalarType::Psi1, teuk::zeroC);
-    W_local.set(ghp::WeylScalarType::Psi2, M * cube(rho));
-    W_local.set(ghp::WeylScalarType::Psi3, teuk::zeroC);
-    W_local.set(ghp::WeylScalarType::Psi4, teuk::zeroC);
-    auto sc_held_local = ghp::HeldCoefficients(sc_ghp_local, W_local);
+    auto sc_held_local = ghp::HeldCoefficients(M, a, z);
 
     Tetrad::Scalars scalars;
     scalars.ghp_scalars = sc_ghp_local;
@@ -330,15 +323,8 @@ Tetrad::Scalars KinnersleyTetrad<OutgoingCoords>::get_scalars_at(
     sc_local.set(SpinCoeffType::nu, teuk::zeroC);
     sc_local.set(SpinCoeffType::epsilon, teuk::zeroC);
 
-    ghp::WeylScalars weyls_local;
-    weyls_local.set(ghp::WeylScalarType::Psi0,0.0_r);
-    weyls_local.set(ghp::WeylScalarType::Psi1,0.0_r);
-    weyls_local.set(ghp::WeylScalarType::Psi2,M*cube(rho));
-    weyls_local.set(ghp::WeylScalarType::Psi3,0.0_r);
-    weyls_local.set(ghp::WeylScalarType::Psi4,0.0_r);
-
     auto sc_ghp_local = ghp::SpinCoefficientsGHP(sc_local);
-    ghp::HeldCoefficients sc_held_local = ghp::HeldCoefficients(sc_ghp_local, weyls_local);
+    ghp::HeldCoefficients sc_held_local(M, a, z);
     scalars.ghp_scalars = sc_ghp_local;
     scalars.held_scalars = sc_held_local;
 
@@ -392,16 +378,10 @@ Tetrad::Scalars KinnersleyTetrad<OutgoingCoordsCompact>::get_scalars_at(
     sc_local.set(SpinCoeffType::nu, 0.0_r);
     sc_local.set(SpinCoeffType::epsilon, 0.0_r);
 
-    ghp::WeylScalars W;
-    W.set(ghp::WeylScalarType::Psi0, 0.0_r);
-    W.set(ghp::WeylScalarType::Psi1, 0.0_r);
-    W.set(ghp::WeylScalarType::Psi2, M*cube(-1.0_r/(r))*cube(1.0/Om_C)); // same as your code
-    W.set(ghp::WeylScalarType::Psi3, 0.0_r);
-    W.set(ghp::WeylScalarType::Psi4, 0.0_r);
     auto sc_ghp_local = ghp::SpinCoefficientsGHP(sc_local);
-    ghp::HeldCoefficients sc_held_local = ghp::HeldCoefficients(sc_ghp_local, W);
+    ghp::HeldCoefficients sc_held_local(M, a, z);
     scalars.ghp_scalars = sc_ghp_local;
-    scalars.held_scalars = sc_held;
+    scalars.held_scalars = sc_held_local;
     return scalars;
 }
 
@@ -492,9 +472,7 @@ KinnersleyTetrad<OutgoingCoordsCompact>::get_weyl_scalars_at(
 */
 template <typename CoordT>
 ghp::HeldCoefficients KinnersleyTetrad<CoordT>::get_held_scalars_at(const CoordT &X) const {
-
-    return HeldCoefficients(get_spin_coeffs_at(X),
-                            get_weyl_scalars_at(X));
+    return HeldCoefficients(M(), a(), X.x2);
 }
 
 // for any CoordT you actually use:
