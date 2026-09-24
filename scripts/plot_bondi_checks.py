@@ -136,11 +136,14 @@ def m_mode_figure(data_dir: Path) -> None:
     save(fig, data_dir / "m_mode_held_collocation")
 
 
-def metric_falloff_figure(data_dir: Path) -> None:
-    data = rows(data_dir / "metric_falloff.csv")
+def metric_falloff_figure(data_dir: Path, filename: str, output: str,
+                          spectral: bool = False) -> None:
+    data = rows(data_dir / filename)
     fig, axes = plt.subplots(2, 3, figsize=(15, 8), sharex=True,
                              constrained_layout=True)
-    fig.suptitle(r"Schwarzschild adjustment: $2\,\mathrm{Re}\,S^\dagger"
+    title = (r"Spectral Held $m$-mode adjustment: " if spectral else
+             r"Schwarzschild modal adjustment: ")
+    fig.suptitle(title + r"$2\,\mathrm{Re}\,S^\dagger"
                  r"(\Phi^{\mathrm{Adj}})+\mathcal{L}_{\zeta}g$",
                  fontsize=16, fontweight="semibold")
     for i, m in enumerate((2, 3)):
@@ -172,9 +175,14 @@ def metric_falloff_figure(data_dir: Path) -> None:
             ax.grid(alpha=0.22, which="both")
             if i == 0 and j == 0:
                 ax.legend(loc="upper right", frameon=False, fontsize=8)
-    fig.supxlabel(r"Fixed $z=0.37$, $u=\phi=0$; fitted $\psi_0$ data summed to $\ell=20$.",
-                 y=-0.025, fontsize=10)
-    save(fig, data_dir / "adjusted_metric_radial_falloff")
+    if spectral:
+        z = float(data[0]["z"])
+        footer = (rf"$N_z=21$, grid node $z={z:.3f}$; collocation-solved $\pm m$ seeds "
+                  r"from fitted, $\ell$-summed $\psi_0$ data.")
+    else:
+        footer = r"Fixed $z=0.37$, $u=\phi=0$; fitted $\psi_0$ data summed to $\ell=20$."
+    fig.supxlabel(footer, y=-0.025, fontsize=10)
+    save(fig, data_dir / output)
 
 
 def main() -> None:
@@ -184,7 +192,11 @@ def main() -> None:
     redshift_figure(args.data_dir)
     m_mode_figure(args.data_dir)
     if (args.data_dir / "metric_falloff.csv").exists():
-        metric_falloff_figure(args.data_dir)
+        metric_falloff_figure(args.data_dir, "metric_falloff.csv",
+                              "adjusted_metric_radial_falloff")
+    if (args.data_dir / "spectral_metric_falloff.csv").exists():
+        metric_falloff_figure(args.data_dir, "spectral_metric_falloff.csv",
+                              "spectral_m_mode_metric_falloff", spectral=True)
 
 
 if __name__ == "__main__":

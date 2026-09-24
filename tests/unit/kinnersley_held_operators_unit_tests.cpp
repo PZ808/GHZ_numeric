@@ -28,6 +28,7 @@
 #include "ghz/spectral/SpectralGHPFieldVectorized.hpp"
 #include "ghz/ghp/GHPScalars.hpp"
 
+#include <Eigen/Eigenvalues>
 #include <cmath>
 #include <complex>
 #include <exception>
@@ -1387,6 +1388,216 @@ namespace {
         return diag;
     }
 
+    // Finite Wigner-d sum for _sY_lm(theta,0), divided analytically by
+    // (1-z)^{|m+s|/2}(1+z)^{|m-s|/2}. No numerical pole division or
+    // Held operators enter this reference; the remaining powers are integers.
+    Real reduced_spherical_harmonic(int l, int m, int s, Real z)
+    {
+        const auto factorial = [](int n) {
+            Real value = 1;
+            for (int j = 2; j <= n; ++j) value *= Real(j);
+            return value;
+        };
+        const int n = -s;
+        const Real normalization = std::sqrt(
+                Real(2*l+1) / (Real(4)*std::acos(Real(-1))) *
+                factorial(l+m)*factorial(l-m)*factorial(l+n)*factorial(l-n));
+        Real result = 0;
+        for (int k = std::max(0, n-m); k <= std::min(l+n, l-m); ++k) {
+            const int minus_power = (m-n+2*k-std::abs(m+s))/2;
+            const int plus_power = (2*l+n-m-2*k-std::abs(m-s))/2;
+            const Real sign = ((k-m+n+s)%2 == 0) ? Real(1) : Real(-1);
+            result += sign * std::pow(Real(1)-z, minus_power) *
+                      std::pow(Real(1)+z, plus_power) /
+                      (factorial(l+n-k)*factorial(k)*factorial(m-n+k)*factorial(l-m-k));
+        }
+        return normalization * result / std::pow(Real(2), l);
+    }
+
+    void test_angular_teukolsky_starobinsky_spherical()
+    {
+        // Angular TS identities at a*omega=0 (also valid for stationary Kerr).
+        // See Casals & Teixeira da Costa, arXiv:2102.06734, section 2.
+        // edthH^4(_-2Y_lm) = B_l/4 * _+2Y_lm, and the barred reverse,
+        // B_l=(l-1)l(l+1)(l+2). Each Held operator contributes 1/sqrt(2).
+        // Test each direction independently: a round trip alone could hide
+        // reciprocal normalization errors. Reduced fields include both poles.
+        TestObjects T(13, 5);
+        for (int l : {2, 3, 4}) {
+            for (int m = -l; m <= l; ++m) {
+                for (bool raising : {true, false}) {
+                    for (bool barycentric : {false, true}) {
+                        const int initial_s = raising ? -2 : 2;
+                        auto field = build_test_field(T.diff, T.r_map, initial_s, -initial_s,
+                                                      m, 0, 0, Real(0));
+                        for (size_t ir = 0; ir < field.Nr(); ++ir) {
+                            for (size_t iz = 0; iz < field.Nz(); ++iz) {
+                                field(ir, iz).value() = Complex(Real(0.7), Real(-0.2)) *
+                                        reduced_spherical_harmonic(l, m, initial_s, T.diff.lgl_nodes()[iz]);
+                            }
+                        }
+                        int p = initial_s, q = -initial_s;
+                        for (int step = 0; step < 4; ++step) {
+                            auto out = build_test_field(T.diff, T.r_map, p, q, m, 0, 0, Real(0));
+                            if (barycentric) {
+                                for (size_t ir = 0; ir < field.Nr(); ++ir) {
+                                    auto in_slice = field.slice_R(ir);
+                                    auto out_slice = out.slice_R(ir);
+                                    if (raising) T.ops.edthHRed_bary_inplace_RSliceV(in_slice, out_slice);
+                                    else T.ops.edthBarHRed_bary_inplace_RSliceV(in_slice, out_slice);
+                                }
+                            } else {
+                                if (raising) T.ops.edthHRed_inplace(field, out);
+                                else T.ops.edthBarHRed_inplace(field, out);
+                            }
+                            if (raising) q -= 2;
+                            else p -= 2;
+                            for (size_t ir = 0; ir < out.Nr(); ++ir)
+                                require_uniform_pq(out.slice_R(ir), p, q, "TS intermediate weights");
+                            field = std::move(out);
+                        }
+                        const Real coefficient = Real((l-1)*l*(l+1)*(l+2))/Real(4);
+                        for (size_t ir = 0; ir < field.Nr(); ++ir) {
+                            for (size_t iz = 0; iz < field.Nz(); ++iz) {
+                                const Complex expected = coefficient * Complex(Real(0.7), Real(-0.2)) *
+                                        reduced_spherical_harmonic(l, m, -initial_s, T.diff.lgl_nodes()[iz]);
+                                const Complex got = field(ir, iz).value();
+                                const std::string label = "angular TS l=" + std::to_string(l) +
+                                        " m=" + std::to_string(m) + " initial_s=" + std::to_string(initial_s) +
+                                        " bary=" + std::to_string(barycentric) + " iz=" + std::to_string(iz);
+                                require_true(std::isfinite(got.real()) && std::isfinite(got.imag()), label);
+                                require_near(got, expected, Real(2e-8)*(Real(1)+std::abs(expected)), label);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    struct SpheroidalReference {
+        Real lambda; // Sign-independent Lambda of arXiv:2102.06734, Eq. (2.1).
+        std::vector<Real> reduced_values;
+    };
+
+    SpheroidalReference spheroidal_reference(int l, int m, int s, Real c,
+                                             const std::vector<Real>& nodes, int lmax)
+    {
+        // Independently solve the angular ODE in an orthonormal spherical basis:
+        // H = diag(j(j+1)-s^2) + c^2(1-Z^2) + 2*c*s*Z, Z = cos(theta).
+        // The analytic three-term recurrence for Z avoids Held derivatives.
+        using Matrix = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
+        const int lmin = std::max(std::abs(m), std::abs(s));
+        const int count = lmax-lmin+1;
+        Matrix z = Matrix::Zero(count+1, count+1);
+        for (int i = 0; i <= count; ++i) {
+            const int j = lmin+i;
+            z(i,i) = -Real(m*s)/Real(j*(j+1));
+            if (i > 0) {
+                const Real coupling = std::sqrt(Real((j*j-m*m)*(j*j-s*s)) /
+                                                Real(4*j*j-1))/Real(j);
+                z(i,i-1) = z(i-1,i) = coupling;
+            }
+        }
+        // Pad before squaring so the last retained Z^2 diagonal is correct.
+        Matrix h = (Real(2)*c*Real(s)*z-c*c*(z*z)).topLeftCorner(count,count);
+        for (int i = 0; i < count; ++i) {
+            const int j = lmin+i;
+            h(i,i) += Real(j*(j+1)-s*s)+c*c;
+        }
+        Eigen::SelfAdjointEigenSolver<Matrix> solver(h);
+        require_true(solver.info() == Eigen::Success, "spheroidal reference eigensolve");
+        auto coefficients = solver.eigenvectors().col(l-lmin).eval();
+        // Fix phase by continuous agreement with _sY_lm at c=0.
+        if (coefficients(l-lmin) < Real(0)) coefficients *= Real(-1);
+        const Real eigenvalue = solver.eigenvalues()(l-lmin);
+        require_true((h*coefficients-eigenvalue*coefficients).norm() < Real(1e-11),
+                     "spheroidal reference eigenpair residual");
+        SpheroidalReference result{eigenvalue, std::vector<Real>(nodes.size(), Real(0))};
+        for (size_t iz = 0; iz < nodes.size(); ++iz)
+            for (int i = 0; i < count; ++i)
+                result.reduced_values[iz] += coefficients(i) *
+                        reduced_spherical_harmonic(lmin+i, m, s, nodes[iz]);
+        return result;
+    }
+
+    void test_angular_teukolsky_starobinsky_finite_frequency()
+    {
+        // Casals & Teixeira da Costa, https://arxiv.org/abs/2102.06734,
+        // Eqs. (2.1), (2.4), (2.11). For unit-normalized real harmonics,
+        // each four-step spin reversal has coefficient sqrt(B_2)/4.
+        // Solve BOTH spin sectors independently, never by applying a Held op.
+        TestObjects T(19, 5);
+        for (Real c : {Real(-0.7), Real(0.3), Real(0.7)}) {
+            const Real omega = c/spin; // The fixture has nonzero Kerr spin.
+            for (int l : {2, 3, 4}) {
+                for (int m = -l; m <= l; ++m) {
+                    const auto minus = spheroidal_reference(l, m, -2, c, T.diff.lgl_nodes(), 18);
+                    const auto plus = spheroidal_reference(l, m, 2, c, T.diff.lgl_nodes(), 18);
+                    require_near_real(minus.lambda, plus.lambda, Real(1e-11), "spin-independent Lambda");
+                    // Check truncation independently of the identity being tested.
+                    for (int s : {-2, 2}) {
+                        const auto coarse = spheroidal_reference(l, m, s, c, T.diff.lgl_nodes(), 14);
+                        const auto& fine = s == -2 ? minus : plus;
+                        require_near_real(coarse.lambda, fine.lambda, Real(1e-11), "reference eigenvalue convergence");
+                        for (size_t iz = 0; iz < T.diff.Nz(); ++iz)
+                            require_near_real(coarse.reduced_values[iz], fine.reduced_values[iz],
+                                              Real(1e-11), "reference harmonic convergence");
+                    }
+                    const Real L = minus.lambda-Real(2*m)*c+Real(2);
+                    const Real B2 = L*L*(L+Real(2))*(L+Real(2)) +
+                            Real(40)*c*L*L*(Real(m)-c) + Real(48)*c*L*(Real(m)+c) +
+                            Real(144)*c*c*(Real(m)-c)*(Real(m)-c);
+                    require_true(B2 > Real(0), "positive angular TS constant");
+                    const Real coefficient = std::sqrt(B2)/Real(4);
+                    for (bool raising : {true, false}) {
+                        const auto& input = raising ? minus : plus;
+                        const auto& target = raising ? plus : minus;
+                        for (bool barycentric : {false, true}) {
+                            const int initial_s = raising ? -2 : 2;
+                            int p = initial_s, q = -initial_s;
+                            auto field = build_test_field(T.diff, T.r_map, p, q, m, 0, 0, omega);
+                            for (size_t ir = 0; ir < field.Nr(); ++ir)
+                                for (size_t iz = 0; iz < field.Nz(); ++iz)
+                                    field(ir,iz).value() = Complex(Real(0.7),Real(-0.2))*input.reduced_values[iz];
+                            for (int step = 0; step < 4; ++step) {
+                                auto out = build_test_field(T.diff, T.r_map, p, q, m, 0, 0, omega);
+                                if (barycentric) {
+                                    for (size_t ir = 0; ir < field.Nr(); ++ir) {
+                                        auto in_slice = field.slice_R(ir);
+                                        auto out_slice = out.slice_R(ir);
+                                        if (raising) T.ops.edthHRed_bary_inplace_RSliceV(in_slice, out_slice);
+                                        else T.ops.edthBarHRed_bary_inplace_RSliceV(in_slice, out_slice);
+                                    }
+                                } else {
+                                    if (raising) T.ops.edthHRed_inplace(field, out);
+                                    else T.ops.edthBarHRed_inplace(field, out);
+                                }
+                                if (raising) q -= 2;
+                                else p -= 2;
+                                for (size_t ir = 0; ir < out.Nr(); ++ir)
+                                    require_uniform_pq(out.slice_R(ir), p, q, "finite-frequency TS weights");
+                                field = std::move(out);
+                            }
+                            for (size_t ir = 0; ir < field.Nr(); ++ir) {
+                                for (size_t iz = 0; iz < field.Nz(); ++iz) {
+                                    const Complex expected = coefficient*Complex(Real(0.7),Real(-0.2))*target.reduced_values[iz];
+                                    const Complex got = field(ir,iz).value();
+                                    const std::string label = "finite-frequency TS l=" + std::to_string(l) +
+                                            " m=" + std::to_string(m) + " c=" + std::to_string(c) +
+                                            " s=" + std::to_string(initial_s) + " bary=" + std::to_string(barycentric) +
+                                            " iz=" + std::to_string(iz);
+                                    require_true(std::isfinite(got.real()) && std::isfinite(got.imag()), label);
+                                    require_near(got, expected, Real(2e-7)*(Real(1)+std::abs(expected)), label);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void test_reduced_operator_consistency()
     {
         TestObjects T(Nz, Nr);
@@ -1499,6 +1710,8 @@ int main() {
        //     {"commutator_edth_edthbar_rhs", test_commutator_edthH_edthbarH_rhs},
             {"commutator_thornPH_edthbar_rhs", test_commutator_thornPH_edthbarH_rhs},
 
+            {"angular_teukolsky_starobinsky_spherical", test_angular_teukolsky_starobinsky_spherical},
+            {"angular_teukolsky_starobinsky_finite_frequency", test_angular_teukolsky_starobinsky_finite_frequency},
             {"reduced_operator_consistency", test_reduced_operator_consistency},
             {"reduced_operator_consistency_branch_cases", test_reduced_operator_consistency_branch_cases}
     };

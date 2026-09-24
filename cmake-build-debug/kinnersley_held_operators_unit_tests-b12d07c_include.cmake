@@ -1,0 +1,5 @@
+if(EXISTS "/Users/antares/Projects/physics_codes/GHZ_numeric/cmake-build-debug/kinnersley_held_operators_unit_tests-b12d07c_tests.cmake")
+  include("/Users/antares/Projects/physics_codes/GHZ_numeric/cmake-build-debug/kinnersley_held_operators_unit_tests-b12d07c_tests.cmake")
+else()
+  add_test(kinnersley_held_operators_unit_tests_NOT_BUILT-b12d07c kinnersley_held_operators_unit_tests_NOT_BUILT-b12d07c)
+endif()

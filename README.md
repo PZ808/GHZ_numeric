@@ -130,7 +130,7 @@ The `main.cpp` file demonstrates how to:
   - store the  source fields (IRG case) $$T^{\mathcal R}_{ll}$$, 
   - $$T^{\mathcal R}_{lm}$$,
   - $$T^{\mathcal R}_{l\bar m}$$ 
-  - $$T^{\mathcal R}_{nn}$$ on the full 2D grid.
+  - $$T^{\mathcal R}_{ln}$$ on the full 2D grid.
 ## 2. Hierarchical solve layer
 - Solve radial ODEs slice-by-slice in $$z$$ (i.e. along rays) for each corrector field, building up the hierarchy level by level.
 using ZSliceSolver class member solver_single_z

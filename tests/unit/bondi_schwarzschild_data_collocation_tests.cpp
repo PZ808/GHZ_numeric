@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -32,11 +33,37 @@ teuk::Real relative_max_error(const std::vector<teuk::Complex>& actual,
     return error / scale;
 }
 
+teuk::Complex at_radius(const ghz::asymptotic::MetricGridLaurent& series,
+                        std::size_t node, teuk::Real radius) {
+    return series.coefficient[0][node] * radius
+        + series.coefficient[1][node]
+        + series.coefficient[2][node] / radius
+        + series.coefficient[3][node] / (radius * radius);
+}
+
+void write_radial_rows(std::ostream& stream, int m, teuk::Real z,
+                       teuk::Real pole, const char* name,
+                       const ghz::asymptotic::MetricGridParts& parts,
+                       std::size_t node) {
+    for (int i = 0; i <= 60; ++i) {
+        const teuk::Real radius = teuk::Real(20)
+            * std::pow(teuk::Real(100), teuk::Real(i) / teuk::Real(60));
+        const auto reconstructed = pole * at_radius(parts.reconstructed, node, radius);
+        const auto lie = pole * at_radius(parts.lie_zeta, node, radius);
+        const auto adjusted = reconstructed + lie;
+        stream << m << ',' << name << ',' << z << ',' << radius << ','
+               << std::abs(reconstructed) << ',' << std::abs(lie) << ','
+               << std::abs(adjusted) << ','
+               << std::abs(pole * parts.adjusted.coefficient[2][node]) << '\n';
+    }
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     try {
-        if (argc != 2) throw std::runtime_error("expected path to the psi0 coefficient CSV");
+        if (argc < 2 || argc > 3)
+            throw std::runtime_error("usage: bondi_schwarzschild_data_collocation_tests psi0.csv [spectral_plot.csv]");
         constexpr std::size_t nz = 21;
         constexpr std::size_t nr = 4;
         constexpr int m = 2;
@@ -98,6 +125,14 @@ int main(int argc, char** argv) {
 
         ghz::asymptotic::BondiHeldMetricReconstruction reconstruction(differ, operators, mass);
         ghz::asymptotic::SchwarzschildBondiMetric modal_reference(modes);
+        std::ofstream plot_stream;
+        if (argc == 3) {
+            plot_stream.open(argv[2]);
+            if (!plot_stream) throw std::runtime_error("cannot open spectral plot CSV");
+            plot_stream << std::setprecision(18)
+                        << "m,component,z,r,abs_reconstructed,abs_lie_zeta,abs_direct_sum,"
+                           "abs_adjusted_coefficient_1_over_r\n";
+        }
         for (int metric_m : {2, 3}) {
             const teuk::Real metric_omega = teuk::Real(metric_m) / std::sqrt(teuk::Real(1000));
             const auto positive_solve = solver.solve(
@@ -115,6 +150,8 @@ int main(int argc, char** argv) {
                           modes.exact_reduced_seed(-metric_m, -metric_omega, differ.lgl_nodes()))
                       << '\n';
             std::vector<teuk::Complex> reduced_fbar(nz);
+            // The reduced spin-harmonic reflection already carries (-1)^m;
+            // conjugating the solved -m grid is the complete +m partner.
             for (std::size_t i = 0; i < nz; ++i)
                 reduced_fbar[i] = std::conj(reflected_seed[i]);
             const auto grid = reconstruction.reconstruct(
@@ -163,9 +200,37 @@ int main(int argc, char** argv) {
                       << " spectral metric/reference difference=" << largest_reference_difference
                       << " at " << largest_label
                       << " growing/constant cancellation=" << largest_cancellation << '\n';
-            if (!(largest_reference_difference < teuk::Real(1e-3)
-                  && largest_cancellation < teuk::Real(1e-3)))
+            if (!(largest_reference_difference < teuk::Real(1e-5)
+                  && largest_cancellation < teuk::Real(1e-8)))
                 throw std::runtime_error("spectral Held metric disagrees with modal benchmark");
+
+            const auto nearest_node = std::min_element(
+                differ.lgl_nodes().begin() + 1, differ.lgl_nodes().end() - 1,
+                [](teuk::Real a, teuk::Real b) {
+                    return std::abs(a - teuk::Real(0.37))
+                        < std::abs(b - teuk::Real(0.37));
+                });
+            const std::size_t node = std::distance(differ.lgl_nodes().begin(), nearest_node);
+            const teuk::Real z = *nearest_node;
+            const std::pair<const char*, const ghz::asymptotic::MetricGridParts*> grid_components[]{
+                {"nn", &grid.nn}, {"nm", &grid.nm}, {"mm", &grid.mm}};
+            for (std::size_t spin = 0; spin < 3; ++spin) {
+                const auto& [name, parts] = grid_components[spin];
+                const teuk::Real pole = modes.pole_factor(metric_m, static_cast<int>(spin), z);
+                const auto value = [&](teuk::Real radius) {
+                    return pole * (at_radius(parts->reconstructed, node, radius)
+                                   + at_radius(parts->lie_zeta, node, radius));
+                };
+                const teuk::Real slope = std::log(std::abs(value(teuk::Real(2000)))
+                    / std::abs(value(teuk::Real(1000)))) / std::log(teuk::Real(2));
+                std::cout << "m=" << metric_m << " h_" << name
+                          << " spectral direct-sum slope=" << slope
+                          << " at z=" << z << '\n';
+                if (!(std::abs(slope + teuk::Real(1)) < teuk::Real(0.01)))
+                    throw std::runtime_error("spectral Held metric does not fall as 1/r");
+                if (plot_stream)
+                    write_radial_rows(plot_stream, metric_m, z, pole, name, *parts, node);
+            }
         }
         return 0;
     } catch (const std::exception& error) {

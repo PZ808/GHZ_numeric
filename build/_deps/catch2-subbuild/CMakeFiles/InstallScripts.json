@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/antares/Projects/physics_codes/GHZ_numeric/build/_deps/catch2-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

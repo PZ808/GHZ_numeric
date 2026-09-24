@@ -1,0 +1,13 @@
+\contentsline {title}{GHZ Numeric Notes}{1}{section*.1}%
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{2}{section*.2}%
+\tocdepth@restore 
+\contentsline {section}{\numberline {I}Introduction}{2}{section*.3}%
+\contentsline {subsection}{\numberline {A}Corrector Tensor}{2}{section*.4}%
+\contentsline {section}{\numberline {II}Preliminaries}{3}{section*.5}%
+\contentsline {section}{\numberline {III}Calculation of $x_{\mu \nu }$}{3}{section*.6}%
+\contentsline {subsection}{\numberline {A}General solution in the source-free region}{3}{section*.7}%
+\contentsline {section}{\numberline {IV}Point-particle source}{4}{section*.8}%
+\contentsline {subsection}{\numberline {A}Held Decomposition of the source}{5}{section*.9}%
+\contentsline {section}{\numberline {V}Spectral Solver}{5}{section*.10}%
+\contentsline {section}{\numberline {VI}Windowing the puncture}{5}{section*.11}%

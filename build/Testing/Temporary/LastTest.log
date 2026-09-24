@@ -1,0 +1,57 @@
+Start testing: Sep 21 22:56 CEST
+----------------------------------------------------------
+5/13 Testing: kinnersley_held_operators_unit_tests
+5/13 Test: kinnersley_held_operators_unit_tests
+Command: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/kinnersley_held_operators_unit_tests"
+Directory: /Users/antares/Projects/physics_codes/GHZ_numeric/build
+"kinnersley_held_operators_unit_tests" start time: Sep 21 22:56 CEST
+Output:
+----------------------------------------------------------
+[RUN ] analytic_kerr_held_background_values
+[PASS] analytic_kerr_held_background_values
+[RUN ] bl_metric_inverse_mostly_minus
+[PASS] bl_metric_inverse_mostly_minus
+[RUN ] edth_spin_shift
+[PASS] edth_spin_shift
+[RUN ] edthbar_spin_shift
+[PASS] edthbar_spin_shift
+[RUN ] thornPH_spin_shift
+[PASS] thornPH_spin_shift
+[RUN ] edth_dmatrix_vs_bary
+[PASS] edth_dmatrix_vs_bary
+[RUN ] thornPH_expected_frequency_factor
+[PASS] thornPH_expected_frequency_factor
+[RUN ] commutators_rslices
+[INFO] [thornPH, edthH] max-norm    = 1.77636e-15
+[INFO] [thornPH, edthBarH] max-norm = 1.77636e-15
+[PASS] commutators_rslices
+[RUN ] commutator_thorn_thornPH_rhs
+[INFO] [thorn, thornPH] residual = 1.42109e-15
+[PASS] commutator_thorn_thornPH_rhs
+[RUN ] commutator_thornPH_edthbar_rhs
+[INFO] [thornPH, edthbarH] residual = 5.60933e-15
+[PASS] commutator_thornPH_edthbar_rhs
+[RUN ] angular_teukolsky_starobinsky_spherical
+[PASS] angular_teukolsky_starobinsky_spherical
+[RUN ] angular_teukolsky_starobinsky_finite_frequency
+[PASS] angular_teukolsky_starobinsky_finite_frequency
+[RUN ] reduced_operator_consistency
+[INFO] reduced consistency:
+  thorn   max abs = 3.15544e-30
+  thornPH max abs = 9.86076e-32
+  eth     max abs = 2.4596e-16
+  ethbar  max abs = 2.4596e-16
+[PASS] reduced_operator_consistency
+[RUN ] reduced_operator_consistency_branch_cases
+[PASS] reduced_operator_consistency_branch_cases
+
+All 14 Kinnersley/Held tests passed.
+<end of output>
+Test time =   0.98 sec
+----------------------------------------------------------
+Test Passed.
+"kinnersley_held_operators_unit_tests" end time: Sep 21 22:56 CEST
+"kinnersley_held_operators_unit_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 21 22:56 CEST

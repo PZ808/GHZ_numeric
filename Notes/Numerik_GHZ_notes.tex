@@ -1,0 +1,390 @@
+%\documentclass[aps,	prd, onecolumn, a4paper, 10pt, preprintnumbers,  tightenlines, 
+	%notitlepage,floatfix, nofootinbib,longbibliographyprd,superscriptaddress]{revtex4-2}
+\documentclass[preprint,aps,nofootinbib,a4paper,superscriptaddress,longbibliography,amsfonts, amssymb,amsmath,titlepage]{revtex4-1}
+\ProvidesPackage{jheppub}[2013/03/21 r534]
+\numberwithin{equation}{section} % JHEP style eqn 
+%\input{CQGformat.input}
+%s\documentclass[cqg]{iopart}
+\usepackage{amssymb}
+%\pdfoutput=1
+%\usepackage{iopams, setstack}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{color}
+\usepackage{microtype}
+\usepackage{IEEEtrantools}
+\usepackage{comment}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage[normalem]{ulem}
+%\usepackage[numbers,square,sort&compress]{natbib}
+\usepackage[pdftex]{hyperref}
+%\bibliographystyle{iopart-num}
+\usepackage[T1]{fontenc}
+
+\newcommand{\PZ}[1]{\textcolor{red}{\textsf{[PZ: #1]}}}
+\newcommand{\newtext}[1]{\textcolor{cyan}{#1}}
+
+\def\half{\tfrac{1}{2}}
+\def\pihalf{\tfrac{\pi}{2}}
+
+
+\def\pheq{\phantom{=}}
+\newcommand{\preindex}[2]{\,{}_{#2}#1}
+\usepackage[toc,title,page,titletoc]{appendix}
+%  vectors and diff Forms 
+\def\bF{\boldsymbol{F}}
+\def\bd{\boldsymbol{\mathrm{d}}}
+\newcommand{\x}[1]{\xi_{#1}^{\circ}} % gauge vector
+
+% GHP weight
+\def\GHPwt{\ensuremath{\circeq}}
+% NP SpinCoeffs
+\def\kap{\kappa'}
+\def\sip{\sigma'}
+\def\rhp{\rho'}
+\def\rhph{{\rho'}^\circ}
+\def\tap{\tau'}
+\def\tabp{\bar{\tau}'}
+\def\bep{\beta'}
+\def\epp{\epsilon'}
+\def\rhp{\rho'}
+\def\sib{\bar\sigma}
+\def\epb{\bar\epsilon}
+\def\kab{\bar\kappa}
+\def\beb{\bar\beta}
+\def\rhb{\bar\rho}
+\def\pib{\bar\pi}
+\def\alb{\bar\alpha}
+\def\gab{\bar\gamma}
+\def\mub{\bar\mu}
+\def\lab{\bar\lambda}
+\def\nub{\bar\nu}
+\def\tab{\bar\tau}
+% NP leg
+\def\lmu{l^\mu}
+\def\nmu{n^\mu}
+\def\mmu{n^\mu}
+\def\mbmu{{\bar m}^\mu}
+\def\mb{\bar m}
+%
+% Held scalars
+%
+\newcommand{\Held}[1]{{#1}^{\circ}}
+\def\tah{{\tau}^\circ}
+\def\tabh{{\bar\tau}^\circ}
+\def\tauH{\tau^{\circ}}
+\def\taubH{\bar{\tau}^{\circ}}
+\def\Psih{ {\Psi}^\circ}
+\def\Psibh{ {\bar{\Psi}}^\circ}
+\def\PsiH{\Psi^{\circ}}
+\def\PsibH{\bar\Psi^{\circ}}
+\def\rhoph{{\rho}^{\prime \circ} }
+\def\rhopH{\rho^{\prime \circ}}
+\def\rhopbh{{\bar\rho}^{\prime \circ} }
+\def\tauHsq{\tau^{\circ}{}^{2}}
+\def\Oh{{\Omega}^\circ}
+
+% Nicer looking GHP Ops FROM GHZ PAPER 
+\font\ec=ecrm0800 at 12pt
+\def\thpH{\tilde{\th}'}
+\def\edthH{\tilde\edth}
+\def\edthpH{\tilde\edth'}
+\def\th{\hbox{\ec\char'336}}
+\def\edth{\hbox{\ec\char'360}}
+\def\thp{\hbox{\ec\char'336}'}
+\def\edthp{\hbox{\ec\char'360}'} 
+\def\Dbar{\tilde \edth} % Held edth
+\def\Nbar{\tilde \th'}
+\def\Edth{\hat{\edth}} % raising operator
+\def\EdthBar{\bar{\Edth}} % lowering operator on sYlm
+%
+%  SWS Harmonics
+%
+\newcommand{\C}[1]{\lambda_{l,#1}}
+\newcommand{\thA}[1]{\theta^{A}_{#1}}
+\def\thA{\ensuremath{\theta,\varphi}}
+\def\Omp{\Omega_\p}
+\newcommand{\CGCsqrt}[3]{\sqrt{\frac{(2{#1}+1)(2{#2}+1)(2{#3}+1)}{4\pi}}} 
+\newcommand{\wthreej}[6]{%
+  \ensuremath{%
+  \begin{pmatrix}
+      #1 & #2 & #3 \\
+      #4 & #5 & #6
+    \end{pmatrix}
+  }%
+}
+% mode indices
+\newcommand{\emm}{m}
+\newcommand{\ess}{s}
+\def\wlm{\ell \emm \omega}
+% spin weighted spherical harmonics
+\newcommand{\Y}[1]{{}_{#1}Y_{\ell, m}}
+\newcommand{\bY}[1]{{}_{#1}\bar{Y}_{\ell, m}}
+%\newcommand{\Ym}[2]{{}_{#1}Y_{l{#2}}}
+\newcommand{\Ym}[2]{\, {}_{#1}Y_{\ell, #2}}
+\newcommand{\Ylm}[3]{\, {}_{#1}Y_{#2, #3}}
+\newcommand{\bYlm}[3]{\, {}_{#1} \bar{Y}_{#2, #3}}
+
+% Sph. harmonic defs (Peter) 
+\def\l{\ensuremath{\ell}}
+\def\lm{{\ensuremath{\ell \emm}}}
+% at the particle
+\newcommand{\Yp}[1]{\, {}_{#1}Y^\textrm{p}_{\ell ,\emm}}
+\newcommand{\Yplm}[3]{\, {}_{#1}Y^\textrm{p}_{#2 ,#3}}
+\newcommand{\bYp}[1]{\, {}_{#1}\bar{Y}^\textrm{p}_{\ell, \emm}}
+\def\YpL{ Y_{\ell}^{\p}}
+\def\bYpL{\bar{Y}_{\ell}^{\p}}
+\newcommand{\YpsL}[1]{{}_{#1} Y_{\ell}^{\p}}
+\newcommand{\bYsL}[1]{ {}_{#1}\bar Y_{\ell}^\p}
+%\newcommand{\C}[1]{\lambda_{\ell, #1}}
+\newcommand{\Ltwo}[2]{\langle {#1} \vert {#2} \rangle_{L^2} }
+\def\iStwo{\int_{\mathbb S^2}}
+\def\dOm{\dd \Omega}
+
+\newcommand{\xlm}[1]{\langle\xi_{#1}^{\circ}\rangle_{\ell \emm}} % gauge vector modes
+
+% Helicity basis vectors
+\def\hmp{{\hat{m}}^+}
+\def\hmm{{\hat{m}}^-}
+\def\nUL{{\hat n}^{\langle L \rangle}}
+\def\uLL{{\hat n}_{\langle L \rangle}}
+\def\hz{{\hat z}}
+
+%
+% Operators
+%
+
+% Chandrasekhar ops
+\newcommand{\chandR}[2]{\,{}_{#1} \mathcal{L}^\dagger_{#2}{}}
+\newcommand{\chandL}[2]{\,{}_{#1} \mathcal{L}^\dagger_{#2}{}}
+% Teukolsky/Wald/Chrzanowski operators
+\renewcommand{\S}{{\mathcal S}}
+\newcommand{\E}{{\mathcal E}}
+\newcommand{\T}{{\mathcal T}}
+% Lie derivatives
+\newcommand{\Lie}{{\mathcal L}}
+\newcommand{\Lcsdag}[2]{ {}_{-{#1}}{\mathcal L}^{\dagger}_{#2}}
+\newcommand{\Lcs}[2]{ {}_{{#1}}\mathcal L_{#2}}
+%  derivative operators
+\def\pd{\partial}
+\def\dd{{\rm d}}
+\newcommand{\dbd}[1]{\frac{\pd}{\pd #1}}
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\def\pd{\partial}
+\newcommand{\abs}[1]{\vert #1 \vert}
+%
+% Eqns.
+%
+\def\beq{\begin{equation}}
+\def\eeq{\end{equation}}
+\def\beqs{\begin{subequations}}
+\def\eeqs{\end{subequations}}
+\def\bal{\begin{align}}
+\def\eal{\end{align}}
+\def\non{\nonumber \\}
+\def\beq{\begin{equation}}
+\def\eeq{\end{equation}}
+\def\ud{\mathrm{d}}
+\def\beqs{\begin{subequations}}
+\def\eeqs{\end{subequations}}
+
+
+\def\half{\tfrac{1}{2}}
+
+% indices 
+\def\mn{\ensuremath{{\mu\nu}}}
+\def\a{\alpha}
+\def\b{\beta}
+\newcommand{\stf}[1]{\langle {#1}\rangle}
+
+% coordinates 
+\def\vphi{\ensuremath{{\varphi}}}
+\def\sz{\ensuremath{{\sqrt{1-z^2}}}}
+\def\z{\zeta}
+\def\zb{\bar\zeta}
+\def\e{\eta}
+\def\eb{\bar\eta}
+
+% at the particle 
+\def\p{{\rm p}}
+\def\rhop{\rho_{\p}}
+\def\rhobp{\bar{\rho}_{\p}}
+\def\rp{r_{\p}}
+\def\dOm{\ensuremath{\delta^2(\Omega-\Omega_\p)}}
+\def\zp{z_\p}
+\def\rhbp{\bar{\rho}_\p}
+
+\def\rhom{\rho_{\rm min}}
+
+
+\def\Dr{\Delta r}
+
+
+
+% Spacing
+\newcommand{\nls}{\phantom{\frac{1}{\rho}}}
+\newcommand{\sforall}{\quad \forall}
+
+\begin{document}
+
+\title{GHZ Numeric Notes}
+
+
+\author{Peter Zimmerman}
+\email{zimmerator@protonmail.com}
+
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}\label{sec:introduction}
+
+
+\subsection{Corrector Tensor}
+The corrector tensor $x_{\mu\nu}$ is determined by the source $T_{ab}$ through
+a hierarchy of equations descending from the $l^{a}$-sector (IRG variant) of Einstein's equations $l^{a}(\mathcal E_{ab}[x] = T_{ab}).$  In GHP form, these equations read \cite{Green:2019nam}
+\beq
+\label{eq:xmmb}
+\begin{split}
+ \rho^2 \th \left( \frac{\rhb}{\rho^3} \th \left[\frac{\rho}{\rhb} x_{m\mb} \right] \right)&= T_{ll}
+\end{split}
+\eeq
+for $x_{m\mb}$, 
+\beq
+\label{eq:xnm}
+\begin{split}
+& \frac{\rho}{2(\rho+\rhb)} 
+\th\left( (\rho+\rhb)^2\th \frac{x_{nm}}{\rho(\rho+\rhb)}\right)  \\
+=&\ T_{lm} - \half\{(\th+\rho-\rhb)(\edth+\tab'-\tau) + 2\tab'(\th-2\rho) -
+(\edth-\tau-\tab')\rhb +2\rho\tau\}x_{m\mb}.
+\end{split}
+\eeq
+for $x_{nm}$, and
+\beq
+\label{eq:xnn}
+\begin{split}
+ &\half (\rho+\rhb)^2\th \left( \frac{1}{\rho+\rhb}x_{nn} \right)\\
+&= T_{ln}- \Re\{ \edthp \edth  + (\tab'-\tau)\edthp + \left[\edth(\tab+\tau')\right] - 2 \tau'\tau - 2 \Psi_2 -2 \rhb\rho' + 2(\rho' \th + \rho\th') -  \th'\th \}  x_{m\mb} \\
+&\ -\Re  \{\left[
+(\th-2\rho)(\edthp-\tab) + (\tap+\tab)(\th+\rhb)
+-2(\edthp-\tap)\rho-2\tab\th\right] x_{nm} \}
+\end{split}
+\eeq
+for $x_{nn}$. 
+
+In this note, we give explicit solutions to equations \eqref{eq:xmmb}, \eqref{eq:xnm}, and \eqref{eq:xnn} for a point particle \eqref{eq:stress pp} in terms of readily computable coefficients written in terms of the source.  
+
+We work in mostly outgoing Kerr-Newman coordinates wherein equations \eqref{eq:xmmb}, \eqref{eq:xnm}, and \eqref{eq:xnn} reduce to a sequence of three ODEs along the outgoing null-generators $l^{\a} = \pd_{r}$ of increasing $r$ the affine parameter labeling cuts of $\mathcal I^{+}$, or in BL coordinates.  For initial data, we assume trivial conditions on $x_{\a\b}$ at $\mathcal{H}^-$, consistent with a bound orbit supported away from the horizon for all time.	
+
+Throughout the note, we adopt the mostly minus metric ``west coast'' signature $(+,-,-,-)$ and geometrized units $G=c=1$. Greek letters denote spacetime  indices, lowercase Latin letters spatial indices, capital Latin letters denote quantities on the $\mathbb S^2$.
+
+To avoid tracking factors of $\pi$, we  adopt the convention wherein the perturbed EFE reads
+\begin{equation}
+\mathcal{E}_{\mu\nu} = T_{\mu\nu}.
+\end{equation}
+Unless stated otherwise, all other conventions and notation will be chosen to match GHZ.
+
+\section{Preliminaries}\label{sec:prelims}
+
+
+
+\section{Calculation of $x_{\mu\nu}$}\label{sec:main calc}
+
+\subsection{General solution in the source-free region}
+The solution to \eqref{eq:xmmb} in the vacuum region  $r>r_{\rm max}$ is given by
+\beq
+x^>_{m\mb} = a^\circ \left( \frac{\rhb}{\rho}+\frac{\rho}{\rhb} \right) + b^\circ (\rho+\rhb), \qquad r>r_{\rm max}, \\
+\eeq
+where $\rho/\rhb+\rhb/\rho$ and $\rho+\rhb$  are homogeneous solutions. The integration constants $a^\circ$ and $b^\circ$ are determined by the source and will be given in a later section.
+
+We next turn to the $nm$-component, as determined by \eqref{eq:xnm}. To integrate this equation, we write it first in Held form
+\begin{align}\label{eq:D1}
+ \frac{\rho}{2(\rho+\rhb)} 
+\th\left( (\rho+\rhb)^2\th \frac{x_{nm}}{\rho(\rho+\rhb)}\right) = T_{lm} -\frac{1}{2} \left\{ \rhb
+(\th+\rho-\rhb)\Dbar - \rhb(3\rhb+\rho)\tah\th+4\rho\rhb^2\tah\right\} x_{m\mb},
+\end{align}
+wherein we have used Eqs. \eqref{eq:Hops},\eqref{eq:th Dbar commute}, and \eqref{eq:Held coeffs}. 
+Integrating the result give
+\begin{align}\label{eq:x_nm sol}
+x^>_{nm}= & \ \ \rhb\Oh\Dbar a^\circ+ \frac{(\rho+\rhb)^2}{\rho}\tah a^\circ
++\rhb \Dbar b^\circ + \rhb(\rho+\rhb)\tah b^\circ \nonumber \\
+&\ +\frac{1-\Oh{}^2\rhb^2}{\rhb}c^\circ+\rho(\rho+\rhb) e^\circ, \qquad  r > r_{\rm max}.
+\end{align}
+
+
+We begin the calculation of $x_{nn}$ by recasting Eq.~\eqref{eq:xnn} in Held form
+\begin{align}
+\half (\rho+\rhb)^2\th \left( \frac{x_{nn}}{\rho+\rhb} \right)= T_{ln} + \Re\mathcal{U} x_{m\mb} + \Re[\mathcal{V} x_{nm}],
+\end{align}
+where 
+\begin{align}\label{eq:Uxmmb}
+&\mathcal{U}= 
+ \rho\rhb\left[- \Dbar'\Dbar-\tabh (\rho+\rhb)\Dbar+\tabh\Dbar\th+\tah(\rhb-\rho)\Dbar' +\tah\Dbar'\th\right]  + \Nbar \th
+ \non
+&+\tfrac12 \left[ \Psih\left( \rho^2-\rhb^2\right)-2\rho\rhb(\rhb-\rho)\tah\tabh
+-4\rhb \rhph(1+\rho\Oh\right)]\th 
+- 2 \rho \Nbar \non
+&+ \rho^2 \Psih (2\rho-\rhb) + 2\rhb^2\left(\rhph-\rho(2\rho-\rhb)\tah\tabh \right)- \rho\rhb(\rho-3\rhb)\rhph\Oh ,
+\end{align}
+and
+\begin{align}\label{eq:Vxnm}
+\mathcal{V}=-\rho\{ -3\rho\Dbar' + [\Dbar'-\tabh (2\rhb+\rho)]\th+2\rho^2\tabh\}
+\end{align}
+
+The solution is given by 
+\begin{equation}
+\label{xnn}
+\begin{split}
+x^>_{nn} =& 2 \Re \bigg\{ \half \frac{\rho + \bar{\rho}}{\rho^2} \Nbar a^\circ + (1 + \rho \bar{\rho} \Omega^{\circ 2})\Dbar' \Dbar a^\circ + 2 \left( \rho^2 + 2 \rho \bar{\rho} \right) \tau^\circ \bar{\tau}^\circ a^\circ\\
+&+ \left( \frac{\rho^2}{\bar{\rho}} + \frac{3}{2} \rho \bar{\rho} \Omega^\circ \right) \Psih a^\circ - 2 \rho^{\prime \circ} a^\circ + \Nbar  b^\circ + 2 \rho \bar{\rho} \bar{\tau}^\circ \Dbar b^\circ + 2 \rho^2 \bar{\rho} \tau^\circ \bar{\tau}^\circ b^\circ + \rho^2 \Psih b^\circ\\
+&+ \rho^2 \Dbar' e^\circ + 2 \rho^2 \bar{\rho} \bar{\tau}^\circ e^\circ - \frac{\bar{\rho}}{\rho} \left( 4 \Omega^\circ + \frac{1}{\rho} \right) \Dbar' c^\circ + 4 \frac{\bar{\rho}}{\rho} \bar{\tau}^\circ c^\circ + \left( \rho + \bar{\rho} \right) f^\circ \bigg\}
+\end{split}
+\end{equation}
+
+
+\section{Point-particle source}\label{subsec:source}
+Let us now take the perturbation to be sourced by a particle of mass $\mu$ on a worldline $\gamma$ parametrized  by proper time here denoted $\lambda$. We further denote the position and four velocity of the particle by $x_\p^{\mu}(\lambda)$ and 
+$v^\mu=\dd x_\p^\mu/\dd \lambda$, respectively.
+It carries the point particle stress energy distribution
+\beq\label{eq:stress pp}
+T_{\mu\nu}=\mu\int_\gamma v_\mu v_\nu \,\delta_4(x,x_\p(\lambda)) \dd \lambda.
+\eeq
+We consider a bound orbit with radii between $r_{\rm min} < r_\p  < r_{\rm max} $ and denote the coordinate location of the particle in  retarded coordinates as $x^\mu_\p = (u_\p, r_\p,z_\p, \varphi_\p)$.  
+
+\subsection{Held Decomposition of the source}
+
+With retarded KN time $-\infty < u_\p < \infty$ taken as the time parameter, we now rewrite the source as
+\begin{align}\label{eq:stress pp Held}
+T_{\mn} &=\int_{-\infty}^\infty \left[ \mu\frac{ v_\mu v_\nu}{\Sigma_\p v^u}  \, \delta^{2}_{\p}(\Omega)  \right] \delta_\p(u) \delta_\p(r)  \dd u_\p , \\
+&= \Held T_{\mu\nu}(u,z,\varphi;\rp)\delta_\p(r), \\
+&=  \Held J_{\mu\nu}(u;r_\p,z_\p,\varphi_\p)\delta_\p^2(\Omega)\delta_\p(r),
+\end{align}
+where in general $x^\p(u)$ after doing the $u_\p$ integration, and 
+where (in the outgoing Kerr chart)
+\begin{equation}\label{eq:J}
+T^{\circ}_{\mn}  :=
+\mu\frac{ v_\mu v_\nu}{\Sigma_\p \gamma_\p}  \, \delta^{2}_{\p}(\Omega), %=: j_{\mn}\delta(u-u_p) \, \delta(z-z_p)\delta(\vphi-\vphi_p)
+\qquad \Held J_{\mu\nu} := \mu\frac{\gamma_\p \dot x_\mu \dot x_\nu}{\Sigma_\p },
+\end{equation} 
+with the coordinate four-velocity
+\begin{equation}
+    \dot x^\mu := \frac{\dd x^\mu}{\dd\lambda}\frac{\dd\lambda}{\dd u} = \frac{v^\mu}{\gamma_\p}
+\end{equation}
+and
+$\delta^{2}_{\p}(\Omega)=\delta(z-\zp)\delta(\varphi-\varphi_{\p})$ and where 
+$ v^\alpha \pd_\alpha u = \gamma_\p $. Here, $J_{\mu\nu}^\circ$ and $\Held T_{\mu \nu}$ are taken at $\rp(u)$, $\Sigma_\p = r_\p^2+a^2z_\p^2$ and it is understood that $r_\p =r_\p(\lambda(u_\p))$ etc.
+We also introduce the quantities $T_\mu^\circ$ and $\Held J_\mu$ by
+\begin{align}\label{eq:Tcirc hat}
+T_{\mu \nu}l^{\nu} = T^{\circ}_\mu (u,z,\varphi)\delta_{\p}(r) = \Held J_\mu(u;z_\p,\varphi_\p)   \delta_{\p}(r) \delta_\p^2(\Omega)
+\end{align}
+
+\section{Spectral Solver}
+
+\section{Windowing the puncture}
+
+
+\end{document}

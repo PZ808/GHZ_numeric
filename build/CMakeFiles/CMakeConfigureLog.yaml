@@ -1,0 +1,3214 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/uname"
+      - "/Users/antares/.pyenv/shims/uname"
+      - "/opt/homebrew/opt/libomp/bin/uname"
+      - "/Users/antares/.rbenv/shims/uname"
+      - "/opt/homebrew/bin/uname"
+      - "/opt/homebrew/sbin/uname"
+      - "/usr/local/bin/uname"
+      - "/System/Cryptexes/App/usr/bin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSystem.cmake:212 (message)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      The system is: Darwin - 22.6.0 - arm64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/gmake"
+      - "/Users/antares/.pyenv/shims/gmake"
+      - "/opt/homebrew/opt/libomp/bin/gmake"
+      - "/Users/antares/.rbenv/shims/gmake"
+    found: "/opt/homebrew/bin/gmake"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/opt/homebrew/share/cmake/Modules/"
+    found: "/opt/homebrew/share/cmake/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /opt/homebrew/opt/llvm/bin/clang++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+      
+      The CXX compiler identification is Clang, found in:
+        /Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/4.3.2/CompilerIdCXX/a.out
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:296 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Detecting CXX compiler apple sysroot: "/opt/homebrew/opt/llvm/bin/clang++" "-E" "apple-sdk.cpp"
+        # 1 "apple-sdk.cpp"
+        # 1 "<built-in>" 1
+        # 1 "<built-in>" 3
+        # 537 "<built-in>" 3
+        # 1 "<command line>" 1
+        # 1 "<built-in>" 2
+        # 1 "apple-sdk.cpp" 2
+        # 1 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/AvailabilityMacros.h" 1 3 4
+        # 243 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/AvailabilityMacros.h" 3 4
+        # 1 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/Availability.h" 1 3 4
+        # 165 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/Availability.h" 3 4
+        # 1 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/AvailabilityVersions.h" 1 3 4
+        # 166 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/Availability.h" 2 3 4
+        # 1 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/AvailabilityInternal.h" 1 3 4
+        # 167 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/Availability.h" 2 3 4
+        # 244 "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include/AvailabilityMacros.h" 2 3 4
+        # 2 "apple-sdk.cpp" 2
+        
+        
+      Found apple sysroot: /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_AR"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ar"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/opt/llvm/bin/ar"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/ar"
+    found: "/Users/antares/.pyenv/shims/ar"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_RANLIB"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib"
+      - "ranlib"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_STRIP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "strip"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/opt/llvm/bin/strip"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/strip"
+    found: "/Users/antares/.pyenv/shims/strip"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_LINKER"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ld"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/opt/llvm/bin/ld"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/ld"
+    found: "/Users/antares/.pyenv/shims/ld"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_NM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-nm"
+      - "nm"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-nm"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-objdump"
+      - "objdump"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-objdump"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJCOPY"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-objcopy"
+      - "objcopy"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-objcopy"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-readelf"
+      - "readelf"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-readelf"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-dlltool"
+      - "dlltool"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-dlltool"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-addr2line"
+      - "addr2line"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    found: "/opt/homebrew/opt/llvm/bin/llvm-addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "tapi"
+    candidate_directories:
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/opt/llvm/bin/tapi"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/tapi"
+      - "/Users/antares/.pyenv/shims/tapi"
+      - "/opt/homebrew/opt/libomp/bin/tapi"
+      - "/Users/antares/.rbenv/shims/tapi"
+      - "/opt/homebrew/bin/tapi"
+      - "/opt/homebrew/sbin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/System/Cryptexes/App/usr/bin/tapi"
+      - "/usr/bin/tapi"
+      - "/bin/tapi"
+      - "/usr/sbin/tapi"
+      - "/sbin/tapi"
+      - "/Library/TeX/texbin/tapi"
+      - "/opt/X11/bin/tapi"
+      - "/Applications/Wireshark.app/Contents/MacOS/tapi"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/tapi"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/tapi"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/tapi"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/tapi"
+      - "/Applications/Codex.app/Contents/Resources/tapi"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/tapi"
+      - "/Users/antares/.cargo/bin/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:26 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_AR"
+    description: "LLVM archiver"
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ar-21.1"
+      - "llvm-ar-21"
+      - "llvm-ar21"
+      - "llvm-ar"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/"
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ar-21.1"
+      - "/opt/homebrew/opt/llvm/bin/llvm-ar-21.1"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/llvm-ar-21.1"
+      - "/Users/antares/.pyenv/shims/llvm-ar-21.1"
+      - "/opt/homebrew/opt/libomp/bin/llvm-ar-21.1"
+      - "/Users/antares/.rbenv/shims/llvm-ar-21.1"
+      - "/opt/homebrew/bin/llvm-ar-21.1"
+      - "/opt/homebrew/sbin/llvm-ar-21.1"
+      - "/usr/local/bin/llvm-ar-21.1"
+      - "/System/Cryptexes/App/usr/bin/llvm-ar-21.1"
+      - "/usr/bin/llvm-ar-21.1"
+      - "/bin/llvm-ar-21.1"
+      - "/usr/sbin/llvm-ar-21.1"
+      - "/sbin/llvm-ar-21.1"
+      - "/Library/TeX/texbin/llvm-ar-21.1"
+      - "/opt/X11/bin/llvm-ar-21.1"
+      - "/Applications/Wireshark.app/Contents/MacOS/llvm-ar-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/llvm-ar-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/llvm-ar-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/llvm-ar-21.1"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/llvm-ar-21.1"
+      - "/Applications/Codex.app/Contents/Resources/llvm-ar-21.1"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/llvm-ar-21.1"
+      - "/Users/antares/.cargo/bin/llvm-ar-21.1"
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ar-21"
+      - "/opt/homebrew/opt/llvm/bin/llvm-ar-21"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/llvm-ar-21"
+      - "/Users/antares/.pyenv/shims/llvm-ar-21"
+      - "/opt/homebrew/opt/libomp/bin/llvm-ar-21"
+      - "/Users/antares/.rbenv/shims/llvm-ar-21"
+      - "/opt/homebrew/bin/llvm-ar-21"
+      - "/opt/homebrew/sbin/llvm-ar-21"
+      - "/usr/local/bin/llvm-ar-21"
+      - "/System/Cryptexes/App/usr/bin/llvm-ar-21"
+      - "/usr/bin/llvm-ar-21"
+      - "/bin/llvm-ar-21"
+      - "/usr/sbin/llvm-ar-21"
+      - "/sbin/llvm-ar-21"
+      - "/Library/TeX/texbin/llvm-ar-21"
+      - "/opt/X11/bin/llvm-ar-21"
+      - "/Applications/Wireshark.app/Contents/MacOS/llvm-ar-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/llvm-ar-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/llvm-ar-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/llvm-ar-21"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/llvm-ar-21"
+      - "/Applications/Codex.app/Contents/Resources/llvm-ar-21"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/llvm-ar-21"
+      - "/Users/antares/.cargo/bin/llvm-ar-21"
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ar21"
+      - "/opt/homebrew/opt/llvm/bin/llvm-ar21"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/llvm-ar21"
+      - "/Users/antares/.pyenv/shims/llvm-ar21"
+      - "/opt/homebrew/opt/libomp/bin/llvm-ar21"
+      - "/Users/antares/.rbenv/shims/llvm-ar21"
+      - "/opt/homebrew/bin/llvm-ar21"
+      - "/opt/homebrew/sbin/llvm-ar21"
+      - "/usr/local/bin/llvm-ar21"
+      - "/System/Cryptexes/App/usr/bin/llvm-ar21"
+      - "/usr/bin/llvm-ar21"
+      - "/bin/llvm-ar21"
+      - "/usr/sbin/llvm-ar21"
+      - "/sbin/llvm-ar21"
+      - "/Library/TeX/texbin/llvm-ar21"
+      - "/opt/X11/bin/llvm-ar21"
+      - "/Applications/Wireshark.app/Contents/MacOS/llvm-ar21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/llvm-ar21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/llvm-ar21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/llvm-ar21"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/llvm-ar21"
+      - "/Applications/Codex.app/Contents/Resources/llvm-ar21"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/llvm-ar21"
+      - "/Users/antares/.cargo/bin/llvm-ar21"
+    found: "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ar"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:38 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_RANLIB"
+    description: "Generate index for LLVM archive"
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib-21.1"
+      - "llvm-ranlib-21"
+      - "llvm-ranlib21"
+      - "llvm-ranlib"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/"
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ranlib-21.1"
+      - "/opt/homebrew/opt/llvm/bin/llvm-ranlib-21.1"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/llvm-ranlib-21.1"
+      - "/Users/antares/.pyenv/shims/llvm-ranlib-21.1"
+      - "/opt/homebrew/opt/libomp/bin/llvm-ranlib-21.1"
+      - "/Users/antares/.rbenv/shims/llvm-ranlib-21.1"
+      - "/opt/homebrew/bin/llvm-ranlib-21.1"
+      - "/opt/homebrew/sbin/llvm-ranlib-21.1"
+      - "/usr/local/bin/llvm-ranlib-21.1"
+      - "/System/Cryptexes/App/usr/bin/llvm-ranlib-21.1"
+      - "/usr/bin/llvm-ranlib-21.1"
+      - "/bin/llvm-ranlib-21.1"
+      - "/usr/sbin/llvm-ranlib-21.1"
+      - "/sbin/llvm-ranlib-21.1"
+      - "/Library/TeX/texbin/llvm-ranlib-21.1"
+      - "/opt/X11/bin/llvm-ranlib-21.1"
+      - "/Applications/Wireshark.app/Contents/MacOS/llvm-ranlib-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/llvm-ranlib-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/llvm-ranlib-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/llvm-ranlib-21.1"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/llvm-ranlib-21.1"
+      - "/Applications/Codex.app/Contents/Resources/llvm-ranlib-21.1"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/llvm-ranlib-21.1"
+      - "/Users/antares/.cargo/bin/llvm-ranlib-21.1"
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ranlib-21"
+      - "/opt/homebrew/opt/llvm/bin/llvm-ranlib-21"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/llvm-ranlib-21"
+      - "/Users/antares/.pyenv/shims/llvm-ranlib-21"
+      - "/opt/homebrew/opt/libomp/bin/llvm-ranlib-21"
+      - "/Users/antares/.rbenv/shims/llvm-ranlib-21"
+      - "/opt/homebrew/bin/llvm-ranlib-21"
+      - "/opt/homebrew/sbin/llvm-ranlib-21"
+      - "/usr/local/bin/llvm-ranlib-21"
+      - "/System/Cryptexes/App/usr/bin/llvm-ranlib-21"
+      - "/usr/bin/llvm-ranlib-21"
+      - "/bin/llvm-ranlib-21"
+      - "/usr/sbin/llvm-ranlib-21"
+      - "/sbin/llvm-ranlib-21"
+      - "/Library/TeX/texbin/llvm-ranlib-21"
+      - "/opt/X11/bin/llvm-ranlib-21"
+      - "/Applications/Wireshark.app/Contents/MacOS/llvm-ranlib-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/llvm-ranlib-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/llvm-ranlib-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/llvm-ranlib-21"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/llvm-ranlib-21"
+      - "/Applications/Codex.app/Contents/Resources/llvm-ranlib-21"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/llvm-ranlib-21"
+      - "/Users/antares/.cargo/bin/llvm-ranlib-21"
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ranlib21"
+      - "/opt/homebrew/opt/llvm/bin/llvm-ranlib21"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/llvm-ranlib21"
+      - "/Users/antares/.pyenv/shims/llvm-ranlib21"
+      - "/opt/homebrew/opt/libomp/bin/llvm-ranlib21"
+      - "/Users/antares/.rbenv/shims/llvm-ranlib21"
+      - "/opt/homebrew/bin/llvm-ranlib21"
+      - "/opt/homebrew/sbin/llvm-ranlib21"
+      - "/usr/local/bin/llvm-ranlib21"
+      - "/System/Cryptexes/App/usr/bin/llvm-ranlib21"
+      - "/usr/bin/llvm-ranlib21"
+      - "/bin/llvm-ranlib21"
+      - "/usr/sbin/llvm-ranlib21"
+      - "/sbin/llvm-ranlib21"
+      - "/Library/TeX/texbin/llvm-ranlib21"
+      - "/opt/X11/bin/llvm-ranlib21"
+      - "/Applications/Wireshark.app/Contents/MacOS/llvm-ranlib21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/llvm-ranlib21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/llvm-ranlib21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/llvm-ranlib21"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/llvm-ranlib21"
+      - "/Applications/Codex.app/Contents/Resources/llvm-ranlib21"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/llvm-ranlib21"
+      - "/Users/antares/.cargo/bin/llvm-ranlib21"
+    found: "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/llvm-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:50 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS"
+    description: "`clang-scan-deps` dependency scanner"
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-scan-deps-21.1"
+      - "clang-scan-deps-21"
+      - "clang-scan-deps21"
+      - "clang-scan-deps"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/"
+      - "/opt/homebrew/opt/llvm/bin/"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps-21.1"
+      - "/opt/homebrew/opt/llvm/bin/clang-scan-deps-21.1"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/clang-scan-deps-21.1"
+      - "/Users/antares/.pyenv/shims/clang-scan-deps-21.1"
+      - "/opt/homebrew/opt/libomp/bin/clang-scan-deps-21.1"
+      - "/Users/antares/.rbenv/shims/clang-scan-deps-21.1"
+      - "/opt/homebrew/bin/clang-scan-deps-21.1"
+      - "/opt/homebrew/sbin/clang-scan-deps-21.1"
+      - "/usr/local/bin/clang-scan-deps-21.1"
+      - "/System/Cryptexes/App/usr/bin/clang-scan-deps-21.1"
+      - "/usr/bin/clang-scan-deps-21.1"
+      - "/bin/clang-scan-deps-21.1"
+      - "/usr/sbin/clang-scan-deps-21.1"
+      - "/sbin/clang-scan-deps-21.1"
+      - "/Library/TeX/texbin/clang-scan-deps-21.1"
+      - "/opt/X11/bin/clang-scan-deps-21.1"
+      - "/Applications/Wireshark.app/Contents/MacOS/clang-scan-deps-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/clang-scan-deps-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/clang-scan-deps-21.1"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/clang-scan-deps-21.1"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/clang-scan-deps-21.1"
+      - "/Applications/Codex.app/Contents/Resources/clang-scan-deps-21.1"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/clang-scan-deps-21.1"
+      - "/Users/antares/.cargo/bin/clang-scan-deps-21.1"
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps-21"
+      - "/opt/homebrew/opt/llvm/bin/clang-scan-deps-21"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/clang-scan-deps-21"
+      - "/Users/antares/.pyenv/shims/clang-scan-deps-21"
+      - "/opt/homebrew/opt/libomp/bin/clang-scan-deps-21"
+      - "/Users/antares/.rbenv/shims/clang-scan-deps-21"
+      - "/opt/homebrew/bin/clang-scan-deps-21"
+      - "/opt/homebrew/sbin/clang-scan-deps-21"
+      - "/usr/local/bin/clang-scan-deps-21"
+      - "/System/Cryptexes/App/usr/bin/clang-scan-deps-21"
+      - "/usr/bin/clang-scan-deps-21"
+      - "/bin/clang-scan-deps-21"
+      - "/usr/sbin/clang-scan-deps-21"
+      - "/sbin/clang-scan-deps-21"
+      - "/Library/TeX/texbin/clang-scan-deps-21"
+      - "/opt/X11/bin/clang-scan-deps-21"
+      - "/Applications/Wireshark.app/Contents/MacOS/clang-scan-deps-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/clang-scan-deps-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/clang-scan-deps-21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/clang-scan-deps-21"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/clang-scan-deps-21"
+      - "/Applications/Codex.app/Contents/Resources/clang-scan-deps-21"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/clang-scan-deps-21"
+      - "/Users/antares/.cargo/bin/clang-scan-deps-21"
+      - "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps21"
+      - "/opt/homebrew/opt/llvm/bin/clang-scan-deps21"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/clang-scan-deps21"
+      - "/Users/antares/.pyenv/shims/clang-scan-deps21"
+      - "/opt/homebrew/opt/libomp/bin/clang-scan-deps21"
+      - "/Users/antares/.rbenv/shims/clang-scan-deps21"
+      - "/opt/homebrew/bin/clang-scan-deps21"
+      - "/opt/homebrew/sbin/clang-scan-deps21"
+      - "/usr/local/bin/clang-scan-deps21"
+      - "/System/Cryptexes/App/usr/bin/clang-scan-deps21"
+      - "/usr/bin/clang-scan-deps21"
+      - "/bin/clang-scan-deps21"
+      - "/usr/sbin/clang-scan-deps21"
+      - "/sbin/clang-scan-deps21"
+      - "/Library/TeX/texbin/clang-scan-deps21"
+      - "/opt/X11/bin/clang-scan-deps21"
+      - "/Applications/Wireshark.app/Contents/MacOS/clang-scan-deps21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/clang-scan-deps21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/clang-scan-deps21"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/clang-scan-deps21"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/clang-scan-deps21"
+      - "/Applications/Codex.app/Contents/Resources/clang-scan-deps21"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/clang-scan-deps21"
+      - "/Users/antares/.cargo/bin/clang-scan-deps21"
+    found: "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Platform/Darwin.cmake:66 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInformation.cmake:32 (include)"
+      - "CMakeLists.txt:8 (project)"
+    mode: "program"
+    variable: "CMAKE_INSTALL_NAME_TOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "install_name_tool"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/install_name_tool"
+    found: "/Users/antares/.pyenv/shims/install_name_tool"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4"
+      binary: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: "-L/opt/homebrew/opt/libomp/lib"
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /opt/homebrew/bin/gmake -f Makefile cmTC_eb98c/fast
+        /opt/homebrew/bin/gmake  -f CMakeFiles/cmTC_eb98c.dir/build.make CMakeFiles/cmTC_eb98c.dir/build
+        gmake[1]: Entering directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4'
+        Building CXX object CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o
+        /opt/homebrew/opt/llvm/bin/clang++   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+        Homebrew clang version 21.1.8
+        Target: arm64-apple-darwin22.6.0
+        Thread model: posix
+        InstalledDir: /opt/homebrew/Cellar/llvm/21.1.8_1/bin
+        Configuration file: /opt/homebrew/etc/clang/arm64-apple-darwin22.cfg
+        System configuration file directory: /opt/homebrew/etc/clang
+        User configuration file directory: /Users/antares/.config/clang
+        clang++: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
+         (in-process)
+         "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-21" -cc1 -triple arm64-apple-macosx13.0.0 -Wundef-prefix=TARGET_OS_ -Werror=undef-prefix -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -ffp-contract=on -fno-rounding-math -funwind-tables=1 -target-sdk-version=13.3 -fcompatibility-qualified-id-block-type-checking -fvisibility-inlines-hidden-static-local-var -fbuiltin-headers-in-system-modules -fdefine-target-os-macros -enable-tlsdesc -target-cpu apple-m1 -target-feature +v8.4a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +ccpp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +flagm -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4 -target-linker-version 857.1 -v -fcoverage-compilation-dir=/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4 -resource-dir /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21 -dependency-file CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o.d -MT CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk -internal-isystem /opt/homebrew/Cellar/llvm/21.1.8_1/bin/../include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/local/include -internal-isystem /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/SubFrameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/Library/Frameworks -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+        clang -cc1 version 21.1.8 based upon LLVM 21.1.8 default target arm64-apple-darwin22.6.0
+        ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/local/include"
+        ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/SubFrameworks"
+        ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/Library/Frameworks"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /opt/homebrew/Cellar/llvm/21.1.8_1/bin/../include/c++/v1
+         /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include
+         /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include
+         /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks (framework directory)
+        End of search list.
+        Linking CXX executable cmTC_eb98c
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eb98c.dir/link.txt --verbose=1
+        Homebrew clang version 21.1.8
+        Target: arm64-apple-darwin22.6.0
+        Thread model: posix
+        InstalledDir: /opt/homebrew/Cellar/llvm/21.1.8_1/bin
+        Configuration file: /opt/homebrew/etc/clang/arm64-apple-darwin22.cfg
+        System configuration file directory: /opt/homebrew/etc/clang
+        User configuration file directory: /Users/antares/.config/clang
+         "/Users/antares/.pyenv/shims/ld" -demangle -lto_library /opt/homebrew/Cellar/llvm/21.1.8_1/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 13.0.0 13.3 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_eb98c -L/opt/homebrew/opt/libomp/lib -v CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/lib/darwin/libclang_rt.osx.a
+        @(#)PROGRAM:ld  PROJECT:ld64-857.1
+        BUILD 23:13:29 May  7 2023
+        configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+        Library search paths:
+        	/opt/homebrew/opt/libomp/lib
+        	/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/lib
+        Framework search paths:
+        	/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks/
+        /opt/homebrew/opt/llvm/bin/clang++  -arch arm64 -L/opt/homebrew/opt/libomp/lib -v -Wl,-v CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_eb98c
+        gmake[1]: Leaving directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:122 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Effective list of requested architectures (possibly empty)  : ""
+      Effective list of architectures found in the ABI info binary: "arm64"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/opt/homebrew/Cellar/llvm/21.1.8_1/bin/../include/c++/v1]
+          add: [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include]
+          add: [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include]
+        end of search list found
+        collapse include dir [/opt/homebrew/Cellar/llvm/21.1.8_1/bin/../include/c++/v1] ==> [/opt/homebrew/Cellar/llvm/21.1.8_1/include/c++/v1]
+        collapse include dir [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include] ==> [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include]
+        collapse include dir [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include]
+        implicit include dirs: [/opt/homebrew/Cellar/llvm/21.1.8_1/include/c++/v1;/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include;/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4']
+        ignore line: []
+        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /opt/homebrew/bin/gmake -f Makefile cmTC_eb98c/fast]
+        ignore line: [/opt/homebrew/bin/gmake  -f CMakeFiles/cmTC_eb98c.dir/build.make CMakeFiles/cmTC_eb98c.dir/build]
+        ignore line: [gmake[1]: Entering directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4']
+        ignore line: [Building CXX object CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/opt/homebrew/opt/llvm/bin/clang++   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Homebrew clang version 21.1.8]
+        ignore line: [Target: arm64-apple-darwin22.6.0]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /opt/homebrew/Cellar/llvm/21.1.8_1/bin]
+        ignore line: [Configuration file: /opt/homebrew/etc/clang/arm64-apple-darwin22.cfg]
+        ignore line: [System configuration file directory: /opt/homebrew/etc/clang]
+        ignore line: [User configuration file directory: /Users/antares/.config/clang]
+        ignore line: [clang++: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
+        ignore line: [ (in-process)]
+        ignore line: [ "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-21" -cc1 -triple arm64-apple-macosx13.0.0 -Wundef-prefix=TARGET_OS_ -Werror=undef-prefix -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -ffp-contract=on -fno-rounding-math -funwind-tables=1 -target-sdk-version=13.3 -fcompatibility-qualified-id-block-type-checking -fvisibility-inlines-hidden-static-local-var -fbuiltin-headers-in-system-modules -fdefine-target-os-macros -enable-tlsdesc -target-cpu apple-m1 -target-feature +v8.4a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +ccpp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +flagm -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4 -target-linker-version 857.1 -v -fcoverage-compilation-dir=/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-Rhybx4 -resource-dir /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21 -dependency-file CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o.d -MT CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk -internal-isystem /opt/homebrew/Cellar/llvm/21.1.8_1/bin/../include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/local/include -internal-isystem /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/SubFrameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/Library/Frameworks -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [clang -cc1 version 21.1.8 based upon LLVM 21.1.8 default target arm64-apple-darwin22.6.0]
+        ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/local/include"]
+        ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/SubFrameworks"]
+        ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/Library/Frameworks"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /opt/homebrew/Cellar/llvm/21.1.8_1/bin/../include/c++/v1]
+        ignore line: [ /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/include]
+        ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/include]
+        ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks (framework directory)]
+        ignore line: [End of search list.]
+        ignore line: [Linking CXX executable cmTC_eb98c]
+        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eb98c.dir/link.txt --verbose=1]
+        ignore line: [Homebrew clang version 21.1.8]
+        ignore line: [Target: arm64-apple-darwin22.6.0]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /opt/homebrew/Cellar/llvm/21.1.8_1/bin]
+        ignore line: [Configuration file: /opt/homebrew/etc/clang/arm64-apple-darwin22.cfg]
+        ignore line: [System configuration file directory: /opt/homebrew/etc/clang]
+        ignore line: [User configuration file directory: /Users/antares/.config/clang]
+        link line: [ "/Users/antares/.pyenv/shims/ld" -demangle -lto_library /opt/homebrew/Cellar/llvm/21.1.8_1/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 13.0.0 13.3 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_eb98c -L/opt/homebrew/opt/libomp/lib -v CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/lib/darwin/libclang_rt.osx.a]
+          arg [/Users/antares/.pyenv/shims/ld] ==> ignore
+          arg [-demangle] ==> ignore
+          arg [-lto_library] ==> ignore, skip following value
+          arg [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/libLTO.dylib] ==> skip value of -lto_library
+          arg [-dynamic] ==> ignore
+          arg [-arch] ==> ignore
+          arg [arm64] ==> ignore
+          arg [-platform_version] ==> ignore
+          arg [macos] ==> ignore
+          arg [13.0.0] ==> ignore
+          arg [13.3] ==> ignore
+          arg [-syslibroot] ==> ignore
+          arg [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk] ==> ignore
+          arg [-mllvm] ==> ignore
+          arg [-enable-linkonceodr-outlining] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_eb98c] ==> ignore
+          arg [-L/opt/homebrew/opt/libomp/lib] ==> dir [/opt/homebrew/opt/libomp/lib]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_eb98c.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [-lc++] ==> lib [c++]
+          arg [-lSystem] ==> lib [System]
+          arg [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/lib/darwin/libclang_rt.osx.a] ==> lib [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/lib/darwin/libclang_rt.osx.a]
+        linker tool for 'CXX': /Users/antares/.pyenv/shims/ld
+        Library search paths: [;/opt/homebrew/opt/libomp/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/lib]
+        Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks/]
+        remove lib [System]
+        remove lib [/opt/homebrew/Cellar/llvm/21.1.8_1/lib/clang/21/lib/darwin/libclang_rt.osx.a]
+        collapse library dir [/opt/homebrew/opt/libomp/lib] ==> [/opt/homebrew/opt/libomp/lib]
+        collapse library dir [/opt/homebrew/opt/libomp/lib] ==> [/opt/homebrew/opt/libomp/lib]
+        collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/lib]
+        collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks]
+        implicit libs: [c++]
+        implicit objs: []
+        implicit dirs: [/opt/homebrew/opt/libomp/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/usr/lib]
+        implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk/System/Library/Frameworks]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Running the CXX compiler's linker: "/Users/antares/.pyenv/shims/ld" "-v"
+      @(#)PROGRAM:ld  PROJECT:ld64-857.1
+      BUILD 23:13:29 May  7 2023
+      configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+      LTO support using: LLVM version 14.0.3, (clang-1403.0.22.14.1) (static support for 29, runtime is 29)
+      TAPI support using: Apple TAPI version 14.0.3 (tapi-1403.0.5.1)
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindOpenMP.cmake:574 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindOpenMP.cmake:714 (_OPENMP_GET_SPEC_DATE)"
+      - "CMakeLists.txt:54 (find_package)"
+    description: "Detecting CXX OpenMP version"
+    directories:
+      source: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-c80OEx"
+      binary: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-c80OEx"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: "-L/opt/homebrew/opt/libomp/lib"
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "OpenMP_SPECTEST_CXX_"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-c80OEx'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /opt/homebrew/bin/gmake -f Makefile cmTC_eb14f/fast
+        /opt/homebrew/bin/gmake  -f CMakeFiles/cmTC_eb14f.dir/build.make CMakeFiles/cmTC_eb14f.dir/build
+        gmake[1]: Entering directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-c80OEx'
+        Building CXX object CMakeFiles/cmTC_eb14f.dir/OpenMPCheckVersion.cpp.o
+        /opt/homebrew/opt/llvm/bin/clang++   -fopenmp -I/opt/homebrew/opt/libomp/include -std=c++20 -arch arm64 -MD -MT CMakeFiles/cmTC_eb14f.dir/OpenMPCheckVersion.cpp.o -MF CMakeFiles/cmTC_eb14f.dir/OpenMPCheckVersion.cpp.o.d -o CMakeFiles/cmTC_eb14f.dir/OpenMPCheckVersion.cpp.o -c /Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-c80OEx/OpenMPCheckVersion.cpp
+        Linking CXX executable cmTC_eb14f
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eb14f.dir/link.txt --verbose=1
+        /opt/homebrew/opt/llvm/bin/clang++  -fopenmp -I/opt/homebrew/opt/libomp/include -arch arm64 -L/opt/homebrew/opt/libomp/lib  CMakeFiles/cmTC_eb14f.dir/OpenMPCheckVersion.cpp.o -o cmTC_eb14f
+        gmake[1]: Leaving directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-c80OEx'
+        
+      exitCode: 0
+  -
+    kind: "find_package-v1"
+    backtrace:
+      - "CMakeLists.txt:63 (find_package)"
+    name: "Eigen3"
+    configs:
+      -
+        filename: "Eigen3.cps"
+        kind: "cps"
+      -
+        filename: "eigen3.cps"
+        kind: "cps"
+      -
+        filename: "Eigen3Config.cmake"
+        kind: "cmake"
+      -
+        filename: "eigen3-config.cmake"
+        kind: "cmake"
+    version_request:
+      exact: false
+    settings:
+      required: "required_explicit"
+      quiet: false
+      global: false
+      policy_scope: true
+      bypass_provider: false
+      names:
+        - "Eigen3"
+      path_suffixes:
+        - ""
+      paths:
+        CMAKE_FIND_USE_CMAKE_PATH: true
+        CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+        CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+        CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+        CMAKE_FIND_USE_INSTALL_PREFIX: true
+        CMAKE_FIND_USE_PACKAGE_ROOT_PATH: true
+        CMAKE_FIND_USE_CMAKE_PACKAGE_REGISTRY: true
+        CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY: true
+        CMAKE_FIND_ROOT_PATH_MODE: "BOTH"
+    candidates:
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib64/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib64/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/share/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/share/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib64/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib64/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/share/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/share/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib64/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib64/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/share/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/share/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib64/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib64/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/share/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/share/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib64/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib64/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/share/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/share/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib64/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib64/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/share/cps/Eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/share/cps/eigen3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/share/eigen3/Eigen3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/share/eigen3/eigen3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+    found:
+      path: "/opt/homebrew/share/eigen3/cmake/Eigen3Config.cmake"
+      mode: "config"
+      version: "3.4.1"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+        - "/sw"
+        - "/opt/local"
+      CMAKE_SYSTEM_FRAMEWORK_PATH:
+        - "~/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/Network/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/Library/Frameworks"
+        - "/Library/Frameworks"
+        - "/Network/Library/Frameworks"
+        - "/System/Library/Frameworks"
+  -
+    kind: "find_package-v1"
+    backtrace:
+      - "CMakeLists.txt:64 (find_package)"
+    name: "FFTW3"
+    configs:
+      -
+        filename: "FFTW3.cps"
+        kind: "cps"
+      -
+        filename: "fftw3.cps"
+        kind: "cps"
+      -
+        filename: "FFTW3Config.cmake"
+        kind: "cmake"
+      -
+        filename: "fftw3-config.cmake"
+        kind: "cmake"
+    version_request:
+      exact: false
+    settings:
+      required: "required_explicit"
+      quiet: false
+      global: false
+      policy_scope: true
+      bypass_provider: false
+      names:
+        - "FFTW3"
+      path_suffixes:
+        - ""
+      paths:
+        CMAKE_FIND_USE_CMAKE_PATH: true
+        CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+        CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+        CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+        CMAKE_FIND_USE_INSTALL_PREFIX: true
+        CMAKE_FIND_USE_PACKAGE_ROOT_PATH: true
+        CMAKE_FIND_USE_CMAKE_PACKAGE_REGISTRY: true
+        CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY: true
+        CMAKE_FIND_ROOT_PATH_MODE: "BOTH"
+    candidates:
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/FFTW3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/fftw3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib64/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib64/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/lib/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/share/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/pkgRedirects/share/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/FFTW3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/fftw3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib64/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib64/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/lib/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/share/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/share/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/FFTW3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/fftw3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib64/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib64/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/lib/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/share/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.pyenv/shims/share/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/FFTW3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/fftw3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib64/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib64/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/lib/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/share/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/opt/libomp/share/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/FFTW3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/fftw3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib64/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib64/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/lib/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/share/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/Users/antares/.rbenv/shims/share/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/FFTW3Config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/fftw3-config.cmake"
+        mode: "config"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib64/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib64/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/lib/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/share/cps/FFTW3.cps"
+        mode: "cps"
+        reason: "no_exist"
+      -
+        path: "/opt/homebrew/share/cps/fftw3.cps"
+        mode: "cps"
+        reason: "no_exist"
+    found:
+      path: "/opt/homebrew/lib/cmake/fftw3/FFTW3Config.cmake"
+      mode: "config"
+      version: "3.3.10"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+        - "/sw"
+        - "/opt/local"
+      CMAKE_SYSTEM_FRAMEWORK_PATH:
+        - "~/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/Network/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/Library/Frameworks"
+        - "/Library/Developer/CommandLineTools/Library/Frameworks"
+        - "/Library/Frameworks"
+        - "/Network/Library/Frameworks"
+        - "/System/Library/Frameworks"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindGit.cmake:111 (find_program)"
+      - "/opt/homebrew/share/cmake/Modules/FetchContent.cmake:1887 (find_package)"
+      - "/opt/homebrew/share/cmake/Modules/FetchContent.cmake:1622 (__FetchContent_populateSubbuild)"
+      - "/opt/homebrew/share/cmake/Modules/FetchContent.cmake:2158:EVAL:2 (__FetchContent_doPopulation)"
+      - "/opt/homebrew/share/cmake/Modules/FetchContent.cmake:2158 (cmake_language)"
+      - "/opt/homebrew/share/cmake/Modules/FetchContent.cmake:2399 (__FetchContent_Populate)"
+      - "CMakeLists.txt:224 (FetchContent_MakeAvailable)"
+    mode: "program"
+    variable: "GIT_EXECUTABLE"
+    description: "Git command line client"
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "git"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/opt/homebrew/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+      - "/sw/bin/"
+      - "/sw/sbin/"
+      - "/sw/"
+      - "/opt/local/bin/"
+      - "/opt/local/sbin/"
+      - "/opt/local/"
+      - "/Users/antares/Applications/"
+      - "/Applications/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/git"
+      - "/Users/antares/.pyenv/shims/git"
+      - "/opt/homebrew/opt/libomp/bin/git"
+      - "/Users/antares/.rbenv/shims/git"
+    found: "/opt/homebrew/bin/git"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+        - "/sw"
+        - "/opt/local"
+      CMAKE_SYSTEM_APPBUNDLE_PATH:
+        - "/Users/antares/Applications"
+        - "/Applications"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCXXCompilerFlag.cmake:103 (cmake_check_compiler_flag)"
+      - "build/_deps/catch2-src/CMake/CatchMiscFunctions.cmake:12 (check_cxx_compiler_flag)"
+      - "build/_deps/catch2-src/CMake/CatchMiscFunctions.cmake:119 (add_cxx_flag_if_supported_to_targets)"
+      - "build/_deps/catch2-src/src/CMakeLists.txt:359 (add_build_reproducibility_settings)"
+    checks:
+      - "Performing Test HAVE_FLAG__ffile_prefix_map__Users_antares_Projects_physics_codes_GHZ_numeric_build__deps_catch2_src__"
+    directories:
+      source: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-AUZJvF"
+      binary: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-AUZJvF"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/opt/homebrew/Cellar/llvm/21.1.8_1/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: "-L/opt/homebrew/opt/libomp/lib"
+      CMAKE_MODULE_PATH: "/Users/antares/Projects/physics_codes/GHZ_numeric/build/_deps/catch2-src/extras;/Users/antares/Projects/physics_codes/GHZ_numeric/build/_deps/catch2-src/CMake"
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "HAVE_FLAG__ffile_prefix_map__Users_antares_Projects_physics_codes_GHZ_numeric_build__deps_catch2_src__"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-AUZJvF'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /opt/homebrew/bin/gmake -f Makefile cmTC_ef5ef/fast
+        /opt/homebrew/bin/gmake  -f CMakeFiles/cmTC_ef5ef.dir/build.make CMakeFiles/cmTC_ef5ef.dir/build
+        gmake[1]: Entering directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-AUZJvF'
+        Building CXX object CMakeFiles/cmTC_ef5ef.dir/src.cxx.o
+        /opt/homebrew/opt/llvm/bin/clang++ -DHAVE_FLAG__ffile_prefix_map__Users_antares_Projects_physics_codes_GHZ_numeric_build__deps_catch2_src__  -std=c++20 -arch arm64   -ffile-prefix-map=/Users/antares/Projects/physics_codes/GHZ_numeric/build/_deps/catch2-src/= -MD -MT CMakeFiles/cmTC_ef5ef.dir/src.cxx.o -MF CMakeFiles/cmTC_ef5ef.dir/src.cxx.o.d -o CMakeFiles/cmTC_ef5ef.dir/src.cxx.o -c /Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-AUZJvF/src.cxx
+        Linking CXX executable cmTC_ef5ef
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ef5ef.dir/link.txt --verbose=1
+        /opt/homebrew/opt/llvm/bin/clang++  -arch arm64 -L/opt/homebrew/opt/libomp/lib  CMakeFiles/cmTC_ef5ef.dir/src.cxx.o -o cmTC_ef5ef
+        gmake[1]: Leaving directory '/Users/antares/Projects/physics_codes/GHZ_numeric/build/CMakeFiles/CMakeScratch/TryCompile-AUZJvF'
+        
+      exitCode: 0
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CTest.cmake:171 (find_program)"
+      - "CMakeLists.txt:227 (include)"
+    mode: "program"
+    variable: "GITCOMMAND"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "git"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/opt/homebrew/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+      - "/sw/bin/"
+      - "/sw/sbin/"
+      - "/sw/"
+      - "/opt/local/bin/"
+      - "/opt/local/sbin/"
+      - "/opt/local/"
+      - "/Users/antares/Applications/"
+      - "/Applications/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/git"
+      - "/Users/antares/.pyenv/shims/git"
+      - "/opt/homebrew/opt/libomp/bin/git"
+      - "/Users/antares/.rbenv/shims/git"
+    found: "/opt/homebrew/bin/git"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+        - "/sw"
+        - "/opt/local"
+      CMAKE_SYSTEM_APPBUNDLE_PATH:
+        - "/Users/antares/Applications"
+        - "/Applications"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CTest.cmake:188 (find_program)"
+      - "CMakeLists.txt:227 (include)"
+    mode: "program"
+    variable: "MEMORYCHECK_COMMAND"
+    description: "Path to the memory checking command, used for memory error detection."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "purify"
+      - "valgrind"
+      - "boundscheck"
+      - "drmemory"
+      - "cuda-memcheck"
+      - "compute-sanitizer"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/opt/homebrew/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+      - "/sw/bin/"
+      - "/sw/sbin/"
+      - "/sw/"
+      - "/opt/local/bin/"
+      - "/opt/local/sbin/"
+      - "/opt/local/"
+      - "/Users/antares/Applications/"
+      - "/Applications/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/purify"
+      - "/Users/antares/.pyenv/shims/purify"
+      - "/opt/homebrew/opt/libomp/bin/purify"
+      - "/Users/antares/.rbenv/shims/purify"
+      - "/opt/homebrew/bin/purify"
+      - "/opt/homebrew/sbin/purify"
+      - "/usr/local/bin/purify"
+      - "/System/Cryptexes/App/usr/bin/purify"
+      - "/usr/bin/purify"
+      - "/bin/purify"
+      - "/usr/sbin/purify"
+      - "/sbin/purify"
+      - "/Library/TeX/texbin/purify"
+      - "/opt/X11/bin/purify"
+      - "/Applications/Wireshark.app/Contents/MacOS/purify"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/purify"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/purify"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/purify"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/purify"
+      - "/Applications/Codex.app/Contents/Resources/purify"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/purify"
+      - "/Users/antares/.cargo/bin/purify"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/purify"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/purify"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/purify"
+      - "/opt/homebrew/bin/purify"
+      - "/opt/homebrew/sbin/purify"
+      - "/opt/homebrew/purify"
+      - "/usr/local/bin/purify"
+      - "/usr/local/sbin/purify"
+      - "/usr/local/purify"
+      - "/usr/bin/purify"
+      - "/usr/sbin/purify"
+      - "/usr/purify"
+      - "/bin/purify"
+      - "/sbin/purify"
+      - "/usr/X11R6/bin/purify"
+      - "/usr/X11R6/sbin/purify"
+      - "/usr/X11R6/purify"
+      - "/usr/pkg/bin/purify"
+      - "/usr/pkg/sbin/purify"
+      - "/usr/pkg/purify"
+      - "/opt/bin/purify"
+      - "/opt/sbin/purify"
+      - "/opt/purify"
+      - "/sw/bin/purify"
+      - "/sw/sbin/purify"
+      - "/sw/purify"
+      - "/opt/local/bin/purify"
+      - "/opt/local/sbin/purify"
+      - "/opt/local/purify"
+      - "/Users/antares/Applications/purify"
+      - "/Applications/purify"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/valgrind"
+      - "/Users/antares/.pyenv/shims/valgrind"
+      - "/opt/homebrew/opt/libomp/bin/valgrind"
+      - "/Users/antares/.rbenv/shims/valgrind"
+      - "/opt/homebrew/bin/valgrind"
+      - "/opt/homebrew/sbin/valgrind"
+      - "/usr/local/bin/valgrind"
+      - "/System/Cryptexes/App/usr/bin/valgrind"
+      - "/usr/bin/valgrind"
+      - "/bin/valgrind"
+      - "/usr/sbin/valgrind"
+      - "/sbin/valgrind"
+      - "/Library/TeX/texbin/valgrind"
+      - "/opt/X11/bin/valgrind"
+      - "/Applications/Wireshark.app/Contents/MacOS/valgrind"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/valgrind"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/valgrind"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/valgrind"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/valgrind"
+      - "/Applications/Codex.app/Contents/Resources/valgrind"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/valgrind"
+      - "/Users/antares/.cargo/bin/valgrind"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/valgrind"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/valgrind"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/valgrind"
+      - "/opt/homebrew/bin/valgrind"
+      - "/opt/homebrew/sbin/valgrind"
+      - "/opt/homebrew/valgrind"
+      - "/usr/local/bin/valgrind"
+      - "/usr/local/sbin/valgrind"
+      - "/usr/local/valgrind"
+      - "/usr/bin/valgrind"
+      - "/usr/sbin/valgrind"
+      - "/usr/valgrind"
+      - "/bin/valgrind"
+      - "/sbin/valgrind"
+      - "/usr/X11R6/bin/valgrind"
+      - "/usr/X11R6/sbin/valgrind"
+      - "/usr/X11R6/valgrind"
+      - "/usr/pkg/bin/valgrind"
+      - "/usr/pkg/sbin/valgrind"
+      - "/usr/pkg/valgrind"
+      - "/opt/bin/valgrind"
+      - "/opt/sbin/valgrind"
+      - "/opt/valgrind"
+      - "/sw/bin/valgrind"
+      - "/sw/sbin/valgrind"
+      - "/sw/valgrind"
+      - "/opt/local/bin/valgrind"
+      - "/opt/local/sbin/valgrind"
+      - "/opt/local/valgrind"
+      - "/Users/antares/Applications/valgrind"
+      - "/Applications/valgrind"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/boundscheck"
+      - "/Users/antares/.pyenv/shims/boundscheck"
+      - "/opt/homebrew/opt/libomp/bin/boundscheck"
+      - "/Users/antares/.rbenv/shims/boundscheck"
+      - "/opt/homebrew/bin/boundscheck"
+      - "/opt/homebrew/sbin/boundscheck"
+      - "/usr/local/bin/boundscheck"
+      - "/System/Cryptexes/App/usr/bin/boundscheck"
+      - "/usr/bin/boundscheck"
+      - "/bin/boundscheck"
+      - "/usr/sbin/boundscheck"
+      - "/sbin/boundscheck"
+      - "/Library/TeX/texbin/boundscheck"
+      - "/opt/X11/bin/boundscheck"
+      - "/Applications/Wireshark.app/Contents/MacOS/boundscheck"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/boundscheck"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/boundscheck"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/boundscheck"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/boundscheck"
+      - "/Applications/Codex.app/Contents/Resources/boundscheck"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/boundscheck"
+      - "/Users/antares/.cargo/bin/boundscheck"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/boundscheck"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/boundscheck"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/boundscheck"
+      - "/opt/homebrew/bin/boundscheck"
+      - "/opt/homebrew/sbin/boundscheck"
+      - "/opt/homebrew/boundscheck"
+      - "/usr/local/bin/boundscheck"
+      - "/usr/local/sbin/boundscheck"
+      - "/usr/local/boundscheck"
+      - "/usr/bin/boundscheck"
+      - "/usr/sbin/boundscheck"
+      - "/usr/boundscheck"
+      - "/bin/boundscheck"
+      - "/sbin/boundscheck"
+      - "/usr/X11R6/bin/boundscheck"
+      - "/usr/X11R6/sbin/boundscheck"
+      - "/usr/X11R6/boundscheck"
+      - "/usr/pkg/bin/boundscheck"
+      - "/usr/pkg/sbin/boundscheck"
+      - "/usr/pkg/boundscheck"
+      - "/opt/bin/boundscheck"
+      - "/opt/sbin/boundscheck"
+      - "/opt/boundscheck"
+      - "/sw/bin/boundscheck"
+      - "/sw/sbin/boundscheck"
+      - "/sw/boundscheck"
+      - "/opt/local/bin/boundscheck"
+      - "/opt/local/sbin/boundscheck"
+      - "/opt/local/boundscheck"
+      - "/Users/antares/Applications/boundscheck"
+      - "/Applications/boundscheck"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/drmemory"
+      - "/Users/antares/.pyenv/shims/drmemory"
+      - "/opt/homebrew/opt/libomp/bin/drmemory"
+      - "/Users/antares/.rbenv/shims/drmemory"
+      - "/opt/homebrew/bin/drmemory"
+      - "/opt/homebrew/sbin/drmemory"
+      - "/usr/local/bin/drmemory"
+      - "/System/Cryptexes/App/usr/bin/drmemory"
+      - "/usr/bin/drmemory"
+      - "/bin/drmemory"
+      - "/usr/sbin/drmemory"
+      - "/sbin/drmemory"
+      - "/Library/TeX/texbin/drmemory"
+      - "/opt/X11/bin/drmemory"
+      - "/Applications/Wireshark.app/Contents/MacOS/drmemory"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/drmemory"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/drmemory"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/drmemory"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/drmemory"
+      - "/Applications/Codex.app/Contents/Resources/drmemory"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/drmemory"
+      - "/Users/antares/.cargo/bin/drmemory"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/drmemory"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/drmemory"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/drmemory"
+      - "/opt/homebrew/bin/drmemory"
+      - "/opt/homebrew/sbin/drmemory"
+      - "/opt/homebrew/drmemory"
+      - "/usr/local/bin/drmemory"
+      - "/usr/local/sbin/drmemory"
+      - "/usr/local/drmemory"
+      - "/usr/bin/drmemory"
+      - "/usr/sbin/drmemory"
+      - "/usr/drmemory"
+      - "/bin/drmemory"
+      - "/sbin/drmemory"
+      - "/usr/X11R6/bin/drmemory"
+      - "/usr/X11R6/sbin/drmemory"
+      - "/usr/X11R6/drmemory"
+      - "/usr/pkg/bin/drmemory"
+      - "/usr/pkg/sbin/drmemory"
+      - "/usr/pkg/drmemory"
+      - "/opt/bin/drmemory"
+      - "/opt/sbin/drmemory"
+      - "/opt/drmemory"
+      - "/sw/bin/drmemory"
+      - "/sw/sbin/drmemory"
+      - "/sw/drmemory"
+      - "/opt/local/bin/drmemory"
+      - "/opt/local/sbin/drmemory"
+      - "/opt/local/drmemory"
+      - "/Users/antares/Applications/drmemory"
+      - "/Applications/drmemory"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/cuda-memcheck"
+      - "/Users/antares/.pyenv/shims/cuda-memcheck"
+      - "/opt/homebrew/opt/libomp/bin/cuda-memcheck"
+      - "/Users/antares/.rbenv/shims/cuda-memcheck"
+      - "/opt/homebrew/bin/cuda-memcheck"
+      - "/opt/homebrew/sbin/cuda-memcheck"
+      - "/usr/local/bin/cuda-memcheck"
+      - "/System/Cryptexes/App/usr/bin/cuda-memcheck"
+      - "/usr/bin/cuda-memcheck"
+      - "/bin/cuda-memcheck"
+      - "/usr/sbin/cuda-memcheck"
+      - "/sbin/cuda-memcheck"
+      - "/Library/TeX/texbin/cuda-memcheck"
+      - "/opt/X11/bin/cuda-memcheck"
+      - "/Applications/Wireshark.app/Contents/MacOS/cuda-memcheck"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/cuda-memcheck"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/cuda-memcheck"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/cuda-memcheck"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/cuda-memcheck"
+      - "/Applications/Codex.app/Contents/Resources/cuda-memcheck"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/cuda-memcheck"
+      - "/Users/antares/.cargo/bin/cuda-memcheck"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/cuda-memcheck"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/cuda-memcheck"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/cuda-memcheck"
+      - "/opt/homebrew/bin/cuda-memcheck"
+      - "/opt/homebrew/sbin/cuda-memcheck"
+      - "/opt/homebrew/cuda-memcheck"
+      - "/usr/local/bin/cuda-memcheck"
+      - "/usr/local/sbin/cuda-memcheck"
+      - "/usr/local/cuda-memcheck"
+      - "/usr/bin/cuda-memcheck"
+      - "/usr/sbin/cuda-memcheck"
+      - "/usr/cuda-memcheck"
+      - "/bin/cuda-memcheck"
+      - "/sbin/cuda-memcheck"
+      - "/usr/X11R6/bin/cuda-memcheck"
+      - "/usr/X11R6/sbin/cuda-memcheck"
+      - "/usr/X11R6/cuda-memcheck"
+      - "/usr/pkg/bin/cuda-memcheck"
+      - "/usr/pkg/sbin/cuda-memcheck"
+      - "/usr/pkg/cuda-memcheck"
+      - "/opt/bin/cuda-memcheck"
+      - "/opt/sbin/cuda-memcheck"
+      - "/opt/cuda-memcheck"
+      - "/sw/bin/cuda-memcheck"
+      - "/sw/sbin/cuda-memcheck"
+      - "/sw/cuda-memcheck"
+      - "/opt/local/bin/cuda-memcheck"
+      - "/opt/local/sbin/cuda-memcheck"
+      - "/opt/local/cuda-memcheck"
+      - "/Users/antares/Applications/cuda-memcheck"
+      - "/Applications/cuda-memcheck"
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/compute-sanitizer"
+      - "/Users/antares/.pyenv/shims/compute-sanitizer"
+      - "/opt/homebrew/opt/libomp/bin/compute-sanitizer"
+      - "/Users/antares/.rbenv/shims/compute-sanitizer"
+      - "/opt/homebrew/bin/compute-sanitizer"
+      - "/opt/homebrew/sbin/compute-sanitizer"
+      - "/usr/local/bin/compute-sanitizer"
+      - "/System/Cryptexes/App/usr/bin/compute-sanitizer"
+      - "/usr/bin/compute-sanitizer"
+      - "/bin/compute-sanitizer"
+      - "/usr/sbin/compute-sanitizer"
+      - "/sbin/compute-sanitizer"
+      - "/Library/TeX/texbin/compute-sanitizer"
+      - "/opt/X11/bin/compute-sanitizer"
+      - "/Applications/Wireshark.app/Contents/MacOS/compute-sanitizer"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/compute-sanitizer"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/compute-sanitizer"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/compute-sanitizer"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/compute-sanitizer"
+      - "/Applications/Codex.app/Contents/Resources/compute-sanitizer"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/compute-sanitizer"
+      - "/Users/antares/.cargo/bin/compute-sanitizer"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/compute-sanitizer"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/compute-sanitizer"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/compute-sanitizer"
+      - "/opt/homebrew/bin/compute-sanitizer"
+      - "/opt/homebrew/sbin/compute-sanitizer"
+      - "/opt/homebrew/compute-sanitizer"
+      - "/usr/local/bin/compute-sanitizer"
+      - "/usr/local/sbin/compute-sanitizer"
+      - "/usr/local/compute-sanitizer"
+      - "/usr/bin/compute-sanitizer"
+      - "/usr/sbin/compute-sanitizer"
+      - "/usr/compute-sanitizer"
+      - "/bin/compute-sanitizer"
+      - "/sbin/compute-sanitizer"
+      - "/usr/X11R6/bin/compute-sanitizer"
+      - "/usr/X11R6/sbin/compute-sanitizer"
+      - "/usr/X11R6/compute-sanitizer"
+      - "/usr/pkg/bin/compute-sanitizer"
+      - "/usr/pkg/sbin/compute-sanitizer"
+      - "/usr/pkg/compute-sanitizer"
+      - "/opt/bin/compute-sanitizer"
+      - "/opt/sbin/compute-sanitizer"
+      - "/opt/compute-sanitizer"
+      - "/sw/bin/compute-sanitizer"
+      - "/sw/sbin/compute-sanitizer"
+      - "/sw/compute-sanitizer"
+      - "/opt/local/bin/compute-sanitizer"
+      - "/opt/local/sbin/compute-sanitizer"
+      - "/opt/local/compute-sanitizer"
+      - "/Users/antares/Applications/compute-sanitizer"
+      - "/Applications/compute-sanitizer"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+        - "/sw"
+        - "/opt/local"
+      CMAKE_SYSTEM_APPBUNDLE_PATH:
+        - "/Users/antares/Applications"
+        - "/Applications"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CTest.cmake:196 (find_program)"
+      - "CMakeLists.txt:227 (include)"
+    mode: "program"
+    variable: "COVERAGE_COMMAND"
+    description: "Path to the coverage program that CTest uses for performing coverage inspection"
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcov"
+    candidate_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/"
+      - "/Users/antares/.pyenv/shims/"
+      - "/opt/homebrew/opt/libomp/bin/"
+      - "/Users/antares/.rbenv/shims/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/usr/local/bin/"
+      - "/System/Cryptexes/App/usr/bin/"
+      - "/usr/bin/"
+      - "/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/Library/TeX/texbin/"
+      - "/opt/X11/bin/"
+      - "/Applications/Wireshark.app/Contents/MacOS/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin/"
+      - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin/"
+      - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q/"
+      - "/Applications/Codex.app/Contents/Resources/"
+      - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin/"
+      - "/Users/antares/.cargo/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/bin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/sbin/"
+      - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/"
+      - "/opt/homebrew/bin/"
+      - "/opt/homebrew/sbin/"
+      - "/opt/homebrew/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+      - "/sw/bin/"
+      - "/sw/sbin/"
+      - "/sw/"
+      - "/opt/local/bin/"
+      - "/opt/local/sbin/"
+      - "/opt/local/"
+      - "/Users/antares/Applications/"
+      - "/Applications/"
+    searched_directories:
+      - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims/gcov"
+      - "/Users/antares/.pyenv/shims/gcov"
+      - "/opt/homebrew/opt/libomp/bin/gcov"
+      - "/Users/antares/.rbenv/shims/gcov"
+      - "/opt/homebrew/bin/gcov"
+      - "/opt/homebrew/sbin/gcov"
+      - "/usr/local/bin/gcov"
+      - "/System/Cryptexes/App/usr/bin/gcov"
+    found: "/usr/bin/gcov"
+    search_context:
+      ENV{PATH}:
+        - "/opt/homebrew/Cellar/pyenv-virtualenv/1.2.4/shims"
+        - "/Users/antares/.pyenv/shims"
+        - "/opt/homebrew/opt/libomp/bin"
+        - "/Users/antares/.rbenv/shims"
+        - "/opt/homebrew/bin"
+        - "/opt/homebrew/sbin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/Library/TeX/texbin"
+        - "/opt/X11/bin"
+        - "/Applications/Wireshark.app/Contents/MacOS"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/Users/antares/.codex/tmp/arg0/codex-arg0kLoB1Q"
+        - "/Applications/Codex.app/Contents/Resources"
+        - "/Users/antares/crto/monero/build/Darwin/release-v0.17/release/bin"
+        - "/Users/antares/.cargo/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/opt/homebrew"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+        - "/sw"
+        - "/opt/local"
+      CMAKE_SYSTEM_APPBUNDLE_PATH:
+        - "/Users/antares/Applications"
+        - "/Applications"
+...

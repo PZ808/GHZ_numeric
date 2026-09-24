@@ -1,0 +1,1012 @@
+%%%%%%%%%%%%%CQG hack%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+
+\newif\if@restonecol
+\newif\if@titlepage
+\newif\ifiopams
+\@titlepagefalse
+
+\setlength\paperheight {297mm}
+\setlength\paperwidth  {210mm}
+\setlength\overfullrule{0pt}
+
+\DeclareMathAlphabet{\bi}{OML}{cmm}{b}{it}
+\DeclareMathAlphabet{\bcal}{OMS}{cmsy}{b}{n}
+%%%% iopart12
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@xiipt{16}%
+   \abovedisplayskip 12\p@ \@plus3\p@ \@minus7\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6.5\p@ \@plus3.5\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip
+   \let\@listi\@listI}
+\normalsize
+\renewcommand\small{%
+   \@setfontsize\small\@xipt{14}%
+   \abovedisplayskip 11\p@ \@plus3\p@ \@minus6\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6.5\p@ \@plus3.5\p@ \@minus3\p@
+   \def\@listi{\leftmargin\leftmargini
+               \topsep 9\p@ \@plus3\p@ \@minus5\p@
+               \parsep 4.5\p@ \@plus2\p@ \@minus\p@
+               \itemsep \parsep}%
+   \belowdisplayskip \abovedisplayskip
+}
+\renewcommand\footnotesize{%
+%   \@setfontsize\footnotesize\@xpt\@xiipt
+   \@setfontsize\footnotesize\@xpt{13}%
+   \abovedisplayskip 10\p@ \@plus2\p@ \@minus5\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \def\@listi{\leftmargin\leftmargini
+               \topsep 6\p@ \@plus2\p@ \@minus2\p@
+               \parsep 3\p@ \@plus2\p@ \@minus\p@
+               \itemsep \parsep}%
+   \belowdisplayskip \abovedisplayskip
+}
+\renewcommand\scriptsize{\@setfontsize\scriptsize\@viiipt{9.5}}
+\renewcommand\tiny{\@setfontsize\tiny\@vipt\@viipt}
+\renewcommand\large{\@setfontsize\large\@xivpt{18}}
+\renewcommand\Large{\@setfontsize\Large\@xviipt{22}}
+\renewcommand\LARGE{\@setfontsize\LARGE\@xxpt{25}}
+\renewcommand\huge{\@setfontsize\huge\@xxvpt{30}}
+\let\Huge=\huge
+\if@twocolumn
+  \setlength\parindent{14\p@}
+\else
+  \setlength\parindent{18\p@}
+\fi
+\setlength\headheight{14\p@}
+\setlength\headsep{14\p@}
+\setlength\topskip{12\p@}
+\setlength\footskip{24\p@}
+\setlength\maxdepth{.5\topskip}
+\setlength\@maxdepth\maxdepth
+\setlength\textwidth{37.2pc}
+\setlength\textheight{56pc}
+\setlength\oddsidemargin  {\z@}
+\setlength\evensidemargin {\z@}
+\setlength\marginparwidth {72\p@}
+\setlength\marginparsep{10\p@}
+\setlength\marginparpush{5\p@}
+\setlength\topmargin{-12pt}
+\setlength\footnotesep{8.4\p@}
+\setlength{\skip\footins} {10.8\p@ \@plus 4\p@ \@minus 2\p@}
+\setlength\floatsep       {14\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\textfloatsep   {24\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\intextsep      {16\p@ \@plus 4\p@ \@minus 4\p@}
+\setlength\dblfloatsep    {16\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\dbltextfloatsep{24\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\@fptop{0\p@}
+\setlength\@fpsep{10\p@ \@plus 1fil}
+\setlength\@fpbot{0\p@}
+\setlength\@dblfptop{0\p@}
+\setlength\@dblfpsep{10\p@ \@plus 1fil}
+\setlength\@dblfpbot{0\p@}
+\setlength\partopsep{3\p@ \@plus 2\p@ \@minus 2\p@}
+\def\@listI{\leftmargin\leftmargini
+     \parsep=\z@
+     \topsep=6\p@  \@plus3\p@ \@minus3\p@
+     \itemsep=3\p@ \@plus2\p@ \@minus1\p@}
+\let\@listi\@listI
+\@listi
+\def\@listii {\leftmargin\leftmarginii
+     \labelwidth\leftmarginii
+     \advance\labelwidth-\labelsep
+     \topsep=3\p@ \@plus2\p@ \@minus\p@
+     \parsep=\z@
+     \itemsep=\parsep}
+\def\@listiii{\leftmargin\leftmarginiii
+     \labelwidth\leftmarginiii
+     \advance\labelwidth-\labelsep
+     \topsep=\z@
+     \parsep=\z@
+     \partopsep=\z@
+     \itemsep=\z@}
+\def\@listiv {\leftmargin\leftmarginiv
+     \labelwidth\leftmarginiv
+     \advance\labelwidth-\labelsep}
+\def\@listv{\leftmargin\leftmarginv
+     \labelwidth\leftmarginv
+     \advance\labelwidth-\labelsep}
+\def\@listvi {\leftmargin\leftmarginvi
+     \labelwidth\leftmarginvi
+     \advance\labelwidth-\labelsep}
+%% end iopart12
+\setlength\lineskip{1\p@}
+\setlength\normallineskip{1\p@}
+\renewcommand\baselinestretch{}
+\setlength\parskip{0\p@ \@plus \p@}
+\@lowpenalty   51
+\@medpenalty  151
+\@highpenalty 301
+\setlength\parindent{2em}
+\setcounter{topnumber}{8}
+\renewcommand\topfraction{1}
+\setcounter{bottomnumber}{3}
+\renewcommand\bottomfraction{.99}
+\setcounter{totalnumber}{8}
+\renewcommand\textfraction{0.01}
+\renewcommand\floatpagefraction{.8}
+\setcounter{dbltopnumber}{6}
+\renewcommand\dbltopfraction{1}
+\renewcommand\dblfloatpagefraction{.8}
+%
+\pretolerance=5000
+\tolerance=8000
+
+%
+% Headings for all pages apart from first
+%
+\def\ps@headings{\let\@oddfoot\@empty
+      \let\@evenfoot\@empty
+      \def\@evenhead{{\thepage\hfil\itshape\sffamily\rightmark}}%
+      \def\@oddhead{{\itshape\sffamily\leftmark}\hfil\thepage}%
+      \let\@mkboth\markboth
+      \let\sectionmark\@gobble
+      \let\subsectionmark\@gobble}
+%
+% Headings for first page
+%
+\def\ps@myheadings{\let\@oddfoot\@empty\let\@evenfoot\@empty
+    \let\@oddhead\@empty\let\@evenhead\@empty
+    \let\@mkboth\@gobbletwo
+    \let\sectionmark\@gobble
+    \let\subsectionmark\@gobble}
+%
+% \maketitle just ends page
+%
+\renewcommand\maketitle{\newpage}
+%
+% Article titles
+%
+% Usage: \title[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\renewcommand{\title}{\@ifnextchar[{\@stitle}{\@ftitle}}
+\def\@stitle[#1]#2{\markboth{#1}{#1}%
+    \thispagestyle{myheadings}%
+    \vspace*{3pc}{\exhyphenpenalty=10000\hyphenpenalty=10000 
+    \Large\raggedright\noindent
+    \bf\sffamily#2\par}}
+\def\@ftitle#1{\markboth{#1}{#1}%
+    \thispagestyle{myheadings}%
+    \vspace*{3pc}{\exhyphenpenalty=10000\hyphenpenalty=10000 
+    \Large\raggedright\noindent
+    \bf\sffamily#1\par}}
+%
+% Can use \paper instead of \title
+%
+\let\paper=\title
+%
+% Generic title command for articles other than papers
+%
+% Usage: \article[Short title]{ARTICLE TYPE}{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\newcommand{\article}{\@ifnextchar[{\@sarticle}{\@farticle}}
+\def\@sarticle[#1]#2#3{\markboth{#1}{#1}%
+    \thispagestyle{myheadings}%
+     \vspace*{.5pc}%
+    {\parindent=\mathindent \bf #2\par}%
+     \vspace*{1.5pc}%
+    {\exhyphenpenalty=10000\hyphenpenalty=10000
+     \Large\raggedright\noindent
+     \bf#3\par}}%
+\def\@farticle#1#2{\markboth{#2}{#2}%
+    \thispagestyle{myheadings}%
+     \vspace*{.5pc}%
+    {\parindent=\mathindent \bf #1\par}%
+     \vspace*{1.5pc}%
+    {\exhyphenpenalty=10000\hyphenpenalty=10000
+     \Large\raggedright\noindent
+     \bf#2\par}}%
+%
+% Letters to the Editor
+%
+% Usage \letter{Full title}
+% No short title is required for Letters
+%
+\def\letter#1{\article[Letter to the Editor]{LETTER TO THE EDITOR}{#1}}
+%
+% Review articles
+%
+% Usage: \review[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\def\review{\@ifnextchar[{\@sreview}{\@freview}}
+\def\@sreview[#1]#2{\@sarticle[#1]{REVIEW ARTICLE}{#2}}
+\def\@freview#1{\@farticle{REVIEW ARTICLE}{#1}}
+%
+% Topical Review
+%
+% Usage: \topical[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\def\topical{\@ifnextchar[{\@stopical}{\@ftopical}}
+\def\@stopical[#1]#2{\@sarticle[#1]{TOPICAL REVIEW}{#2}}
+\def\@ftopical#1{\@farticle{TOPICAL REVIEW}{#1}}
+%
+% Comments
+%
+% Usage: \comment[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+%\def\comment{\@ifnextchar[{\@scomment}{\@fcomment}}
+%\def\@fcomment#1{\@farticle{COMMENT}{#1}}
+%\def\@scomment[#1]#2{\@sarticle[#1]{COMMENT}{#2}}
+%
+% Rapid Communications
+%
+% Usage: \rapid[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\def\rapid{\@ifnextchar[{\@srapid}{\@frapid}}
+\def\@srapid[#1]#2{\@sarticle[#1]{RAPID COMMUNICATION}{#2}}
+\def\@frapid#1{\@farticle{RAPID COMMUNICATION}{#1}}
+%
+% Notes
+%
+% Usage: \note[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\def\note{\@ifnextchar[{\@snote}{\@fnote}}
+\def\@snote[#1]#2{\@sarticle[#1]{NOTE}{#2}}
+\def\@fnote#1{\@farticle{NOTE}{#1}}
+%
+% Preliminary Communications
+%
+% Usage: \prelim[Short title]{Full title}
+% [Short title] is optional; use where title is too long
+% or contains footnotes, 50 characters maximum 
+%
+\def\prelim{\@ifnextchar[{\@sprelim}{\@fprelim}}
+\def\@sprelim[#1]#2{\@sarticle[#1]{PRELIMINARY COMMUNICATION}{#2}}
+\def\@fprelim#1{\@farticle{PRELIMINARY COMMUNICATION}{#1}}
+%
+% List of authors
+%
+% Usage \author[Short form]{List of all authors}
+% The short form excludes footnote symbols linking authors to addresses 
+% and is used for running heads in printed version (but not on preprints)
+%
+\renewcommand{\author}{\@ifnextchar[{\@sauthor}{\@fauthor}}
+\def\@sauthor[#1]#2{\markright{#1}    % for production only
+   \vspace*{1.5pc}%
+   \begin{indented}%
+   \item[]\normalsize\bf\sffamily\raggedright#2
+   \end{indented}%
+   \smallskip}
+\def\@fauthor#1{%\markright{#1}         for production only
+   \vspace*{1.5pc}%
+   \begin{indented}%
+   \item[]\normalsize\bf\sffamily\raggedright#1
+   \end{indented}%
+   \smallskip}
+%
+% Affiliation (authors address)
+%
+% Usage: \address{Address of first author}
+%        \address{Address of second author}
+% Use once for each address, use symbols \dag \ddag \S \P $\|$
+% to connect authors with addresses
+%
+\renewcommand{\address}[1]{\begin{indented}
+   \item[]\rm\raggedright #1
+   \end{indented}}
+%
+% American Mathematical Society Classification Numbers
+% Usage: \ams{57.XX, 58.XX}
+%
+\def\ams#1{\vspace{10pt}
+     \begin{indented}
+     \item[]\rm AMS classification scheme numbers: #1\par
+     \end{indented}}
+%
+% A single Physics & Astronomy Classification Number
+% Usage \pacno{31.10}
+%
+\def\pacno#1{\vspace{10pt}
+     \begin{indented}
+     \item[]\rm PACS number: #1\par
+     \end{indented}}
+%
+% Physics & Astronomy Classification Numbers (more than one)
+% Usage \pacs{31.10, 31.20T}
+%
+\def\pacs#1{\vspace{10pt}
+     \begin{indented}
+     \item[]\rm PACS numbers: #1\par
+     \end{indented}}
+%
+% Submission details. If \jl command used journals name printed
+% otherwise Institute of Physics Publishing 
+%
+\def\submitted{\vspace{28pt plus 10pt minus 18pt}
+     \noindent{\small\rm Submitted to: {\it \journal}\par}}
+%
+\def\submitto#1{\vspace{28pt plus 10pt minus 18pt}
+     \noindent{\small\rm Submitted to: {\it #1}\par}}
+%
+% For articles (other than Letters) not divided into sections
+% Usage \nosections Start of text
+%
+\def\nosections{\vspace{30\p@ plus12\p@ minus12\p@}
+    \noindent\ignorespaces}
+%
+% Acknowledgments (no heading if letter)
+% Usage \ack for Acknowledgments, \ackn for Acknowledgement
+%
+\def\ack{\ifletter\bigskip\noindent\ignorespaces\else
+    \section*{Acknowledgments}\fi}
+\def\ackn{\ifletter\bigskip\noindent\ignorespaces\else
+    \section*{Acknowledgment}\fi}
+%
+% Footnotes: symbols selected in order \dag (1), \ddag (2), \S (3), 
+% $\|$ (4), $\P$ (5), $^+$ (6), $^*$ (7), \sharp (8), \dagger\dagger (9)
+% unless optional argument of [<num>] use to specify required symbol, 
+% 1=\dag, 2=\ddag, etc
+% Usage: \footnote{Text of footnote}
+%        \footnote[3]{Text of footnote}
+%
+%\def\footnoterule{}%
+%\setcounter{footnote}{1}
+%\long\def\@makefntext#1{\parindent 1em\noindent 
+% \makebox[1em][l]{\footnotesize\rm$\m@th{\fnsymbol{footnote}}$}%
+% \footnotesize\rm #1}
+%\def\@makefnmark{\hbox{${\fnsymbol{footnote}}\m@th$}}
+%\def\@thefnmark{\fnsymbol{footnote}}
+%\def\footnote{\@ifnextchar[{\@xfootnote}{\stepcounter{\@mpfn}%
+%       \begingroup\let\protect\noexpand
+%       \xdef\@thefnmark{\thempfn}\endgroup
+%     \@footnotemark\@footnotetext}}
+%\def\@xfootnote[#1]{\setcounter{footnote}{#1}%
+%   \addtocounter{footnote}{-1}\footnote}
+%\def\@fnsymbol#1{\ifcase#1\or \dagger\or \ddagger\or \S\or
+%   \|\or \P\or ^{+}\or ^{\tsty *}\or \sharp
+%   \or \dagger\dagger \else\@ctrerr\fi\relax}
+%
+% IOP Journals
+%
+\newcounter{jnl}
+\newcommand{\jl}[1]{\setcounter{jnl}{#1}}
+\def\journal{\ifnum\thejnl=0 Institute of Physics Publishing\fi
+        \ifnum\thejnl=1 J. Phys.\ A: Math.\ Gen.\ \fi
+        \ifnum\thejnl=2 J. Phys.\ B: At.\ Mol.\ Opt.\ Phys.\ \fi
+        \ifnum\thejnl=3 J. Phys.:\ Condens. Matter\ \fi
+        \ifnum\thejnl=4 J. Phys.\ G: Nucl.\ Part.\ Phys.\ \fi
+        \ifnum\thejnl=5 Inverse Problems\ \fi
+        \ifnum\thejnl=6 Class. Quantum Grav.\ \fi
+        \ifnum\thejnl=7 Network: Comput.\ Neural Syst.\ \fi
+        \ifnum\thejnl=8 Nonlinearity\ \fi
+        \ifnum\thejnl=9 J. Opt. B: Quantum Semiclass. Opt.\ \fi
+        \ifnum\thejnl=10 Waves Random Media\ \fi
+        \ifnum\thejnl=11 J. Opt. A: Pure Appl. Opt.\ \fi
+        \ifnum\thejnl=12 Phys. Med. Biol.\ \fi
+        \ifnum\thejnl=13 Modelling Simul.\ Mater.\ Sci.\ Eng.\ \fi
+        \ifnum\thejnl=14 Plasma Phys. Control. Fusion\ \fi
+        \ifnum\thejnl=15 Physiol. Meas.\ \fi
+        \ifnum\thejnl=16 Combust. Theory Modelling\ \fi
+        \ifnum\thejnl=17 High Perform.\ Polym.\ \fi
+        \ifnum\thejnl=18 Public Understand. Sci.\ \fi
+        \ifnum\thejnl=19 Rep.\ Prog.\ Phys.\ \fi
+        \ifnum\thejnl=20 J.\ Phys.\ D: Appl.\ Phys.\ \fi
+        \ifnum\thejnl=21 Supercond.\ Sci.\ Technol.\ \fi
+        \ifnum\thejnl=22 Semicond.\ Sci.\ Technol.\ \fi
+        \ifnum\thejnl=23 Nanotechnology\ \fi
+        \ifnum\thejnl=24 Measur.\ Sci.\ Technol.\ \fi
+        \ifnum\thejnl=25 Plasma.\ Sources\ Sci.\ Technol.\ \fi
+        \ifnum\thejnl=26 Smart\ Mater.\ Struct.\ \fi
+        \ifnum\thejnl=27 J.\ Micromech.\ Microeng.\ \fi
+        \ifnum\thejnl=28 Distrib.\ Syst.\ Engng\ \fi
+        \ifnum\thejnl=29 Bioimaging\ \fi
+        \ifnum\thejnl=30 J.\ Radiol. Prot.\ \fi
+        \ifnum\thejnl=31 Europ. J. Phys.\ \fi
+        \ifnum\thejnl=32 J. Opt. A: Pure Appl. Opt.\ \fi
+        \ifnum\thejnl=33 New. J. Phys.\ \fi}
+%
+% E-mail addresses (to provide links from headers)
+%
+\def\eads#1{\vspace*{5pt}\address{E-mail: #1}}
+\def\ead#1{\vspace*{5pt}\address{E-mail: \mailto{#1}}}
+\def\mailto#1{{\tt #1}}
+	
+	
+%%%%
+\newif\ifletter 
+%
+\setcounter{secnumdepth}{3}
+%\renewcounter {section}
+%\renewcounter {subsection}[section]
+%\renewcounter {subsubsection}[subsection]
+%\renewcounter {paragraph}[subsubsection]
+%\renewcounter {subparagraph}[paragraph]
+\renewcommand\thesection       {\arabic{section}}
+\renewcommand\thesubsection    {\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection {\thesubsection.\arabic{subsubsection}}
+\renewcommand\theparagraph     {\thesubsubsection.\arabic{paragraph}}
+\renewcommand\thesubparagraph  {\theparagraph.\arabic{subparagraph}}
+\def\@chapapp{Section}
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                   {-3.5ex \@plus -1ex \@minus -.2ex}%
+                   {2.3ex \@plus.2ex}%
+                   {\reset@font\normalsize\bfseries\sffamily\raggedright}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                   {-3.25ex\@plus -1ex \@minus -.2ex}%
+                   {1.5ex \@plus .2ex}%
+                   {\reset@font\normalsize\itshape\sffamily\raggedright}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {-1em \@plus .2em}%
+                                     {\reset@font\normalsize\itshape\sffamily}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                    {3.25ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\reset@font\normalsize\itshape}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+                                       {3.25ex \@plus1ex \@minus .2ex}%
+                                       {-1em}%
+                                      {\reset@font\normalsize\itshape}}
+\def\@sect#1#2#3#4#5#6[#7]#8{\ifnum #2>\c@secnumdepth
+     \let\@svsec\@empty\else
+     \refstepcounter{#1}\edef\@svsec{\csname the#1\endcsname. }\fi
+     \@tempskipa #5\relax
+      \ifdim \@tempskipa>\z@
+        \begingroup #6\relax
+          \noindent{\hskip #3\relax\@svsec}{\interlinepenalty \@M #8\par}%
+        \endgroup
+       \csname #1mark\endcsname{#7}\addcontentsline
+         {toc}{#1}{\ifnum #2>\c@secnumdepth \else
+                      \protect\numberline{\csname the#1\endcsname}\fi
+                    #7}\else
+        \def\@svsechd{#6\hskip #3\relax  %% \relax added 2 May 90
+                   \@svsec #8\csname #1mark\endcsname
+                      {#7}\addcontentsline
+                           {toc}{#1}{\ifnum #2>\c@secnumdepth \else
+                             \protect\numberline{\csname the#1\endcsname}\fi
+                       #7}}\fi
+     \@xsect{#5}}
+%
+\def\@ssect#1#2#3#4#5{\@tempskipa #3\relax
+   \ifdim \@tempskipa>\z@
+     \begingroup #4\noindent{\hskip #1}{\interlinepenalty \@M #5\par}\endgroup
+   \else \def\@svsechd{#4\hskip #1\relax #5}\fi
+    \@xsect{#3}}
+%%%%
+	
+\setlength\leftmargini{2em}
+\setlength\leftmarginii{2em}
+\setlength\leftmarginiii{1.8em}
+\setlength\leftmarginiv{1.6em}
+\setlength\leftmarginv{1em}
+\setlength\leftmarginvi{1em}
+\setlength\leftmargin{\leftmargini}
+\setlength\labelsep{0.5em}
+\setlength\labelwidth{\leftmargini}
+\addtolength\labelwidth{-\labelsep}
+\@beginparpenalty -\@lowpenalty
+\@endparpenalty   -\@lowpenalty
+\@itempenalty     -\@lowpenalty
+\renewcommand\theenumi{\roman{enumi}}
+\renewcommand\theenumii{\alph{enumii}}
+\renewcommand\theenumiii{\arabic{enumiii}}
+\renewcommand\theenumiv{\Alph{enumiv}}
+\renewcommand\labelenumi{(\theenumi)}
+\renewcommand\labelenumii{(\theenumii)}
+\renewcommand\labelenumiii{\theenumiii.}
+\renewcommand\labelenumiv{(\theenumiv)}
+\renewcommand\p@enumii{(\theenumi)}
+\renewcommand\p@enumiii{(\theenumi.\theenumii)}
+\renewcommand\p@enumiv{(\theenumi.\theenumii.\theenumiii)}
+\renewcommand\labelitemi{$\m@th\bullet$}
+\renewcommand\labelitemii{\normalfont\bfseries --}
+\renewcommand\labelitemiii{$\m@th\ast$}
+\renewcommand\labelitemiv{$\m@th\cdot$}
+%%%rest
+\renewenvironment{description}
+               {\list{}{\labelwidth\z@ \itemindent-\leftmargin
+                        \let\makelabel\descriptionlabel}}
+               {\endlist}
+\renewcommand\descriptionlabel[1]{\hspace\labelsep
+                                \normalfont\bfseries #1}
+ \renewenvironment{abstract}{%
+       \vspace{16pt plus3pt minus3pt}
+       \begin{indented}
+       \item[]{\bfseries\sffamily \abstractname.}\quad\rm\ignorespaces} 
+       {\end{indented}\if@titlepage\newpage\else\vspace{18\p@ plus18\p@}\fi}
+\renewenvironment{verse}
+               {\let\\=\@centercr
+                \list{}{\itemsep      \z@
+                        \itemindent   -1.5em%
+                        \listparindent\itemindent
+                        \rightmargin  \leftmargin
+                        \advance\leftmargin 1.5em}%
+                \item[]}
+               {\endlist}
+\renewenvironment{quotation}
+               {\list{}{\listparindent 1.5em%
+                        \itemindent    \listparindent
+                        \rightmargin   \leftmargin
+                        \parsep        \z@ \@plus\p@}%
+                \item[]}
+               {\endlist}
+\renewenvironment{quote}
+               {\list{}{\rightmargin\leftmargin}%
+                \item[]}
+               {\endlist}
+\renewenvironment{titlepage}
+    {%
+        \@restonecolfalse\newpage
+      \thispagestyle{empty}%
+      \if@compatibility
+        \setcounter{page}{0}
+      \else
+        \setcounter{page}{1}%
+      \fi}%
+    {\newpage\setcounter{page}{1}}
+\def\appendix{\@ifnextchar*{\@appendixstar}{\@appendix}}
+\def\@appendix{\eqnobysec\@appendixstar}
+\def\@appendixstar{\@@par
+ \ifnumbysec                         %  Added 30/4/94 to get Table A1,
+ \@addtoreset{table}{section}        %  Table B1 etc if numbering by
+ \@addtoreset{figure}{section}\fi    %  section
+ \setcounter{section}{0}
+ \setcounter{subsection}{0}
+ \setcounter{subsubsection}{0}
+ \setcounter{equation}{0}
+ \setcounter{figure}{0}
+ \setcounter{table}{0}
+ \def\thesection{Appendix \Alph{section}}   
+ \def\theequation{\ifnumbysec
+      \Alph{section}.\arabic{equation}\else
+      \Alph{section}\arabic{equation}\fi}  % Comment A\arabic{equation} maybe
+ \def\thetable{\ifnumbysec                 % better? 15/4/95
+      \Alph{section}\arabic{table}\else
+      A\arabic{table}\fi}
+ \def\thefigure{\ifnumbysec
+      \Alph{section}\arabic{figure}\else
+      A\arabic{figure}\fi}}
+\def\noappendix{\setcounter{figure}{0}
+     \setcounter{table}{0}
+     \def\thetable{\arabic{table}}
+     \def\thefigure{\arabic{figure}}}
+\setlength\arraycolsep{5\p@}
+\setlength\tabcolsep{6\p@}
+\setlength\arrayrulewidth{.4\p@}
+\setlength\doublerulesep{2\p@}
+\setlength\tabbingsep{\labelsep}
+\skip\@mpfootins = \skip\footins
+\setlength\fboxsep{3\p@}
+\setlength\fboxrule{.4\p@}
+\renewcommand\theequation{\arabic{equation}}
+%\newcounter{figure}
+\renewcommand\thefigure{\@arabic\c@figure}
+\def\fps@figure{tbp}
+\def\ftype@figure{1}
+\def\ext@figure{lof}
+\def\fnum@figure{\figurename~\thefigure}
+\renewenvironment{figure}{\footnotesize\rm\@float{figure}}%
+    {\end@float\normalsize\rm}
+\renewenvironment{figure*}{\footnotesize\rm\@dblfloat{figure}}{\end@dblfloat}
+%\newcounter{table}
+\renewcommand\thetable{\@arabic\c@table}
+\def\fps@table{tbp}
+\def\ftype@table{2}
+\def\ext@table{lot}
+\def\fnum@table{\tablename~\thetable}
+\renewenvironment{table}{\footnotesize\rm\@float{table}}%
+   {\end@float\normalsize\rm}
+\renewenvironment{table*}{\footnotesize\rm\@dblfloat{table}}%
+   {\end@dblfloat\normalsize\rm}
+%\newlength\abovecaptionskip
+%\newlength\belowcaptionskip
+\setlength\abovecaptionskip{10\p@}
+\setlength\belowcaptionskip{0\p@}
+%
+% Added redefinition of \@caption so captions are not written to 
+% aux file therefore less need to \protect fragile commands
+%
+\long\def\@caption#1[#2]#3{\par\begingroup
+    \@parboxrestore
+    \normalsize
+	\linespread{1}
+    \@makecaption{\csname fnum@#1\endcsname}{\ignorespaces #3}\par
+  \endgroup}
+% 
+\long\def\@makecaption#1#2{\vskip \abovecaptionskip 
+ \begin{indented}
+ \item[]{\bf #1.} #2
+ \end{indented}\vskip\belowcaptionskip}
+\let\@portraitcaption=\@makecaption
+
+\DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+\DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+\DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+\DeclareOldFontCommand{\sl}{\normalfont\slshape}{\@nomath\sl}
+\DeclareOldFontCommand{\sc}{\normalfont\scshape}{\@nomath\sc}
+%\ifiopams
+\renewcommand{\cal}{\protect\pcal}
+%\else
+%\newcommand{\cal}{\protect\pcal}
+%\fi
+\newcommand{\pcal}{\@fontswitch{\relax}{\mathcal}}
+%\ifiopams
+\renewcommand{\mit}{\protect\pmit}
+%\else
+%\newcommand{\mit}{\protect\pmit}
+%\fi
+\newcommand{\pmit}{\@fontswitch{\relax}{\mathnormal}}
+\renewcommand\@pnumwidth{1.55em}
+\renewcommand\@tocrmarg {2.55em}
+\renewcommand\@dotsep{4.5}
+\setcounter{tocdepth}{3}
+%\renewcommand\tableofcontents{%
+%    \section*{\contentsname
+%        \@mkboth{\uppercase{\contentsname}}{\uppercase{\contentsname}}}%
+%    \@starttoc{toc}%
+%    }
+\renewcommand\l@part[2]{%
+  \ifnum \c@tocdepth >-2\relax
+    \addpenalty{\@secpenalty}%
+    \addvspace{2.25em \@plus\p@}%
+    \begingroup
+      \setlength\@tempdima{3em}%
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      {\leavevmode
+       \large \bfseries #1\hfil \hbox to\@pnumwidth{\hss #2}}\par
+       \nobreak
+       \if@compatibility
+         \global\@nobreaktrue
+         \everypar{\global\@nobreakfalse\everypar{}}
+      \fi
+    \endgroup
+  \fi}
+\renewcommand\l@section[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty{\@secpenalty}%
+    \addvspace{1.0em \@plus\p@}%
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hbox to\@pnumwidth{\hss #2}\par
+    \endgroup
+  \fi}
+\renewcommand\l@subsection   {\@dottedtocline{2}{1.5em}{2.3em}}
+\renewcommand\l@subsubsection{\@dottedtocline{3}{3.8em}{3.2em}}
+\renewcommand\l@paragraph    {\@dottedtocline{4}{7.0em}{4.1em}}
+\renewcommand\l@subparagraph {\@dottedtocline{5}{10em}{5em}}
+\renewcommand\listoffigures{%
+    \section*{\listfigurename
+      \@mkboth{\uppercase{\listfigurename}}%
+              {\uppercase{\listfigurename}}}%
+    \@starttoc{lof}%
+    }
+\renewcommand\l@figure{\@dottedtocline{1}{1.5em}{2.3em}}
+\renewcommand\listoftables{%
+    \section*{\listtablename
+      \@mkboth{\uppercase{\listtablename}}{\uppercase{\listtablename}}}%
+    \@starttoc{lot}%
+    }
+\let\l@table\l@figure
+\renewenvironment{theindex}
+               {\if@twocolumn
+                  \@restonecolfalse
+                \else
+                  \@restonecoltrue
+                \fi
+                \columnseprule \z@
+                \columnsep 35\p@
+                \twocolumn[\section*{\indexname}]%
+                \@mkboth{\uppercase{\indexname}}%
+                        {\uppercase{\indexname}}%
+                \thispagestyle{plain}\parindent\z@
+                \parskip\z@ \@plus .3\p@\relax
+                \let\item\@idxitem}
+               {\if@restonecol\onecolumn\else\clearpage\fi}
+\renewcommand\@idxitem  {\par\hangindent 40\p@}
+\renewcommand\subitem   {\par\hangindent 40\p@ \hspace*{20\p@}}
+\renewcommand\subsubitem{\par\hangindent 40\p@ \hspace*{30\p@}}
+\renewcommand\indexspace{\par \vskip 10\p@ \@plus5\p@ \@minus3\p@\relax}
+\newcommand\contentsname{Contents}
+\newcommand\listfigurename{List of Figures}
+\newcommand\listtablename{List of Tables}
+\renewcommand\refname{References}
+\renewcommand\indexname{Index}
+\renewcommand\figurename{Figure}
+\renewcommand\tablename{Table}
+\renewcommand\partname{Part}
+\renewcommand\appendixname{Appendix}
+\renewcommand\abstractname{Abstract}
+\renewcommand\today{\number\day\space\ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\year}
+\setlength\columnsep{10\p@}
+\setlength\columnseprule{0\p@}
+
+\newcommand{\Tables}{\clearpage\section*{Tables and table captions}
+    \def\fps@table{hp}\noappendix}
+\newcommand{\Figures}{\clearpage\section*{Figure captions}
+    \def\fps@figure{hp}\noappendix}
+%
+\newcommand{\Figure}[1]{\begin{figure}
+  \caption{#1}
+  \end{figure}}
+%
+\newcommand{\Table}[1]{\begin{table}
+  \caption{#1}
+  \begin{indented}
+  \lineup
+  \item[]\begin{tabular}{@{}l*{15}{l}}}
+
+\def\endTable{\end{tabular}\end{indented}\end{table}}
+\let\endtab=\endTable
+%
+\newcommand{\fulltable}[1]{\begin{table}
+  \caption{#1}
+  \lineup
+  \begin{tabular*}{\textwidth}{@{}l*{15}{@{\extracolsep{0pt plus 12pt}}l}}}
+\def\endfulltable{\end{tabular*}\end{table}}
+%
+%
+\newcommand{\Bibliography}[1]{\section*{References}\par\numrefs{#1}}
+\newcommand{\References}{\section*{References}\par\refs}
+
+\def\thebibliography#1{\list
+ {\hfil[\arabic{enumi}]}{\topsep=0\p@\parsep=0\p@
+ \partopsep=0\p@\itemsep=0\p@
+ \labelsep=5\p@\itemindent=-10\p@
+ \settowidth\labelwidth{\footnotesize[#1]}%
+ \leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \advance\leftmargin -\itemindent
+ \usecounter{enumi}}\footnotesize
+ \def\newblock{\ }
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+\def\numrefs#1{\begin{thebibliography}{#1}}
+\def\endnumrefs{\end{thebibliography}}
+\let\endbib=\endnumrefs
+%
+\def\thereferences{\list{}{\topsep=0\p@\parsep=0\p@
+ \partopsep=0\p@\itemsep=0\p@\labelsep=0\p@\itemindent=-18\p@
+\labelwidth=0\p@\leftmargin=18\p@
+}\footnotesize\rm
+\def\newblock{\ }
+\sloppy\clubpenalty4000\widowpenalty4000
+\sfcode`\.=1000\relax
+}
+%
+\let\endthereferences=\endlist
+\newlength{\indentedwidth}
+\newdimen\mathindent
+\indentedwidth=\mathindent
+%
+% Macro to used for references in the Harvard system
+%
+\newenvironment{harvard}{\list{}{\topsep=0\p@\parsep=0\p@
+\partopsep=0\p@\itemsep=0\p@\labelsep=0\p@\itemindent=-18\p@
+\labelwidth=0\p@\leftmargin=18\p@
+}\footnotesize\rm
+\def\newblock{\ }
+\sloppy\clubpenalty4000\widowpenalty4000
+\sfcode`\.=1000\relax}{\endlist}
+%
+\def\refs{\begin{harvard}}
+\def\endrefs{\end{harvard}}
+%
+\newenvironment{indented}{\begin{indented}}{\end{indented}}
+\newenvironment{varindent}[1]{\begin{varindent}{#1}}{\end{varindent}}
+%
+\def\indented{\list{}{\itemsep=0\p@\labelsep=0\p@\itemindent=0\p@
+   \labelwidth=0\p@\leftmargin=\mathindent\topsep=0\p@\partopsep=0\p@
+   \parsep=0\p@\listparindent=15\p@}\footnotesize\rm}
+
+\let\endindented=\endlist 
+
+\def\varindent#1{\setlength{\varind}{#1}%
+   \list{}{\itemsep=0\p@\labelsep=0\p@\itemindent=0\p@
+   \labelwidth=0\p@\leftmargin=\varind\topsep=0\p@\partopsep=0\p@
+   \parsep=0\p@\listparindent=15\p@}\footnotesize\rm}
+
+\let\endvarindent=\endlist 
+
+% \def\[{\relax\ifmmode\@badmath\else
+ % \begin{trivlist}
+ % \@beginparpenalty\predisplaypenalty
+ % \@endparpenalty\postdisplaypenalty
+ % \item[]\leavevmode
+ % \hbox to\linewidth\bgroup$ \displaystyle
+ % \hskip\mathindent\bgroup\fi}
+% \def\]{\relax\ifmmode \egroup $\hfil \egroup \end{trivlist}\else \@badmath \fi}
+% \def\equation{\@beginparpenalty\predisplaypenalty
+ % \@endparpenalty\postdisplaypenalty
+% \refstepcounter{equation}\trivlist \item[]\leavevmode
+ % \hbox to\linewidth\bgroup $ \displaystyle
+% \hskip\mathindent}
+% \def\endequation{$\hfil \displaywidth\linewidth\@eqnnum\egroup \endtrivlist}
+% %
+% \@namedef{equation*}{\[}
+% \@namedef{endequation*}{\]}
+% %
+% \def\eqnarray{\stepcounter{equation}\let\@currentlabel=\theequation
+% \global\@eqnswtrue
+% \global\@eqcnt\z@\tabskip\mathindent\let\\=\@eqncr
+% \abovedisplayskip\topsep\ifvmode\advance\abovedisplayskip\partopsep\fi
+% \belowdisplayskip\abovedisplayskip
+% \belowdisplayshortskip\abovedisplayskip
+% \abovedisplayshortskip\abovedisplayskip
+% $$\halign to
+% \linewidth\bgroup\@eqnsel$\displaystyle\tabskip\z@
+ % {##{}}$&\global\@eqcnt\@ne $\displaystyle{{}##{}}$\hfil
+ % &\global\@eqcnt\tw@ $\displaystyle{{}##}$\hfil
+ % \tabskip\@centering&\llap{##}\tabskip\z@\cr}
+% \def\endeqnarray{\@@eqncr\egroup
+ % \global\advance\c@equation\m@ne$$\global\@ignoretrue }
+\mathindent = 6pc
+%
+% \def\eqalign#1{\null\vcenter{\def\\{\cr}\openup\jot\m@th
+  % \ialign{\strut$\displaystyle{##}$\hfil&$\displaystyle{{}##}$\hfil
+      % \crcr#1\crcr}}\,}
+% %
+% \def\eqalignno#1{\displ@y \tabskip\z@skip
+  % \halign to\displaywidth{\hspace{5pc}$\@lign\displaystyle{##}$%
+    % \tabskip\z@skip
+    % &$\@lign\displaystyle{{}##}$\hfill\tabskip\@centering
+    % &\llap{$\@lign\hbox{\rm##}$}\tabskip\z@skip\crcr
+    % #1\crcr}}
+%
+\newif\ifnumbysec
+\def\theequation{\ifnumbysec
+      \arabic{section}.\arabic{equation}\else
+      \arabic{equation}\fi}
+\def\eqnobysec{\numbysectrue\@addtoreset{equation}{section}}
+
+\newcounter{eqnval}
+\def\numparts{\addtocounter{equation}{1}%
+     \setcounter{eqnval}{\value{equation}}%
+     \setcounter{equation}{0}%
+     \def\theequation{\ifnumbysec
+     \arabic{section}.\arabic{eqnval}{\it\alph{equation}}%
+     \else\arabic{eqnval}{\it\alph{equation}}\fi}}
+
+\def\endnumparts{\def\theequation{\ifnumbysec
+     \arabic{section}.\arabic{equation}\else
+     \arabic{equation}\fi}%
+     \setcounter{equation}{\value{eqnval}}}
+%
+\def\cases#1{%
+     \left\{\,\vcenter{\def\\{\cr}\normalbaselines\openup1\jot\m@th%
+     \ialign{\strut$\displaystyle{##}\hfil$&\tqs
+     \rm##\hfil\crcr#1\crcr}}\right.}%
+%
+%\newcommand{\e}{\mathrm{e}}
+\newcommand{\rme}{\mathrm{e}}
+\newcommand{\rmi}{\mathrm{i}}
+\newcommand{\rmd}{\mathrm{d}}
+\renewcommand{\qquad}{\hspace*{25pt}}
+\newcommand{\tdot}[1]{\stackrel{\dots}{#1}}   % Added 1/9/94
+\newcommand{\tqs}{\hspace*{25pt}}
+\newcommand{\fl}{\hspace*{-\mathindent}}
+\newcommand{\Tr}{\mathop{\mathrm{Tr}}\nolimits}
+\newcommand{\tr}{\mathop{\mathrm{tr}}\nolimits}
+\newcommand{\Or}{\mathord{\mathrm{O}}} %changed from \mathop 20/1/95
+\newcommand{\lshad}{[\![}
+\newcommand{\rshad}{]\!]}
+\renewcommand{\case}[2]{{\textstyle\frac{#1}{#2}}}
+%\def\pt(#1){({\it #1\/})}
+\newcommand{\dsty}{\displaystyle}
+\newcommand{\tsty}{\textstyle}
+\newcommand{\ssty}{\scriptstyle}
+\newcommand{\sssty}{\scriptscriptstyle}
+\def\lo#1{\llap{${}#1{}$}}
+\def\eql{\llap{${}={}$}}
+\def\lsim{\llap{${}\sim{}$}}
+\def\lsimeq{\llap{${}\simeq{}$}}
+\def\lequiv{\llap{${}\equiv{}$}}
+%
+\newcommand{\eref}[1]{(\ref{#1})}
+\newcommand{\sref}[1]{section~\ref{#1}}
+\newcommand{\fref}[1]{figure~\ref{#1}}
+\newcommand{\tref}[1]{table~\ref{#1}}
+\newcommand{\Eref}[1]{Equation (\ref{#1})}
+\newcommand{\Sref}[1]{Section~\ref{#1}}
+\newcommand{\Fref}[1]{Figure~\ref{#1}}
+\newcommand{\Tref}[1]{Table~\ref{#1}}
+% Fix cross references to sections
+\def\p@subsection     {}%
+\def\p@subsubsection  {}%
+\def\p@paragraph  {}%
+\def\p@subparagraph  {}%
+%
+\newcommand{\opencircle}{\mbox{\Large$\circ\,$}}  % moved Large outside maths
+\newcommand{\opensquare}{\mbox{$\rlap{$\sqcap$}\sqcup$}}
+\newcommand{\opentriangle}{\mbox{$\triangle$}}
+\newcommand{\opentriangledown}{\mbox{$\bigtriangledown$}}
+\newcommand{\opendiamond}{\mbox{$\diamondsuit$}}
+\newcommand{\fullcircle}{\mbox{{\Large$\bullet\,$}}} % moved Large outside maths
+\newcommand{\fullsquare}{\,\vrule height5pt depth0pt width5pt}
+\newcommand{\dotted}{\protect\mbox{${\mathinner{\cdotp\cdotp\cdotp\cdotp\cdotp\cdotp}}$}}
+\newcommand{\dashed}{\protect\mbox{-\; -\; -\; -}}
+\newcommand{\broken}{\protect\mbox{-- -- --}}
+\newcommand{\longbroken}{\protect\mbox{--- --- ---}}
+\newcommand{\chain}{\protect\mbox{--- $\cdot$ ---}}
+\newcommand{\dashddot}{\protect\mbox{--- $\cdot$ $\cdot$ ---}}
+\newcommand{\full}{\protect\mbox{------}}
+
+\def\;{\protect\psemicolon}
+\def\psemicolon{\relax\ifmmode\mskip\thickmuskip\else\kern .3333em\fi}
+\def\lineup{\def\0{\hbox{\phantom{\footnotesize\rm 0}}}%
+    \def\m{\hbox{$\phantom{-}$}}%
+    \def\-{\llap{$-$}}}
+%
+%%%%%%%%%%%%%%%%%%%%%
+% Tables rules      %
+%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\boldarrayrulewidth}{1\p@} 
+% Width of bold rule in tabular environment.
+
+\def\bhline{\noalign{\ifnum0=`}\fi\hrule \@height  
+\boldarrayrulewidth \futurelet \@tempa\@xhline}
+
+\def\@xhline{\ifx\@tempa\hline\vskip \doublerulesep\fi
+      \ifnum0=`{\fi}}
+
+%
+% Rules for tables with extra space around
+%
+\newcommand{\br}{\ms\bhline\ms}
+%\newcommand{\mr}{\ms\hline\ms}
+%
+\newcommand{\centre}[2]{\multispan{#1}{\hfill #2\hfill}}
+\newcommand{\crule}[1]{\multispan{#1}{\hspace*{\tabcolsep}\hrulefill
+  \hspace*{\tabcolsep}}}
+\newcommand{\fcrule}[1]{\ifnum\thetabtype=1\multispan{#1}{\hrulefill
+  \hspace*{\tabcolsep}}\else\multispan{#1}{\hrulefill}\fi}
+%
+% Extra spaces for tables and displayed equations
+%
+\newcommand{\ms}{\noalign{\vspace{3\p@ plus2\p@ minus1\p@}}}
+\newcommand{\bs}{\noalign{\vspace{6\p@ plus2\p@ minus2\p@}}}
+\newcommand{\ns}{\noalign{\vspace{-3\p@ plus-1\p@ minus-1\p@}}}
+\newcommand{\es}{\noalign{\vspace{6\p@ plus2\p@ minus2\p@}}\displaystyle}%
+%
+\newcommand{\etal}{{\it et al\/}\ }
+\newcommand{\dash}{------}
+\newcommand{\nonum}{\par\item[]}                %\par added 1/9/93
+\newcommand{\mat}[1]{\underline{\underline{#1}}}
+%
+% abbreviations for IOPP journals
+%
+\newcommand{\CQG}{{\it Class. Quantum Grav.} }
+
+%
+% Other commonly quoted journals
+%
+
+%
+\pagestyle{headings}
+\pagenumbering{arabic}      % Arabic page numbers
+\raggedbottom
+%\onecolumn
+%%%%% Some custom hacks
+\renewcommand{\MakeTextUppercase}[1]{#1}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,0 +1,145 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="961" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="GrazieInspection" enabled="false" level="INFORMATION" enabled_by_default="false" editorAttributes="INFORMATION_ATTRIBUTES" />
+    <inspection_tool class="LanguageDetectionInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="89">
+            <item index="0" class="java.lang.String" itemvalue="google-cloud-bigquery" />
+            <item index="1" class="java.lang.String" itemvalue="pydantic" />
+            <item index="2" class="java.lang.String" itemvalue="db-dtypes" />
+            <item index="3" class="java.lang.String" itemvalue="agraffe" />
+            <item index="4" class="java.lang.String" itemvalue="python-dateutil" />
+            <item index="5" class="java.lang.String" itemvalue="Levenshtein" />
+            <item index="6" class="java.lang.String" itemvalue="google-cloud-storage" />
+            <item index="7" class="java.lang.String" itemvalue="requests" />
+            <item index="8" class="java.lang.String" itemvalue="fastavro" />
+            <item index="9" class="java.lang.String" itemvalue="pandas" />
+            <item index="10" class="java.lang.String" itemvalue="fastapi" />
+            <item index="11" class="java.lang.String" itemvalue="pyprobables" />
+            <item index="12" class="java.lang.String" itemvalue="starlette" />
+            <item index="13" class="java.lang.String" itemvalue="google-cloud-pubsub" />
+            <item index="14" class="java.lang.String" itemvalue="cachetools" />
+            <item index="15" class="java.lang.String" itemvalue="uvicorn" />
+            <item index="16" class="java.lang.String" itemvalue="google-cloud-bigquery-storage" />
+            <item index="17" class="java.lang.String" itemvalue="uvloop" />
+            <item index="18" class="java.lang.String" itemvalue="functions-framework" />
+            <item index="19" class="java.lang.String" itemvalue="google-cloud-firestore" />
+            <item index="20" class="java.lang.String" itemvalue="jupyter_client" />
+            <item index="21" class="java.lang.String" itemvalue="pip" />
+            <item index="22" class="java.lang.String" itemvalue="openssl" />
+            <item index="23" class="java.lang.String" itemvalue="certifi" />
+            <item index="24" class="java.lang.String" itemvalue="scikeras" />
+            <item index="25" class="java.lang.String" itemvalue="tensorflow" />
+            <item index="26" class="java.lang.String" itemvalue="scikit-learn" />
+            <item index="27" class="java.lang.String" itemvalue="matplotlib" />
+            <item index="28" class="java.lang.String" itemvalue="numpy" />
+            <item index="29" class="java.lang.String" itemvalue="lightgbm" />
+            <item index="30" class="java.lang.String" itemvalue="xgboost" />
+            <item index="31" class="java.lang.String" itemvalue="tsfresh" />
+            <item index="32" class="java.lang.String" itemvalue="protobuf" />
+            <item index="33" class="java.lang.String" itemvalue="dataclasses_json" />
+            <item index="34" class="java.lang.String" itemvalue="pandas-gbq" />
+            <item index="35" class="java.lang.String" itemvalue="alchemy-sdk" />
+            <item index="36" class="java.lang.String" itemvalue="dataclass_wizard" />
+            <item index="37" class="java.lang.String" itemvalue="web3" />
+            <item index="38" class="java.lang.String" itemvalue="google" />
+            <item index="39" class="java.lang.String" itemvalue="google-cloud-aiplatform" />
+            <item index="40" class="java.lang.String" itemvalue="segment-analytics-python" />
+            <item index="41" class="java.lang.String" itemvalue="traitlets" />
+            <item index="42" class="java.lang.String" itemvalue="numba" />
+            <item index="43" class="java.lang.String" itemvalue="testpath" />
+            <item index="44" class="java.lang.String" itemvalue="nbclient" />
+            <item index="45" class="java.lang.String" itemvalue="setuptools" />
+            <item index="46" class="java.lang.String" itemvalue="executing" />
+            <item index="47" class="java.lang.String" itemvalue="pyzmq" />
+            <item index="48" class="java.lang.String" itemvalue="bleach" />
+            <item index="49" class="java.lang.String" itemvalue="gettext" />
+            <item index="50" class="java.lang.String" itemvalue="docutils" />
+            <item index="51" class="java.lang.String" itemvalue="prometheus_client" />
+            <item index="52" class="java.lang.String" itemvalue="jsonschema" />
+            <item index="53" class="java.lang.String" itemvalue="notebook" />
+            <item index="54" class="java.lang.String" itemvalue="beautifulsoup4" />
+            <item index="55" class="java.lang.String" itemvalue="terminado" />
+            <item index="56" class="java.lang.String" itemvalue="python" />
+            <item index="57" class="java.lang.String" itemvalue="cryptography" />
+            <item index="58" class="java.lang.String" itemvalue="nbconvert" />
+            <item index="59" class="java.lang.String" itemvalue="ipykernel" />
+            <item index="60" class="java.lang.String" itemvalue="click" />
+            <item index="61" class="java.lang.String" itemvalue="unicodedata2" />
+            <item index="62" class="java.lang.String" itemvalue="attrs" />
+            <item index="63" class="java.lang.String" itemvalue="regex" />
+            <item index="64" class="java.lang.String" itemvalue="asttokens" />
+            <item index="65" class="java.lang.String" itemvalue="bitarray" />
+            <item index="66" class="java.lang.String" itemvalue="jupyter_core" />
+            <item index="67" class="java.lang.String" itemvalue="pyrsistent" />
+            <item index="68" class="java.lang.String" itemvalue="jupyter" />
+            <item index="69" class="java.lang.String" itemvalue="zipp" />
+            <item index="70" class="java.lang.String" itemvalue="mmh3" />
+            <item index="71" class="java.lang.String" itemvalue="stack_data" />
+            <item index="72" class="java.lang.String" itemvalue="pygments" />
+            <item index="73" class="java.lang.String" itemvalue="pyarrow" />
+            <item index="74" class="java.lang.String" itemvalue="scipy" />
+            <item index="75" class="java.lang.String" itemvalue="importlib_resources" />
+            <item index="76" class="java.lang.String" itemvalue="pytest" />
+            <item index="77" class="java.lang.String" itemvalue="etherscan" />
+            <item index="78" class="java.lang.String" itemvalue="wheel" />
+            <item index="79" class="java.lang.String" itemvalue="nbformat" />
+            <item index="80" class="java.lang.String" itemvalue="ipython" />
+            <item index="81" class="java.lang.String" itemvalue="packaging" />
+            <item index="82" class="java.lang.String" itemvalue="sphinx" />
+            <item index="83" class="java.lang.String" itemvalue="mistune" />
+            <item index="84" class="java.lang.String" itemvalue="colorama" />
+            <item index="85" class="java.lang.String" itemvalue="typing_extensions" />
+            <item index="86" class="java.lang.String" itemvalue="pillow" />
+            <item index="87" class="java.lang.String" itemvalue="pytz" />
+            <item index="88" class="java.lang.String" itemvalue="jupyter_console" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E252" />
+          <option value="E302" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N806" />
+          <option value="N813" />
+          <option value="N803" />
+          <option value="N802" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="apache_beam.pipeline.Pipeline.__or__" />
+          <option value="list.__or__" />
+          <option value="str.__rshift__" />
+          <option value="tuple.__or__" />
+          <option value="str.get" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SpellCheckingInspection" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+    <inspection_tool class="SqlNoDataSourceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+  </profile>
+</component>

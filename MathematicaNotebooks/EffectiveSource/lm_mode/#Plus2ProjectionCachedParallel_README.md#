@@ -1,0 +1,121 @@
+W# Cached parallel spin-+2 projections
+
+Load `Plus2ProjectionCachedParallel.wl` **after** the existing Teff source-construction section and after the spheroidal-table cache section.
+
+The cleaned implementation changes the parallelization strategy. It no longer creates one task per `ell`. Instead, it evaluates the compiled Teukolsky source once on each angular grid at a given radial point and applies every `ell` projection in a single matrix multiplication. The cached spheroidal tables are loaded on the master kernel once per `m`.
+
+## Required existing definitions
+
+```wl
+centralRule
+omegaOfM[m]
+sphValsOnRule[s, m, omega, ellList, rule]
+plus2TfunOfM[m]
+patchLeftProd["XGrid"]
+patchRightProd["XGrid"]
+```
+
+The default spheroidal provider is `sphValsOnRule`. This should be the cache-aware accessor from the table-generation section. When the actual disk-cache accessor has another name, pass it through the option:
+
+```wl
+"SphValuesProvider" -> yourCachedSphValuesAccessor
+```
+
+## Load
+
+```wl
+Get[FileNameJoin[{NotebookDirectory[], "Plus2ProjectionCachedParallel.wl"}]];
+```
+
+or use the full path returned by Finder.
+
+## Preflight
+
+Your generated tables use the `s = -2` basis, so the default `"BasisSpin" -> -2` matches them.
+
+```wl
+preflightPlus2CachedProjector[
+  2,
+  5,
+  centralRule
+]
+```
+
+Inspect:
+
+```wl
+%["MaxIdentityError"]
+```
+
+It should be close to machine precision, consistent with your earlier orthogonality check.
+
+## Single-m test
+
+```wl
+patchAssocProd = <|
+  "Left"  -> patchLeftProd["XGrid"],
+  "Right" -> patchRightProd["XGrid"]
+|>;
+
+plus2TestM2 = runPlus2ProjectionForM[
+  2,
+  patchAssocProd,
+  plus2TfunOfM[2],
+  centralRule,
+  "EllMax" -> 5
+];
+```
+
+The projected arrays are stored compactly as matrices:
+
+```wl
+Dimensions /@ plus2TestM2["ProjectionMatrices"]
+```
+
+Rows correspond to radial points and columns correspond to the `ellList` recorded in metadata:
+
+```wl
+plus2TestM2["Metadata", "ellList"]
+```
+
+A backward-compatible per-`ell` view is also retained under:
+
+```wl
+plus2TestM2["Data"]
+```
+
+## Production run
+
+```wl
+plus2Manifest = runPlus2ProjectionsAllMCached[
+  15,
+  patchAssocProd,
+  plus2TfunOfM,
+  centralRule,
+  "MList" -> Range[-15, 15],
+  "Overwrite" -> False,
+  "ReturnResults" -> False
+];
+```
+
+Each completed `m` mode is atomically saved. Rerunning with `"Overwrite" -> False` resumes by skipping existing mode files. The cache path includes hashes of the angular rule, the left/right radial grids, and the projection convention, so a later `nX = 256` run cannot accidentally reuse an `nX = 128` result.
+
+## Normalization check
+
+The projector includes `"PhiFactor" -> 2 Pi` by default because your cached one-dimensional angular norms were approximately `1/(2 Pi)`. This is the full-sphere normalization inferred from the orthogonality check. Before a long production run, compare one small projected mode against the old implementation to confirm that its Fourier convention does not already absorb this factor.
+
+## Grid convention
+
+The harmonic tables are evaluated on:
+
+```wl
+centralRule["yGrid"]
+```
+
+while the Teff source function is evaluated on the paired mixed-coordinate values:
+
+```wl
+-r0val centralRule["yGrid"]
+```
+
+The code keeps those paired grids together and never independently sorts the mixed-coordinate values.

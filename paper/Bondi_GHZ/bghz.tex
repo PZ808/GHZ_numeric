@@ -1,0 +1,1996 @@
+\documentclass[preprint,aps,nofootinbib,a4paper,superscriptaddress,longbibliography,amsfonts, amssymb,amsmath,titlepage]{revtex4-1}
+\ProvidesPackage{jheppub}[2013/03/21 r534]
+\numberwithin{equation}{section} % JHEP style eqn
+%\input{CQGformat.input}
+%s\documentclass[cqg]{iopart}
+\usepackage{amssymb}
+%\pdfoutput=1
+%\usepackage{iopams, setstack}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{color}
+\usepackage{microtype}
+\usepackage{IEEEtrantools}
+\usepackage{comment}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage[normalem]{ulem}
+%\usepackage[numbers,square,sort&compress]{natbib}
+\usepackage[pdftex]{hyperref}
+%\bibliographystyle{iopart-num}
+\usepackage[T1]{fontenc}
+% Some DOIs in MyReferences.bib contain underscores (e.g. Pound:2021qin),
+% which apsrev4-1 typesets in text mode and which therefore break the build.
+% The underscore package makes a bare _ printable outside maths.
+\usepackage[strings]{underscore}
+
+\newcommand{\PZ}[1]{\textcolor{red}{\textsf{[PZ: #1]}}}
+\newcommand{\newtext}[1]{\textcolor{cyan}{#1}}
+
+\def\half{\tfrac{1}{2}}
+\def\pihalf{\tfrac{\pi}{2}}
+
+
+\def\pheq{\phantom{=}}
+\newcommand{\preindex}[2]{\,{}_{#2}#1}
+\usepackage[toc,title,page,titletoc]{appendix}
+%  vectors and diff Forms
+\def\bF{\boldsymbol{F}}
+\def\bd{\boldsymbol{\mathrm{d}}}
+\newcommand{\x}[1]{\xi_{#1}^{\circ}} % gauge vector
+
+% GHP weight
+\def\GHPwt{\ensuremath{\circeq}}
+% NP SpinCoeffs
+\def\kap{\kappa'}
+\def\sip{\sigma'}
+\def\rhp{\rho'}
+\def\rhph{{\rho'}^\circ}
+\def\tap{\tau'}
+\def\tabp{\bar{\tau}'}
+\def\bep{\beta'}
+\def\epp{\epsilon'}
+\def\rhp{\rho'}
+\def\sib{\bar\sigma}
+\def\epb{\bar\epsilon}
+\def\kab{\bar\kappa}
+\def\beb{\bar\beta}
+\def\rhb{\bar\rho}
+\def\pib{\bar\pi}
+\def\alb{\bar\alpha}
+\def\gab{\bar\gamma}
+\def\mub{\bar\mu}
+\def\lab{\bar\lambda}
+\def\nub{\bar\nu}
+\def\tab{\bar\tau}
+% NP leg
+\def\lmu{l^\mu}
+\def\nmu{n^\mu}
+\def\mmu{m^\mu}   % PZ: was n^\mu in main.tex -- typo, fixed here
+\def\mbmu{{\bar m}^\mu}
+\def\mb{\bar m}
+%
+% Held scalars
+%
+\renewcommand{\H}[1]{{#1}^{\circ}}
+\newcommand{\Held}[1]{{#1}^{\circ}}
+\def\tah{{\tau}^\circ}
+\def\tabh{{\bar\tau}^\circ}
+\def\tauH{\tau^{\circ}}
+\def\taubH{\bar{\tau}^{\circ}}
+\def\Psih{ {\Psi}^\circ}
+\def\Psibh{ {\bar{\Psi}}^\circ}
+\def\PsiH{\Psi^{\circ}}
+\def\PsibH{\bar\Psi^{\circ}}
+\def\rhoph{{\rho}^{\prime \circ} }
+\def\rhopH{\rho^{\prime \circ}}
+\def\rhopbh{{\bar\rho}^{\prime \circ} }
+\def\tauHsq{\tau^{\circ}{}^{2}}
+\def\Oh{{\Omega}^\circ}
+
+% Nicer looking GHP Ops FROM GHZ PAPER
+\font\ec=ecrm0800 at 12pt
+\def\thpH{\tilde{\th}'}
+\def\edthH{\tilde\edth}
+\def\edthpH{\tilde\edth'}
+\def\th{\hbox{\ec\char'336}}
+\def\edth{\hbox{\ec\char'360}}
+\def\thp{\hbox{\ec\char'336}'}
+\def\edthp{\hbox{\ec\char'360}'}
+\def\Dbar{\tilde \edth} % Held edth
+\def\Nbar{\tilde \th'}
+\def\Edth{\hat{\edth}} % raising operator
+\def\EdthBar{\bar{\Edth}} % lowering operator on sYlm
+%
+%  SWS Harmonics
+%
+\newcommand{\C}[1]{\lambda_{l,#1}}
+\newcommand{\thA}[1]{\theta^{A}_{#1}}
+\def\thA{\ensuremath{\theta,\varphi}}
+\def\Omp{\Omega_\p}
+\newcommand{\CGCsqrt}[3]{\sqrt{\frac{(2{#1}+1)(2{#2}+1)(2{#3}+1)}{4\pi}}}
+\newcommand{\wthreej}[6]{%
+  \ensuremath{%
+  \begin{pmatrix}
+      #1 & #2 & #3 \\
+      #4 & #5 & #6
+    \end{pmatrix}
+  }%
+}
+% mode indices
+\newcommand{\emm}{m}
+\newcommand{\ess}{s}
+\def\wlm{\ell \emm \omega}
+% spin weighted spherical harmonics
+\newcommand{\Y}[1]{{}_{#1}Y_{\ell, m}}
+\newcommand{\bY}[1]{{}_{#1}\bar{Y}_{\ell, m}}
+%\newcommand{\Ym}[2]{{}_{#1}Y_{l{#2}}}
+\newcommand{\Ym}[2]{\, {}_{#1}Y_{\ell, #2}}
+\newcommand{\Ylm}[3]{\, {}_{#1}Y_{#2, #3}}
+\newcommand{\bYlm}[3]{\, {}_{#1} \bar{Y}_{#2, #3}}
+
+% Sph. harmonic defs (Peter)
+\def\l{\ensuremath{\ell}}
+\def\lm{{\ensuremath{\ell \emm}}}
+% at the particle
+\newcommand{\Yp}[1]{\, {}_{#1}Y^\textrm{p}_{\ell ,\emm}}
+\newcommand{\Yplm}[3]{\, {}_{#1}Y^\textrm{p}_{#2 ,#3}}
+\newcommand{\bYp}[1]{\, {}_{#1}\bar{Y}^\textrm{p}_{\ell, \emm}}
+\def\YpL{ Y_{\ell}^{\p}}
+\def\bYpL{\bar{Y}_{\ell}^{\p}}
+\newcommand{\YpsL}[1]{{}_{#1} Y_{\ell}^{\p}}
+\newcommand{\bYsL}[1]{ {}_{#1}\bar Y_{\ell}^\p}
+%\newcommand{\C}[1]{\lambda_{\ell, #1}}
+\newcommand{\Ltwo}[2]{\langle {#1} \vert {#2} \rangle_{L^2} }
+\def\iStwo{\int_{\mathbb S^2}}
+\def\dOm{\dd \Omega}
+
+\newcommand{\xlm}[1]{\langle\xi_{#1}^{\circ}\rangle_{\ell \emm}} % gauge vector modes
+
+% Helicity basis vectors
+\def\hmp{{\hat{m}}^+}
+\def\hmm{{\hat{m}}^-}
+\def\nUL{{\hat n}^{\langle L \rangle}}
+\def\uLL{{\hat n}_{\langle L \rangle}}
+\def\hz{{\hat z}}
+
+\def\bk{\mathbf{k}}
+\def\bsk{\boldsymbol{k}}
+%
+% Operators
+%
+
+% Chandrasekhar ops
+\newcommand{\chandR}[2]{\,{}_{#1} \mathcal{L}^\dagger_{#2}{}}
+\newcommand{\chandL}[2]{\,{}_{#1} \mathcal{L}^\dagger_{#2}{}}
+% Teukolsky/Wald/Chrzanowski operators
+\renewcommand{\S}{{\mathcal S}}
+\newcommand{\E}{{\mathcal E}}
+\newcommand{\T}{{\mathcal T}}
+% Lie derivatives
+\newcommand{\Lie}{{\mathcal L}}
+\newcommand{\Lcsdag}[2]{ {}_{-{#1}}{\mathcal L}^{\dagger}_{#2}}
+\newcommand{\Lcs}[2]{ {}_{{#1}}\mathcal L_{#2}}
+%  derivative operators
+\def\pd{\partial}
+\def\dd{{\rm d}}
+\newcommand{\dbd}[1]{\frac{\pd}{\pd #1}}
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\def\pd{\partial}
+\newcommand{\abs}[1]{\vert #1 \vert}
+%
+% Eqns.
+%
+\def\beq{\begin{equation}}
+\def\eeq{\end{equation}}
+\def\beqs{\begin{subequations}}
+\def\eeqs{\end{subequations}}
+\def\bal{\begin{align}}
+\def\eal{\end{align}}
+\def\non{\nonumber \\}
+\def\beq{\begin{equation}}
+\def\eeq{\end{equation}}
+\def\ud{\mathrm{d}}
+\def\beqs{\begin{subequations}}
+\def\eeqs{\end{subequations}}
+
+
+\def\half{\tfrac{1}{2}}
+
+% indices
+\def\mn{\ensuremath{{\mu\nu}}}
+\def\a{\alpha}
+\def\b{\beta}
+\newcommand{\stf}[1]{\langle {#1}\rangle}
+
+% coordinates
+\def\vphi{\ensuremath{{\varphi}}}
+\def\sz{\ensuremath{{\sqrt{1-z^2}}}}
+\def\z{\zeta}
+\def\zb{\bar\zeta}
+\def\e{\eta}
+\def\eb{\bar\eta}
+
+% at the particle
+\def\p{{\rm p}}
+\def\rhop{\rho_{\p}}
+\def\rhobp{\bar{\rho}_{\p}}
+\def\rp{r_{\p}}
+\def\dOm{\ensuremath{\delta^2(\Omega-\Omega_\p)}}
+\def\zp{z_\p}
+\def\rhbp{\bar{\rho}_\p}
+
+\def\rhom{\rho_{\rm min}}
+\def\Tld{T^{(\delta,-)}}
+\def\Tldp{T^{(\delta',-)}}
+\def\Trd{T^{(\delta,+)}}
+\def\Trdp{T^{(\delta',+)}}
+
+\def\Dr{\Delta r}
+\def\rmx{r_{\mathrm{max}}}
+\def\rmn{r_{\mathrm{min}}}
+
+
+% Spacing
+\newcommand{\nls}{\phantom{\frac{1}{\rho}}}
+\newcommand{\sforall}{\quad \forall}
+
+% =====================================================================
+%  NEW MACROS ADDED FOR THIS DRAFT
+% =====================================================================
+% angular eigenvalue combinations
+\newcommand{\Bco}[1]{{}_{#1}B_{\l}}                 % Schwarzschild  {}_sB_l
+\newcommand{\BcoK}[3]{{}_{#1}B_{#2}(#3)}            % Kerr  {}_sB_{lm}(a w)
+\def\LamL{\Lambda_{\l}}                             % (l-1)l(l+1)(l+2)
+\def\Dlw{\mathcal{D}_{\l\emm\omega}}                % denominator 2B 2Bbar + 9 M^2 w^2
+\def\Cts{\mathfrak{C}}                              % complex Teukolsky-Starobinsky constant
+% Held integration constants and seed
+\def\fHo{f^{\circ}}
+\def\fbHo{\bar f^{\circ}}
+\newcommand{\PhiN}[1]{\Phi^{#1\circ}}
+\def\Phiadj{\Phi^{\rm adj}}
+\def\eHo{e^{\circ}}
+\def\dHo{d^{\circ}}
+% asymptotic Weyl amplitudes
+% Single notation for the Teukolsky boundary amplitudes:
+%   \Zinf{s}{modes}  = amplitude at scri   (the Toolkit's "Amplitudes"["I"])
+%   \Zhor{s}{modes}  = amplitude at H^-    (the Toolkit's "Amplitudes"["H"])
+% The spin weight sits in the left subscript, the boundary in the superscript.
+% This replaces the C^{+}/C^{-} notation of the notebooks; see Sec. III A.
+\newcommand{\Zinf}[2]{{}_{#1}Z^{\infty}_{#2}}
+\newcommand{\Zhor}[2]{{}_{#1}Z^{\rm H}_{#2}}
+\def\psifive{\psi^{5\circ}_{0}}
+\def\psifourone{\psi^{1\circ}_{4}}
+\newcommand{\psifiveM}[1]{\psi^{5\circ}_{0,#1}}       % with mode labels
+\newcommand{\psifouroneM}[1]{\psi^{1\circ}_{4,#1}}
+% residual gauge vector components
+\def\zetal{\zeta^{\circ}_{l}}
+\newcommand{\zetalM}[1]{\zeta^{\circ}_{l,#1}}
+\def\zetan{\zeta^{\circ}_{n}}
+\newcommand{\zetanM}[1]{\zeta^{\circ}_{n,#1}}
+\def\zetam{\zeta^{\circ}_{m}}
+\newcommand{\zetamM}[1]{\zeta^{\circ}_{m,#1}}
+\def\zetamb{\bar\zeta^{\circ}_{m}}
+% mode labels
+\def\lmnk{\l \emm n k}
+\def\wmnk{\omega_{\emm n k}}
+% harmonics with explicit spin
+\newcommand{\sYY}[3]{{}_{#1}Y_{#2,#3}}
+\newcommand{\sSS}[3]{{}_{#1}S_{#2,#3}}
+% scri
+\def\scri{\mathscr{I}^{+}}
+% "equals by definition"
+\def\defeq{\mathrel{\mathop{:}}=}
+
+\begin{document}
+
+\title{Asymptotically flat metric reconstruction:\\ a mode-based scheme for gravitational self-force calculations}
+
+\author{Vahid Toomani}
+\email{vahid.toomani.2@uni-leipzig.de}
+\author{Stefan Hollands}
+\email{stefan.hollands@uni-leipzig.de}
+\author{Peter Zimmerman}
+\email{zimmerator@protonmail.com}
+
+\begin{abstract}
+% ---------------------------------------------------------------------
+% ROADMAP (abstract).  Three sentences of set-up, one of method, one of
+% result.  Keep the emphasis on *practicality*: the only new input needed
+% is psi_0^{5 o}, which existing Teukolsky codes already produce.
+% ---------------------------------------------------------------------
+Metric perturbations obtained from a Hertz potential in an ingoing radiation
+gauge generically grow linearly in $r$ at future null infinity, and are
+therefore not asymptotically flat in the Bondi sense.  Hollands and Toomani
+showed that this growth is pure gauge and can be removed, within the
+Green--Hollands--Zimmerman (GHZ) framework, by a residual gauge vector
+together with a homogeneous, Held-covariantly constant completion of the
+Hertz potential.  In this work we turn that formal construction into a
+practical, mode-based algorithm.  We show that the entire completion is
+generated by a single Held scalar $\fHo$, obtained algebraically from the
+leading asymptotic Weyl amplitude $\psifive$ through a Teukolsky--Starobinsky
+inversion, and we give explicit $(\l,\emm,\omega)$ formulas for the four
+Held integration constants $\PhiN{0},\dots,\PhiN{3}$ and for the residual
+gauge vector $\zeta^a$.  In Schwarzschild the construction is diagonal in
+spin-weighted spherical harmonics and every completion field is available in
+closed form; in Kerr we give the corresponding $(\l,\emm,n,k)$ scheme, in
+which the only additional ingredients are the spheroidal-to-spherical mixing
+coefficients and a tridiagonal $\cos\theta$ coupling matrix.  We implement
+the scheme numerically and demonstrate the cancellation of the growing
+radiation-gauge terms and the recovery of Bondi falloff.
+\PZ{Add one closing sentence quoting the actual numerical result once the
+runs are in, e.g.\ ``the $O(r)$ coefficients cancel to $10^{-N}$ relative
+precision for $\l\le\l_{\max}$''.}
+\end{abstract}
+
+\maketitle
+
+\tableofcontents
+
+
+% =====================================================================
+\section{Introduction}
+\label{sec:introduction}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  Four subsections:
+%   1.1  why we need the metric (2nd order SF, LISA)
+%   1.2  what goes wrong with CCK-Ori (the O(r) problem)
+%   1.3  what Hollands-Toomani fixed, and what is still missing (a mode
+%        algorithm) -- this is the "gap" paragraph
+%   1.4  conventions + outline
+% Sections 1.1-1.3 below are your existing text, lightly completed where
+% sentences were truncated.  Places where I finished a sentence are marked
+% with \newtext{...} so you can see exactly what was added.
+% ---------------------------------------------------------------------
+
+\subsection{Motivation}\label{sec:motiv}
+Extreme-mass-ratio inspirals are among the principal targets of the
+Laser Interferometer Space Antenna and provide strong motivation for
+developing accurate perturbative descriptions of compact objects moving
+in Kerr spacetime~\cite{AmaroSeoane:2012km,Pound:2021qin}.  The Teukolsky
+formalism~\cite{Teukolsky:1973ha} is particularly well suited
+to this problem: the extreme Weyl scalars are gauge invariant at linear
+order and satisfy separable equations, allowing highly accurate
+calculations in the frequency and time domains.  Preserving phase accuracy
+over an inspiral, however, requires the self-force to post-adiabatic order,
+and therefore second-order effects, which are sourced by the metric
+perturbation itself rather than by the Weyl scalars~\cite{Pound:2015wva}.
+A practical scheme for
+metric reconstruction must therefore provide not only a solution of the
+linearized Einstein equation, but one with sufficiently good local and
+asymptotic gauge properties to construct a well defined second order source.
+
+\subsection{GHZ reconstruction and the asymptotic problem of standard radiation gauges}\label{sec:radiation gauge problem}
+
+The Green--Hollands--Zimmerman (GHZ) reconstruction
+formalism~\cite{Green:2019nam} extends
+the Chrzanowski--Cohen--Kegeles--Ori
+construction~\cite{Chrzanowski:1975wv,Cohen:1974cm,Kegeles:1979an,Ori:2002uv}
+to the sourced Einstein equation.  In the IRG-GHZ puncture scheme, the metric perturbation
+is decomposed as
+\begin{equation}\label{eq:h GHZ}
+h^{\rm ret}_{ab} =
+	x_{ab}
+	+ 2\Re\left( \S^{\dagger}_{ab}\Phi \right)
+	+ \dot g_{ab} + \Lie_{\xi}g_{ab},
+\end{equation}
+Here $\Phi$ is a Hertz potential, satisfying both the $s=-2$
+Teukolsky equation and an inversion relation that
+ties it to the $s=+2$ Weyl scalar $\psi_{0}$; $x_{ab}$ is a corrector tensor
+obeying a triangular system of transport equations along the outgoing
+principal null congruence; and the remaining pieces $\dot g_{ab}$ and
+$\Lie_{\xi}g_{ab}$ carry the mass, angular-momentum and gauge
+perturbations~\cite{Merlin:2016boc,vandeMeent:2017fqk}.
+To remove the singular behaviour one further decomposes the retarded field
+into a puncture and a residual field~\cite{Toomani:2021jlo},
+\begin{equation}
+	h^{\rm ret}_{ab}
+		=
+		h^{P}_{ab}
+		+
+		h^{R}_{ab},
+\end{equation}
+where the puncture reproduces the local singular structure of the
+retarded field near the worldline.  Multiplying the puncture by a window
+function renders its effective source of compact radial support.
+
+The asymptotic behavior of the residual perturbation
+is therefore determined solely by the Hertz potential
+\beq
+h^{R}_{ab}
+=
+2\Re\left(\S^{\dagger}\Phi^R\right)_{ab},
+\qquad r\gg r_\p.
+\eeq
+
+This leads to an important practical problem.  In frequency-domain
+implementations the Hertz potential is commonly obtained from the
+computed Weyl scalar $\psi_0$ using the inversion procedure of
+Ori~\cite{Ori:2002uv}.
+For an outgoing solution at future null infinity,
+\begin{equation}\label{eq:psi0 asy}
+\psi_0
+=
+\frac{\psifive(u,\theta,\varphi)}{r^5}
++O(r^{-6}),
+\end{equation}
+whereas the corresponding retarded Hertz potential obtained from the
+radial inversion
+\beq\label{eq:inv rel}
+	\th^4 \bar\Phi =2 \psi_0
+\eeq
+behaves generically as
+\begin{equation}
+\Phi = O(r^3).
+\end{equation}
+This growth is familiar from radiation-gauge reconstruction and does
+not signal a divergence of the physical curvature.  It does, however,
+have an immediate consequence for the reconstructed metric.  Applying
+the second-order reconstruction operator $\S^{\dagger}$ to
+such a Hertz potential gives, in the Kinnersley Newman--Penrose frame,
+the nonvanishing radiation-gauge components schematically as
+\begin{equation}
+h_{nn},\qquad h_{nm},\qquad h_{mm}
+=
+O(r),
+\end{equation}
+with the corresponding complex-conjugate components.  Thus the metric
+representative obtained directly from the Ori-inverted Hertz potential
+is not asymptotically flat in the Bondi sense\newtext{, and the
+quadratic source $S^{(2)}_{ab}[h,h]$ built from it fails to be integrable
+against the volume element at $\scri$, so that neither the second-order
+Teukolsky source nor the asymptotic flux formulas can be evaluated on it}.
+
+\subsection{Asymptotically flat reconstruction}
+\label{sec:af reconstruction}
+What is needed instead is a representative of the same physical perturbation
+whose Newman--Penrose components decay at the Bondi rate.  Integrability of
+the second-order source requires at least
+\begin{equation}\label{eq:falloff radiative}
+h_{nn},\ h_{nm}, \ h_{mm}
+= O(r^{-1}),
+\end{equation}
+together with
+\begin{equation}\label{eq:falloff nonradiative}
+h_{ll},\ h_{lm},\ h_{ln},\ h_{m\bar m}
+=
+O(r^{-2}).
+\end{equation}
+The discrepancy between the required falloff and what the CCK--Ori
+procedure delivers is therefore two powers of $r$ in the radiative
+Newman--Penrose components.
+\PZ{Worth stating precisely \emph{where}
+\eqref{eq:falloff radiative}--\eqref{eq:falloff nonradiative} come from ---
+Bondi gauge, or integrability of $S^{(2)}$, or both?  Hollands--Toomani
+Sec.~1.3 and Sec.~3.3.2 have the statement you want.}
+
+The $O(r)$ behavior is a gauge effect rather than a failure of the
+Teukolsky solution.  Indeed, an asymptotically flat metric may itself
+be represented using a Hertz potential with an $O(r^3)$ tail, provided
+that the reconstructed piece is supplemented by the appropriate
+residual gauge transformation.  Hollands and Toomani~\cite{Hollands:2024iqp} gave a
+systematic construction of precisely this transformation.  They showed that the
+unwanted asymptotic terms can be removed by combining a residual gauge
+vector $\zeta^a$ with a homogeneous modification of the Hertz
+potential of the form
+\begin{equation}\label{eq:Phi completion intro}
+\Phi
+\longrightarrow
+\Phi
++
+\PhiN{0}
++
+\frac{\PhiN{1}}{\rho}
++
+\frac{\PhiN{2}}{\rho^2}
++
+\frac{\PhiN{3}}{\rho^3}.
+\end{equation}
+The apparently growing terms in this homogeneous addition are essential:
+their contribution under $\S^{\dagger}$ combines with
+$\Lie_{\zeta}g_{ab}$ to cancel the growing terms in the original
+radiation-gauge metric, leaving a perturbation with Bondi-type falloff
+at future null infinity~\cite{Hollands:2024iqp}.
+
+In this work we turn this formal asymptotic construction into a
+practical numerical procedure suitable for GHZ puncture calculations.
+Starting from the asymptotic coefficient $\psifive$ of the
+residual Weyl scalar, we determine the Held scalar $\fHo$ that
+generates both the homogeneous Hertz completion and the residual gauge
+vector.  In Schwarzschild spacetime the construction becomes diagonal
+in spin-weighted spherical harmonics, allowing all completion fields to
+be obtained explicitly mode by mode.  We implement these relations
+numerically and demonstrate the cancellation of the growing
+radiation-gauge terms and the recovery of the expected asymptotic
+falloff.  We then extend the construction to Kerr, where the input
+Teukolsky solution is naturally expressed in spin-weighted spheroidal
+harmonics, and present numerical results using an $\emm$-mode
+implementation.
+
+The resulting procedure complements the local regularization provided
+by the Teukolsky puncture scheme.  The puncture controls the singular
+structure in a neighborhood of the compact object, while the
+asymptotic completion controls the behavior of the reconstructed field
+at null infinity.  Together, these ingredients provide a metric
+perturbation with substantially better global properties for
+self-force calculations and, in particular, for the construction of
+higher-order perturbations in Kerr spacetime.
+
+\subsection{Conventions, notation, and outline}\label{sec:conventions}
+% ---------------------------------------------------------------------
+% ROADMAP.  This subsection did not exist.  It is worth adding because the
+% notebooks carry three separate sign/normalisation conventions that a
+% reader will otherwise trip over:
+%   (a) signature.  The psi_0 data imported from the Teukolsky package is
+%       MOSTLY PLUS (-,+,+,+);  the GHZ/Held expressions, Vahid's notes and
+%       the notebooks are all MOSTLY MINUS (+,-,-,-).  The notebook applies
+%       flip-psi0Convention: psi_0 -> -psi_0 and Phi -> -Phi on import.
+%   (b) the "Re" of a mode:  Re[X]_{lm} = 1/2 (X_{lm} + (-1)^{m+s} Xbar_{l,-m})
+%   (c) the factor 2 in h = 2 Re(S^dagger Phi)
+% Write these out once, here, and refer back.
+% ---------------------------------------------------------------------
+We work in geometrized units $G=c=1$ and use the metric signature
+$(+,-,-,-)$.  Newman--Penrose and GHP conventions follow
+GHZ~\cite{Green:2019nam}, and Held's modified GHP
+calculus~\cite{Held:1974,Held:1975} follows
+Ref.~\cite{Hollands:2024iqp}, with
+$\Held{\ \cdot\ }$ denoting Held (``$r$-independent'') scalars.
+The Kinnersley tetrad is used throughout, so that
+\begin{equation}\label{eq:rho def}
+\rho = -\frac{1}{r-ia\cos\theta},
+\qquad
+\bar\rho = -\frac{1}{r+ia\cos\theta},
+\end{equation}
+and the nonvanishing background Held scalars are
+\begin{equation}\label{eq:bkgd held}
+\PsiH = M,\quad
+\rhopH = -\tfrac12,\quad
+\tauH = - ia\sin\theta/\sqrt2,\quad
+\Oh = -2ia\cos\theta ,
+\end{equation}
+together with their conjugates.  Note that $\Oh$ is a spin-weight-zero multiplication operator
+proportional to $\cos\theta$, so it is represented in the
+$\sYY{s}{\l}{\emm}$ basis by the same tridiagonal matrix $\mathsf C$ that
+represents $\rho^{-1}$ in \eqref{eq:R matrix}; explicitly
+$\Oh = -2ia\,\mathsf C$.
+
+
+Four conventions recur and are fixed once here.
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Signature of the imported Weyl data.}  All formulas in this
+paper are written in the mostly-minus signature $(+,-,-,-)$, as are the GHZ
+and Held expressions they are built from.  Teukolsky amplitudes produced with
+the Black Hole Perturbation Toolkit~\cite{BHPToolkit}, however, are in the
+mostly-plus convention $(-,+,+,+)$, and the two are related by
+\begin{equation}\label{eq:signature flip}
+\psi_0^{(+---)}=-\psi_0^{(-+++)},
+\qquad
+\Phi^{(+---)}=-\Phi^{(-+++)} .
+\end{equation}
+The imported amplitudes are therefore negated once, on import; this is the
+origin of the minus sign in Step~1 of Sec.~\ref{sec:algorithm}.
+
+\item \emph{Conjugation of a spin-weighted field.}  Spin-weighted spherical
+harmonics obey
+\begin{equation}\label{eq:sYlm conj}
+\overline{\sYY{s}{\l}{\emm}(\theta,\varphi)}
+=
+(-1)^{s+\emm}\;\sYY{-s}{\l}{-\emm}(\theta,\varphi),
+\end{equation}
+so that if $X$ has spin weight $s$ and coefficients $X_{\l\emm}$ in the
+$\sYY{s}{\l}{\emm}$ basis, then $\bar X$ has spin weight $-s$ and its
+coefficients \emph{in the $\sYY{-s}{\l}{\emm}$ basis} are
+\begin{equation}\label{eq:conj mode}
+\big(\bar X\big)_{\l\emm}
+=
+(-1)^{s+\emm}\;\overline{X_{\l,-\emm}}\,,
+\end{equation}
+where the overline on the right is ordinary complex conjugation of the mode
+amplitude, accompanied by $\omega\to-\omega$ (equivalently, by
+$(\emm,n,k)\to(-\emm,-n,-k)$, since $\wmnk$ is odd under that reflection).
+The factor $(-1)^{s}$ is easy to lose because it is unity for every
+even-spin object in this construction --- $\psifive$, $\psifourone$, $\fHo$
+and all four $\PhiN{n}$ have $s=\pm2$ --- but it equals $-1$ for the
+odd-spin ones: $\zetam$, $\zetamb$, the intermediate chains
+$\edthH\fbHo$ and $\edthpH\edthH^{2}\fbHo$, and the metric components
+$h_{nm}$, $h_{n\bar m}$.  See Table~\ref{tab:spin weights}.
+
+\item \emph{Real part.}  A real part is meaningful in mode space only for
+$s=0$, since $X$ and $\bar X$ otherwise live in different harmonic bases.
+For a real spin-zero scalar, \eqref{eq:conj mode} gives
+\begin{equation}\label{eq:Re mode}
+\big(\Re X\big)_{\l\emm}
+=
+\tfrac12\Big(X_{\l\emm} + (-1)^{\emm}\,\overline{X_{\l,-\emm}}\Big),
+\end{equation}
+which is the projection used for $\zetal$ and $\zetan$ in
+\eqref{eq:zeta Held}.  For a component pair of nonzero spin weight, such as
+$h_{nm}$ and $h_{n\bar m}$, reality of $h_{ab}$ is instead the statement
+$h_{nm}=\overline{h_{n\bar m}}$, which in modes is \eqref{eq:conj mode} with
+$s=-1$ and therefore carries an explicit minus sign.
+
+\item \emph{Reconstruction normalization.}  We write the reconstructed
+piece as $h_{ab}=2\Re(\S^\dagger\Phi)_{ab}$, so that the operator
+$\S^{\dagger}$ quoted in Appendix~\ref{app:Sdag} is \emph{not} already
+real-projected.
+\PZ{This is the one place where the notebook and Vahid's notes differ by a
+uniform factor of 2 in all four $\PhiN{n}$.  Pick one and state it here;
+the equations below use the notes' normalisation.}
+\end{enumerate}
+
+The paper is organized as follows.  Section~\ref{sec:prelim} collects the
+GHZ decomposition and the Held formalism in the form we need.
+Section~\ref{sec:adjusted} contains the main analytic result: the adjusted
+reconstruction, presented as an algorithm generated by a single Held seed
+$\fHo$.  Section~\ref{sec:modes} reduces every step of that algorithm to
+linear algebra on spin-weighted spherical-harmonic coefficients.
+Sections~\ref{sec:schw} and \ref{sec:kerr} present the Schwarzschild and Kerr
+implementations and numerical results, and Section~\ref{sec:discussion}
+concludes.  Appendices collect the Held operator matrix elements, the
+Teukolsky--Starobinsky constants, and explicit mode expressions for
+$\S^{\dagger}$ and $\Lie_\zeta g$.
+
+
+% =====================================================================
+\section{Preliminaries}
+\label{sec:prelim}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  Keep this section short and purely expository -- it exists so
+% the paper is self-contained for a self-force reader who has not read
+% Hollands-Toomani.  Three subsections, ~1 page each at most.
+% ---------------------------------------------------------------------
+
+\subsection{Kerr background, NP frame, and Held scalars}
+\label{sec:held}
+% ROADMAP: Kinnersley tetrad; GHP weights; Held's "integration-constant"
+% calculus: given a GHP scalar eta of boost/spin weight (p,q), Held's
+% tilded operators commute with the radial integration, so a general
+% solution of a thorn-equation is written as a Held scalar times powers of
+% rho.  State the dictionary
+%       thorn-tilde' = ... ,  edth-tilde = ... ,  and on a Fourier mode
+%       thorn-tilde' -> -i omega.
+% That last replacement is what makes the whole scheme algebraic and is
+% worth displaying.
+Held's modification of the GHP formalism~\cite{Held:1974,Held:1975} is what
+makes the completion algebraic rather than differential, and we recall only
+as much of it as we need.  In a type-D background one may trade the GHP
+operators for tilded counterparts $\thpH$, $\edthH$, $\edthpH$ that commute
+with radial integration along the outgoing principal null congruence.  The
+general solution of a $\th$-equation is then a sum of powers of $\rho$ with
+coefficients that are annihilated by $\th$ --- the \emph{Held scalars},
+written $\Held{\ \cdot\ }$ --- so that the integration constants of the
+radial problem become fields on the sphere.  The four quantities $\PhiN{n}$
+of \eqref{eq:Phi completion intro} are exactly such integration constants,
+which is why the completion is fixed by angular data alone.
+
+On a fixed Fourier mode $e^{-i\omega u}$ at $\scri$ the Held operator
+$\thpH$ acts algebraically,
+\begin{equation}\label{eq:thorn prime mode}
+\thpH \longrightarrow -i\omega ,
+\end{equation}
+which is the single fact that converts the transport equations of
+Sec.~\ref{sec:adjusted} into algebraic relations.
+\PZ{State the precise sense of \eqref{eq:thorn prime mode}: $\thpH$ is
+$\pd_u$ acting on the Held (i.e.\ $r$-independent) part at $\scri$.}
+
+The spin weights of every object appearing in the construction are collected
+in Table~\ref{tab:spin weights}.  They fix both the angular matrix elements
+of Sec.~\ref{sec:held operators} and, through \eqref{eq:conj mode}, the sign
+attached to each complex conjugation; the odd-spin entries are the ones for
+which the factor $(-1)^{s}$ is not unity.
+
+\begin{table}[htb]
+\begin{ruledtabular}
+\begin{tabular}{lcccccccc}
+ & $\fHo$ & $\fbHo$ & $\PhiN{n}$ & $\edthH\fbHo$ & $\edthH^{2}\fbHo$
+ & $\zetal,\ \zetan$ & $\zetam$ & $\zetamb$ \\
+\hline
+spin weight $s$ & $+2$ & $-2$ & $-2$ & $-1$ & $0$ & $0$ & $+1$ & $-1$\\
+$(-1)^{s}$ & $+$ & $+$ & $+$ & $-$ & $+$ & $+$ & $-$ & $-$\\
+\end{tabular}
+\end{ruledtabular}
+\begin{tabular}{lccccccc}
+ & $h_{ll}$ & $h_{ln}$ & $h_{nn}$ & $h_{m\bar m}$ & $h_{nm}$ & $h_{n\bar m}$
+ & $h_{mm}$\\
+\hline
+spin weight $s$ & $0$ & $0$ & $0$ & $0$ & $+1$ & $-1$ & $+2$\\
+$(-1)^{s}$ & $+$ & $+$ & $+$ & $+$ & $-$ & $-$ & $+$\\
+\end{tabular}
+\caption{Spin weights of the fields entering the adjusted reconstruction.
+The second row of each block is the sign $(-1)^{s}$ appearing in the
+conjugation rule \eqref{eq:conj mode}; it is $-1$ precisely for the
+odd-spin-weight quantities.}
+\label{tab:spin weights}
+\end{table}
+\PZ{The field spin weights are the values hard-coded as
+\texttt{Spinof[...]} in the notebooks.  The metric-component spin weights
+follow from the GHP type of $m^{a}$ and $n^{a}$; please double-check the
+sign convention for $h_{nm}$ versus $h_{n\bar m}$ against your own, since the
+two appear swapped between \texttt{Re$\S$dagMode$\Phi$Ops} and
+\texttt{LieZetagComps} (see Appendices~\ref{app:Sdag} and \ref{app:Lie}).}
+
+\subsection{The GHZ decomposition and the puncture scheme}
+\label{sec:ghz}
+% ROADMAP: restate (1.1) properly, say what each piece solves, and state
+% the puncture split and the window function.  Then make the key point in
+% one sentence: because the effective source is compactly supported in r,
+% the field near scri is *purely* 2 Re(S^dag Phi^R), so the asymptotic
+% problem is entirely a statement about Phi.
+Following Ori, take a slice $\Sigma$ of constant Boyer--Lindquist time
+$t=t_{0}$ and split the spacetime into the regions to the left and right of
+the sphere $\mathcal S_{\p}$ at $r=\rp$, denoted $\Sigma_{-}$ and
+$\Sigma_{+}$ respectively.  In the world-tube region
+$\Gamma = \{\rmn\leq r \leq \rmx\}$ define $\Gamma_{\pm} = \Gamma \cap
+\Sigma_{\pm}$, and let the vacuum regions $\Sigma_{\pm}'$ be the complements
+of $\Gamma_{\pm}$ in $\Sigma_{\pm}$.  Define $\Phi^{\pm}$ to be the regular
+(vacuum) solutions supported on $\Sigma_{\pm}'$, so that
+\begin{equation}
+h^{\pm}_{ab} = 2 \Re ( \S_{ab}^{\dagger} \Phi^{\pm}), \qquad x \in \Sigma_{\pm}' .
+\end{equation}
+The asymptotic decay of $h^{+}_{ab}$, and therefore of the residual field, is
+completely determined by $\Phi^{+}$, which is in turn determined by the decay
+of $\psi_{0}$.
+
+\subsection{Asymptotics at $\scri$ and the required falloff}
+\label{sec:asymptotics}
+% ROADMAP: make explicit that you are *not* imposing full Bondi gauge, only
+% the falloff conditions needed for the second-order source.  A short remark
+% on what is left over (supertranslation freedom) belongs here or in the
+% Discussion.
+The target of the construction is the pair of conditions
+\eqref{eq:falloff radiative}--\eqref{eq:falloff nonradiative}.  Two
+observations make them easier to check.  First, in the ingoing radiation
+gauge the non-radiative components $h_{ll}$, $h_{ln}$, $h_{lm}$,
+$h_{l\bar m}$ and $h_{m\bar m}$ vanish \emph{identically}, both for the
+reconstructed piece (Appendix~\ref{app:Sdag}) and for the gauge term
+(Appendix~\ref{app:Lie}); condition \eqref{eq:falloff nonradiative} is
+therefore satisfied trivially, and the whole problem lives in the five
+radiative components.  Second, because the Hertz potential enters through
+$\S^{\dagger}$, which is second order in radial derivatives, each radiative
+component is a finite Laurent polynomial in $r$ near $\scri$; verifying
+\eqref{eq:falloff radiative} reduces to showing that two coefficients ---
+those of $r$ and of $r^{0}$ --- vanish in each of them.  That is the check
+carried out in Sec.~\ref{sec:schw verification}.
+
+\PZ{Decide whether to call the end result ``Bondi gauge'' or
+``asymptotically flat gauge''.  Strictly you fix the falloff, not the gauge;
+the residual freedom is the usual BMS supertranslation plus the
+$\ell=0,1$ modes.  Hollands--Toomani Sec.~3.3.2 relates $\PhiN{n}$ to the
+news and memory tensors, which would make a nice remark here.}
+
+
+% =====================================================================
+\section{Adjusted asymptotically flat GHZ reconstruction}
+\label{sec:adjusted}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  This is the analytic core.  The narrative to aim for:
+%   "Everything -- all four Hertz integration constants and all four
+%    components of the residual gauge vector -- is generated by ONE Held
+%    scalar f^o, and f^o is obtained from psi_0^{5o} by inverting a single
+%    eighth-order angular operator, which in modes is just division by the
+%    Teukolsky-Starobinsky constant."
+% That sentence is the paper.  Sections 3.1-3.5 unpack it, 3.6 boxes it.
+% ---------------------------------------------------------------------
+
+\subsection{Asymptotic Weyl amplitudes}
+\label{sec:weyl amplitudes}
+% ---------------------------------------------------------------------
+% NOTATION.  One symbol for the Teukolsky boundary amplitudes throughout:
+%   {}_s Z^infty  (at scri)  and  {}_s Z^H  (at the past horizon).
+% Spin weight in the left subscript, boundary in the superscript.  This
+% replaces the notebooks' C^{+}/C^{-}, where the +/- denoted the boundary
+% and the spin was carried by a separate argument -- a clash with the
+% +/- of {}_{\pm2}Z that is easy to trip over.  The dictionary is
+%   C^{+}_{lmnk} (s = +2)  ==  {}_{+2}Z^infty_{lmnk}
+%   C^{-}_{lmnk} (s = +2)  ==  {}_{+2}Z^{H}_{lmnk}
+% ---------------------------------------------------------------------
+We write $\Zinf{s}{\lmnk}$ and $\Zhor{s}{\lmnk}$ for
+the asymptotic amplitudes of the spin-$s$ Teukolsky solution at future null
+infinity and at the past horizon respectively; these are precisely the
+$\mathscr I$ and $\mathrm H$ amplitudes returned by any frequency-domain
+Teukolsky solver, so that no new radial integrations are needed anywhere in
+what follows.  Only the $\scri$ amplitudes enter the asymptotic completion.
+The asymptotic coefficients
+$\psifiveM{\lmnk}\defeq\Zinf{+2}{\lmnk}$ in
+\beq\label{eq:psi0 5o expansion}
+\psifive(u,\theta,\varphi) \defeq
+ 	\sum_{\lmnk}
+	  \psifiveM{\lmnk}\,
+	 \sSS{+2}{\l}{\emm}(\theta,\varphi;a\wmnk)\,
+	 e^{-i\wmnk u}
+\eeq
+and $\psifouroneM{\lmnk}\defeq\Zinf{-2}{\lmnk}$ in
+\beq\label{eq:psi4 1o expansion}
+\psifourone(u,\theta,\varphi)  \defeq
+	\sum_{\lmnk}
+	 \psifouroneM{\lmnk}\,
+	 \sSS{-2}{\l}{\emm}(\theta,\varphi;a\wmnk)\,
+	  e^{-i\wmnk u}
+\eeq
+are not independent.  The Teukolsky--Starobinsky identities
+\beq \label{eq:TS NP form}
+\Delta^{2} \mathcal D^4 (\Delta^{2}\psi_{0,\lmnk}) =
+	\frac{1}{4}\mathcal L^{4}(\zeta^{4}\psi_{4,\lmnk})
+	+ 3 M \pd_{t}(\zeta^{4}\bar\psi_{4,\lmnk})
+\eeq
+together with the angular inversion relation
+\beq\label{eq:L4 on S}
+\mathcal L^{4} \sSS{-2}{\l}{\emm} = D_{\l\emm} \, \sSS{+2}{\l}{\emm}
+\eeq
+imply
+\beq\label{eq:Zplus from Zminus}
+\Zinf{+2}{\lmnk} =
+	\frac{1}{4 \omega^{4}}
+	\left(
+	D_{\l\emm}-12iM\omega\, p_{\lmnk}
+	\right)
+	\Zinf{-2}{\lmnk},
+\eeq
+where $p_{\lmnk}=\pm1$ is a parity factor related to the phase conventions of
+the spin-weighted spheroidal harmonics.
+Equivalently, in the form used by the implementation,
+\begin{equation}\label{eq:psi4 from psi0}
+\psifouroneM{\l\emm}(\omega)
+=
+\frac{\omega^{4}}{\Dlw}
+\Big[
+\BcoK{-2}{\l,-\emm}{-a\omega}^{\!*}\,\psifiveM{\l\emm}(\omega)
++3i\omega(-1)^{\emm}\,\bar\psi^{5\circ}_{0,\l,-\emm}(-\omega)
+\Big],
+\end{equation}
+with
+\begin{equation}\label{eq:Dlw def}
+\Dlw
+\defeq
+\BcoK{-2}{\l\emm}{a\omega}\,\overline{\BcoK{-2}{\l,-\emm}{-a\omega}}
++9M^{2}\omega^{2}.
+\end{equation}
+% ROADMAP: this is the paragraph that sells the paper to a practitioner.
+% Spell out that {}_{-2}Z^infty is exactly the quantity every frequency-domain
+% Teukolsky code already returns (the "I" amplitude in the Toolkit), so the
+% completion costs nothing beyond post-processing.
+Here $D_{\l\emm}$ is the real angular Teukolsky--Starobinsky constant of
+Appendix~\ref{app:TS}, and $\BcoK{-2}{\l\emm}{a\omega}$ is the eigenvalue
+combination in which the completion formulas are most compactly written.
+\PZ{These two are the same object up to a factor: in Schwarzschild
+$\Bco{2}=\LamL/4$ and $D_{\l}=\LamL$, so $\Bco{2}=D_{\l}/4$ and hence
+$\Cts\bar\Cts = D^{2}+144M^{2}\omega^{2} = 16\,\Dlw$.  Please confirm that
+the same identification holds in Kerr; if it does, one of the two symbols can
+be eliminated from the paper entirely, as we did for $C^{\pm}$ versus $Z$.}
+
+For a generic bound geodesic, $\wmnk = \emm\Omega_{\varphi}+n\Omega_{r}+k\Omega_{\theta}$
+and the polar reflection symmetry of the spheroidal functions gives
+\begin{equation}\label{eq:Z symmetry}
+\Zinf{s}{\l,-\emm,-n,-k} = (-1)^{\l+k}\,\big(\Zinf{s}{\lmnk}\big)^{*},
+\end{equation}
+which halves the number of modes that must be computed.
+\PZ{The notebooks apply \eqref{eq:Z symmetry} to $s=+2$ only; state whether
+it is meant to hold for general $s$ (it should, being a property of the
+spheroidal functions under $\theta\to\pi-\theta$) and cite the source.}
+
+\subsection{The Held seed $\fHo$}
+\label{sec:seed}
+% ROADMAP: introduce f^o as *the* generator.  One paragraph: it is the Held
+% scalar whose eighth-order angular image is the asymptotic Weyl amplitude.
+% Emphasise that (3.x) is an ODE in u only through thorn', so on a Fourier
+% mode it is purely angular -> purely algebraic in modes.
+The entire completion is generated by a single Held scalar $\fHo$ of spin
+weight $+2$, defined implicitly by
+\begin{equation}\label{eq:f seed}
+2\,\thpH{}^{3}\,\bar\psi^{5\circ}_{0}
+=
+\edthpH{}^{4}\,\edthH^{4}\,\fbHo
+-9\,\Psih\Psibh\,\thpH{}^{2}\,\fbHo .
+\end{equation}
+On a Fourier mode, using \eqref{eq:thorn prime mode}, Eq.~\eqref{eq:f seed}
+becomes the purely angular relation
+\begin{equation}\label{eq:f seed mode op}
+\edthpH{}^{4}\,\edthH^{4}\,\fbHo + 9M^{2}\omega^{2}\,\fbHo
+=
+2i\omega^{3}\,\bar\psi^{5\circ}_{0},
+\end{equation}
+which is diagonalized by the spin-weighted spheroidal harmonics.  Its
+solution is
+\begin{equation}\label{eq:f mode kerr}
+\boxed{\;
+\fHo_{\lmnk}
+=
+\frac{2i\,\wmnk^{3}}{\Dlw}\;\psifiveM{\lmnk}
+\;=\;
+\frac{32\,i\,\wmnk^{3}}{\Cts_{\l\emm}\overline{\Cts_{\l\emm}}}\;\psifiveM{\lmnk}
+\;}
+\end{equation}
+where $\Cts_{\l\emm}$ is the complex Teukolsky--Starobinsky constant of
+Appendix~\ref{app:TS}.
+\PZ{Check which of the two right-hand sides of \eqref{eq:f mode kerr} the
+notebook's \texttt{Starobinsky$\mathcal C$} actually returns: the
+\texttt{CTeukolskyStarobinsky} routine returns the \emph{complex} $\Cts=D+12iP\tilde\omega$,
+but \texttt{fHS} divides $32i\omega^3\psifive$ by it directly, which only
+reproduces the Schwarzschild limit $2i\omega^3/(\Bco{2}^2+9M^2\omega^2)$ if
+the symbol actually holds $\Cts\bar\Cts$.  One of the two is off; please
+confirm in the notebook.}
+
+\subsection{Held integration constants $\PhiN{n}$}
+\label{sec:Phi n}
+% ROADMAP: present (3.x)-(3.y) as a *triangular* system -- Phi^{3o} is
+% algebraic in f, Phi^{2o} is algebraic, Phi^{1o} needs one thorn'-inversion,
+% Phi^{0o} needs two.  On a Fourier mode each inversion is division by
+% -i omega, so nothing is ever integrated numerically.  Say that explicitly;
+% it is the practical punchline of this subsection.
+The four Held integration constants appearing in
+\eqref{eq:Phi completion intro} are determined from $\fbHo$ by the triangular
+system
+\begin{subequations}\label{eq:Phi n Held}
+\begin{align}
+\PhiN{3} &= -2\,\thpH\fbHo,
+\label{eq:Phi3 Held}\\[2pt]
+\PhiN{2} &= -2\,\edthpH\edthH\fbHo,
+\label{eq:Phi2 Held}\\[2pt]
+\thpH\,\PhiN{1} &= -\edthpH{}^{2}\edthH^{2}\fbHo
+	-\big(4\tabh\,\edthH+3\Psih\big)\thpH\fbHo,
+\label{eq:Phi1 Held}\\[2pt]
+\thpH{}^{2}\,\PhiN{0} &= -\tfrac13\,\edthpH{}^{3}\edthH^{3}\fbHo
+	-\big[2\tabh\,\edthpH\edthH^{2}
+	 +\Psih\,\edthpH\edthH
+	 +2\Psih\rhopH\big]\thpH\fbHo .
+\label{eq:Phi0 Held}
+\end{align}
+\end{subequations}
+On a Fourier mode $\thpH\to-i\omega$ and the two inversions in
+\eqref{eq:Phi1 Held}--\eqref{eq:Phi0 Held} are divisions by $-i\omega$ and
+$-\omega^{2}$ respectively; no radial or temporal integration is required.
+The system is therefore purely angular, and reduces in modes to the banded
+linear algebra of Sec.~\ref{sec:modes}.
+\PZ{$\PhiN{0}$ and $\PhiN{3}$ are called $\dHo$ and $\eHo$ in Vahid's notes
+(Eqs.~29 and 32); I have used $\PhiN{n}$ throughout.}
+
+\subsection{The residual gauge vector $\zeta^{a}$}
+\label{sec:zeta}
+% ROADMAP: same structure: zeta_mbar is algebraic in f, zeta_l and zeta_n
+% each require one thorn'-inversion.  Note the Re{} projection: zeta_l and
+% zeta_n are real spin-0 scalars, so in modes they use (ii) of Sec 1.4.
+The residual gauge vector is likewise generated by $\fbHo$:
+\begin{subequations}\label{eq:zeta Held}
+\begin{align}
+\zetamb &= \edthH\fbHo,
+\label{eq:zeta m Held}\\[2pt]
+\thpH\,\zetal &= -\Re\big\{\edthH\edthH\fbHo\big\},
+\label{eq:zeta l Held}\\[2pt]
+\thpH\,\zetan &= -\Re\Big\{
+	\edthpH\edthH^{3}\fbHo
+	-\rhopH\,\edthH\edthH\fbHo
+	-2\tah\,\edthH\thpH\fbHo
+	-\tfrac12\Oh\,\edthH\edthH\thpH\fbHo
+	\Big\}.
+\label{eq:zeta n Held}
+\end{align}
+\end{subequations}
+Here $\zetal$ and $\zetan$ are real scalars of spin weight zero, so that
+$\Re$ is implemented in modes through \eqref{eq:Re mode}.  The conjugate of
+\eqref{eq:zeta m Held} is best written directly as $\zetam=\edthpH\fHo$
+rather than obtained by conjugating $\zetamb$; see Sec.~\ref{sec:reality}.
+
+\subsection{The adjusted metric and cancellation of the growing terms}
+\label{sec:adjusted metric}
+% ROADMAP: state the theorem-level result: with (3.x) and (3.y),
+%    h^adj = 2 Re(S^dag Phi^adj) - L_zeta g
+% satisfies the falloff (1.8)-(1.9).  Then say how you *verify* it: expand
+% each NP component in powers of r, show the O(r) and O(r^0) coefficients
+% vanish identically mode by mode.  That is exactly what hAdjustment /
+% Coefficient[...,r] does in the notebooks, and it is a real result worth
+% a short table.
+Combining the completed Hertz potential
+\begin{equation}\label{eq:Phi adj}
+\Phiadj = \Phi + \PhiN{0} + \frac{\PhiN{1}}{\rho} + \frac{\PhiN{2}}{\rho^{2}}
++ \frac{\PhiN{3}}{\rho^{3}}
+\end{equation}
+with the residual gauge transformation gives the adjusted metric
+perturbation
+\begin{equation}\label{eq:h adj}
+\boxed{\;
+h^{\rm adj}_{ab} = 2\Re\big(\S^{\dagger}_{ab}\Phiadj\big) - \Lie_{\zeta}g_{ab}.
+\;}
+\end{equation}
+The Lie-derivative term has the same ingoing-radiation-gauge structure as the
+reconstructed piece,
+\begin{equation}\label{eq:Lie zeta IRG}
+\Lie_{\zeta}g_{ab}\,l^{a} = 0,
+\qquad
+\Lie_{\zeta}g_{ab}\,m^{a}\bar m^{b} = 0,
+\end{equation}
+so that the adjustment preserves the IRG conditions; its nonvanishing
+components are collected in Appendix~\ref{app:Lie}.
+
+That \eqref{eq:h adj} is asymptotically flat is a theorem of
+Ref.~\cite{Hollands:2024iqp}.  What the mode decomposition adds is an
+explicit, checkable form of it: with $\fHo$ given by \eqref{eq:f mode kerr},
+$\PhiN{n}$ by \eqref{eq:Phi n Held} and $\zeta^{a}$ by
+\eqref{eq:zeta Held}, the coefficients of $r$ and of $r^{0}$ in each of
+$h^{\rm adj}_{nn}$, $h^{\rm adj}_{nm}$, $h^{\rm adj}_{n\bar m}$,
+$h^{\rm adj}_{mm}$ and $h^{\rm adj}_{\bar m\bar m}$ cancel mode by mode
+between the two terms of \eqref{eq:h adj}, leaving the Bondi falloff
+\eqref{eq:falloff radiative}; the non-radiative components
+\eqref{eq:falloff nonradiative} vanish identically in the ingoing radiation
+gauge, as noted in Sec.~\ref{sec:asymptotics}.  We verify this cancellation
+symbolically in Sec.~\ref{sec:schw verification}.
+
+\subsection{Summary of the algorithm}
+\label{sec:algorithm}
+% ROADMAP: the boxed recipe.  Keep it to one page and make it copy-able:
+% a reader should be able to implement the paper from this list alone.
+\begin{enumerate}[label=\textbf{Step \arabic*.},leftmargin=*]
+\item Solve the $s=+2$ Teukolsky equation with the point-particle source and
+extract the asymptotic amplitudes $\Zinf{+2}{\lmnk}$ at $\scri$; set
+$\psifiveM{\lmnk} = -\Zinf{+2}{\lmnk}$ (signature flip, Sec.~\ref{sec:conventions}).
+\item Form the seed $\fHo_{\lmnk}$ from \eqref{eq:f mode kerr}: one complex
+division per mode.
+\item Project $\fHo$ from the spheroidal $\sSS{+2}{\l}{\emm}$ basis onto the
+spherical $\sYY{+2}{L}{\emm}$ basis using the mixing coefficients
+\eqref{eq:spheroidal to spherical}.  (In Schwarzschild this step is the
+identity.)
+\item Build $\PhiN{0},\dots,\PhiN{3}$ from \eqref{eq:Phi n Held} by repeated
+application of the tridiagonal operators of Sec.~\ref{sec:held operators}.
+\item Assemble $\Phiadj$ from \eqref{eq:Phi adj}; the inverse powers of
+$\rho$ are the tridiagonal $\cos\theta$ matrix \eqref{eq:R matrix}, so this
+step widens the $\l$-support by three and requires three extra $\l$'s of
+padding.
+\item Build $\zetal,\zetan,\zetam$ from \eqref{eq:zeta Held} and evaluate
+$\Lie_{\zeta}g_{ab}$ from Appendix~\ref{app:Lie}.
+\item Assemble $h^{\rm adj}_{ab}$ from \eqref{eq:h adj} and verify the
+falloff.
+\end{enumerate}
+\PZ{A figure here -- a simple flow chart from $\Zinf{+2}{}$ to $h^{\rm adj}$ --
+would carry a lot of weight for a methods paper.  Cheap to make and the
+referee will like it.}
+
+
+% =====================================================================
+\section{Mode decomposition}
+\label{sec:modes}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  This section is the actual new technical content and should be
+% written carefully; everything in Sec. 3 is a restatement of
+% Hollands-Toomani, but Sec. 4 is yours.  Structure:
+%   4.1 frequency conventions
+%   4.2 spheroidal -> spherical
+%   4.3 Held angular operators as tridiagonal matrices   <-- the key result
+%   4.4 multiplication by 1/rho -> cos theta matrix       <-- the second one
+%   4.5 conjugation / reality
+% The take-away sentence: "every operator in Sec. 3 is tridiagonal in l at
+% fixed m, so the whole completion is O(l_max) work per (m,n,k)."
+% ---------------------------------------------------------------------
+
+\subsection{Frequency-domain conventions}
+\label{sec:freq}
+For a generic bound geodesic with radial, polar and azimuthal frequencies
+$(\Omega_{r},\Omega_{\theta},\Omega_{\varphi})$ we use
+\begin{equation}\label{eq:omega mnk}
+\wmnk = \emm\,\Omega_{\varphi}+n\,\Omega_{r}+k\,\Omega_{\theta},
+\end{equation}
+reducing for circular equatorial orbits to $\omega = \emm\Omega_{\varphi}$
+with $\Omega_{\varphi}=\sqrt{M/r_{0}^{3}}$ in Schwarzschild.
+\PZ{Note that $\fHo\propto\omega^{3}$, so the $\omega=0$ modes drop out of the
+radiative completion entirely; the notebook returns an empty association for
+them.  The stationary ($\omega=0$) completion -- mass and angular momentum --
+is handled by $\dot g_{ab}$ in \eqref{eq:h GHZ}, i.e.\ by the completion of
+Refs.~\cite{Merlin:2016boc,vandeMeent:2017fqk}; say so here.}
+
+\subsection{Spheroidal-to-spherical projection}
+\label{sec:spheroidal}
+The Teukolsky solution is naturally expressed in spin-weighted
+\emph{spheroidal} harmonics, whereas the Held operators of
+Sec.~\ref{sec:held operators} act simply on spin-weighted \emph{spherical}
+harmonics.  We therefore expand
+\begin{equation}\label{eq:spheroidal to spherical}
+\sSS{s}{\l}{\emm}(\theta,\varphi;a\omega)
+=
+\sum_{L}\,b^{(s,\l,\emm)}_{L}(a\omega)\;\sYY{s}{L}{\emm}(\theta,\varphi),
+\end{equation}
+so that a field with spheroidal amplitudes $X_{\l\emm}$ has spherical
+amplitudes
+\begin{equation}\label{eq:S to Y amplitudes}
+X^{(Y)}_{L\emm} = \sum_{\l} X_{\l\emm}\, b^{(s,\l,\emm)}_{L}(a\omega).
+\end{equation}
+\PZ{State how many terms you keep ($\texttt{NumTerms}\to30$ in the notebook)
+and the chop tolerance ($10^{-25}$), and give a one-line convergence
+statement -- the coefficients fall off geometrically in $|L-\l|$ for
+$a\omega\lesssim1$.  A small table or plot of $|b_L|$ vs $L-\l$ for the
+worst-case $a\omega$ in your runs would settle the truncation question
+for a referee.}
+
+\subsection{Held angular operators in the $\sYY{s}{\l}{\emm}$ basis}
+\label{sec:held operators}
+% ---------------------------------------------------------------------
+% ROADMAP.  Present these as the central technical tool.  Say in words
+% what they mean: in Schwarzschild edth-tilde is diagonal (the usual
+% spin-raising eigenvalue); the entire a-dependence of the Held calculus
+% enters as a *tridiagonal* correction with a single small parameter
+% a omega.  Then note the structural relation edth-tilde = edth-tilde|_{a=0}
+% + thorn-tilde' tau-tilde^o, which is a nontrivial check.
+% ---------------------------------------------------------------------
+Write $f=\sum_{\l\emm}f_{\l\emm}\,\sYY{s}{\l}{\emm}(\theta,\varphi)$ for a
+Held scalar of spin weight $s$.  The Held angular operators are then
+tridiagonal in $\l$ at fixed $\emm$:
+\begin{subequations}\label{eq:held matrices}
+\begin{align}
+\big(\edthH f\big)_{\l\emm}
+&=
+\Big(1-\frac{a\omega\,\emm}{\l(\l+1)}\Big)
+\sqrt{\tfrac{(\l-s)(\l+s+1)}{2}}\;f_{\l\emm}
+\non
+&\quad
++\frac{a\omega}{\l+1}
+\sqrt{\tfrac{(\l-\emm+1)(\l+\emm+1)(\l-s)(\l-s+1)}{2(2\l+1)(2\l+3)}}\;f_{\l+1,\emm}
+\non
+&\quad
+-\frac{a\omega}{\l}
+\sqrt{\tfrac{(\l-\emm)(\l+\emm)(\l+s)(\l+s+1)}{2(2\l-1)(2\l+1)}}\;f_{\l-1,\emm},
+\label{eq:edth matrix}\\[6pt]
+\big(\edthpH f\big)_{\l\emm}
+&=
+-\Big(1-\frac{a\omega\,\emm}{\l(\l+1)}\Big)
+\sqrt{\tfrac{(\l+s)(\l-s+1)}{2}}\;f_{\l\emm}
+\non
+&\quad
++\frac{a\omega}{\l+1}
+\sqrt{\tfrac{(\l-\emm+1)(\l+\emm+1)(\l+s)(\l+s+1)}{2(2\l+1)(2\l+3)}}\;f_{\l+1,\emm}
+\non
+&\quad
+-\frac{a\omega}{\l}
+\sqrt{\tfrac{(\l-\emm)(\l+\emm)(\l-s)(\l-s+1)}{2(2\l-1)(2\l+1)}}\;f_{\l-1,\emm},
+\label{eq:edthp matrix}
+\end{align}
+\end{subequations}
+while the multiplication operators by the background Held scalars are
+\begin{subequations}\label{eq:mult matrices}
+\begin{align}
+\big(\tah f\big)_{\l\emm}
+&=
+-\frac{ia\,\emm}{\l(\l+1)}\sqrt{\tfrac{(\l-s)(\l+s+1)}{2}}\;f_{\l\emm}
+\non
+&\quad
++\frac{ia}{\l+1}
+\sqrt{\tfrac{(\l-\emm+1)(\l+\emm+1)(\l-s)(\l-s+1)}{2(2\l+1)(2\l+3)}}\;f_{\l+1,\emm}
+\non
+&\quad
+-\frac{ia}{\l}
+\sqrt{\tfrac{(\l-\emm)(\l+\emm)(\l+s)(\l+s+1)}{2(2\l-1)(2\l+1)}}\;f_{\l-1,\emm},
+\label{eq:tau matrix}\\[6pt]
+\big(\tabh f\big)_{\l\emm}
+&=
++\frac{ia\,\emm}{\l(\l+1)}\sqrt{\tfrac{(\l+s)(\l-s+1)}{2}}\;f_{\l\emm}
+\non
+&\quad
++\frac{ia}{\l+1}
+\sqrt{\tfrac{(\l-\emm+1)(\l+\emm+1)(\l+s)(\l+s+1)}{2(2\l+1)(2\l+3)}}\;f_{\l+1,\emm}
+\non
+&\quad
+-\frac{ia}{\l}
+\sqrt{\tfrac{(\l-\emm)(\l+\emm)(\l-s)(\l-s+1)}{2(2\l-1)(2\l+1)}}\;f_{\l-1,\emm},
+\label{eq:taubar matrix}\\[6pt]
+\big(\Oh f\big)_{\l\emm}
+&=
++\frac{2ia\,\emm s}{\l(\l+1)}\;f_{\l\emm}
+-\frac{2ia}{\l+1}
+\sqrt{\tfrac{(\l-\emm+1)(\l+\emm+1)(\l-s+1)(\l+s+1)}{(2\l+1)(2\l+3)}}\;f_{\l+1,\emm}
+\non
+&\quad
+-\frac{2ia}{\l}
+\sqrt{\tfrac{(\l-\emm)(\l+\emm)(\l-s)(\l+s)}{(2\l-1)(2\l+1)}}\;f_{\l-1,\emm},
+\label{eq:Omega matrix}\\[6pt]
+\big(\thpH f\big)_{\l\emm} &= -i\omega\,f_{\l\emm}.
+\label{eq:thornp matrix}
+\end{align}
+\end{subequations}
+The $\l=0$ entries degenerate and are given separately in
+Appendix~\ref{app:held ops}.  Equation \eqref{eq:Omega matrix} is simply
+$\Oh=-2ia\,\mathsf C$ written out, with $\mathsf C$ the $\cos\theta$ matrix
+\eqref{eq:cos theta rec}; it is quoted here only so that all five operators
+appear together.
+
+At $a=0$ every operator in \eqref{eq:held matrices} collapses to its diagonal
+and the multiplication operators \eqref{eq:mult matrices} vanish identically,
+so the Schwarzschild construction is completely decoupled in $\l$ --- which
+is why the closed-form results of Sec.~\ref{sec:schw} exist at all.
+
+\PZ{\textbf{Discrepancy in $\Oh$ --- please check.}  Equation
+\eqref{eq:Omega matrix} above is what $\Oh=-2ia\cos\theta$ requires.  The
+matrix elements coded as \texttt{$\Omega$H[a][f][l,m]} in the notebooks do
+\emph{not} agree with it.  Comparing entry by entry (any $s,\l,\emm$ gives
+the same ratios):
+\begin{center}
+\begin{tabular}{lc}
+\hline
+entry & (notebook)/(Eq.~\eqref{eq:Omega matrix})\\
+\hline
+diagonal, $f_{\l\emm}$      & $-1$\\
+upper, $f_{\l+1,\emm}$      & $-1/\sqrt2$\\
+lower, $f_{\l-1,\emm}$      & $+1/\sqrt2$\\
+\hline
+\end{tabular}
+\end{center}
+No overall normalisation reconciles these, so this is not a convention
+difference.  The cleanest diagnostic: $\Oh$ has spin weight zero, so it is
+multiplication by a function and its matrix in an orthonormal basis must be
+\emph{symmetric}.  The notebook's is \emph{antisymmetric} --- the
+$f_{\l+1,\emm}$ and $f_{\l-1,\emm}$ coefficients have equal magnitude and
+opposite sign --- which no multiplication operator can be.  It looks as
+though $\Oh$ was implemented by copying the three-term template used for
+$\edthH$ and $\tah$, which are genuinely derivative- and spin-raising-type and
+do carry that relative minus.  Impact: $\Oh$ enters only \eqref{eq:zeta n Held}
+and the $\tah,\tabh,\Oh$ terms of Appendix~\ref{app:Lie}, all of which vanish
+at $a=0$ --- so the Schwarzschild results of Sec.~\ref{sec:schw} are
+unaffected, but the Kerr gauge vector and $\Lie_{\zeta}g_{ab}$ are.}
+
+\PZ{\textbf{And a related question about $\tah$.}  The notebook's $\tah$
+carries the same opposite-sign pattern between its $f_{\l\pm1,\emm}$ entries.
+For $\tah$ that is not immediately damning, since it maps the $\sYY{s}{}{}$
+basis to the $\sYY{s+1}{}{}$ basis and the relevant condition is a transpose
+relation against $\tabh$ rather than plain symmetry.  But given the $\Oh$
+problem it is worth checking explicitly, e.g.\ by verifying
+$\langle \sYY{s+1}{\l}{\emm}, \tah\, \sYY{s}{\l'}{\emm}\rangle
+= \overline{\langle \sYY{s}{\l'}{\emm}, \tabh\, \sYY{s+1}{\l}{\emm}\rangle}$
+once you have the closed form of $\tah$ for \eqref{eq:bkgd held}.}
+
+\subsection{Inverse powers of $\rho$ and the $\cos\theta$ coupling matrix}
+\label{sec:cos theta}
+% ROADMAP: this is the step that makes the Kerr case genuinely different
+% from Schwarzschild, and it deserves its own subsection.  Say: in
+% Schwarzschild 1/rho = -r is a number, so (3.x) is trivial; in Kerr
+% 1/rho = -r + i a cos theta mixes neighbouring l.  Hence Phi^adj at
+% output l needs input up to l+3.
+In Kerr, $\rho^{-1} = -(r-ia\cos\theta)$ is not a multiple of the identity in
+$\l$-space.  Using
+\begin{equation}\label{eq:cos theta rec}
+\cos\theta\;\sYY{s}{\l}{\emm}
+=
+c_{\l+1}\,\sYY{s}{\l+1}{\emm}
++b_{\l}\,\sYY{s}{\l}{\emm}
++c_{\l}\,\sYY{s}{\l-1}{\emm},
+\end{equation}
+with
+\begin{equation}\label{eq:cos theta coeffs}
+c_{\l}(s,\emm)=\sqrt{\frac{(\l^{2}-\emm^{2})(\l^{2}-s^{2})}{\l^{2}(4\l^{2}-1)}},
+\qquad
+b_{\l}(s,\emm)=-\frac{s\,\emm}{\l(\l+1)},
+\end{equation}
+the operator $\rho^{-1}$ is represented by the tridiagonal matrix
+\begin{equation}\label{eq:R matrix}
+\mathsf R = -r\,\mathbb{1} + i a\,\mathsf C,
+\qquad
+\mathsf C_{L\l} = \text{matrix of \eqref{eq:cos theta rec}},
+\end{equation}
+and the adjusted Hertz potential \eqref{eq:Phi adj} is, as a vector in $\l$
+at fixed $(\emm,n,k)$,
+\begin{equation}\label{eq:Phi adj vector}
+\boldsymbol{\Phi}^{\rm adj}
+=
+\boldsymbol{\Phi}^{0\circ}
++\mathsf R\,\boldsymbol{\Phi}^{1\circ}
++\mathsf R^{2}\,\boldsymbol{\Phi}^{2\circ}
++\mathsf R^{3}\,\boldsymbol{\Phi}^{3\circ}.
+\end{equation}
+Because $\mathsf R$ is tridiagonal, an output at multipole $L$ requires input
+up to $L+3$; the implementation therefore pads the $\l$-range by three.
+\PZ{The notebook pads by 3 for $\Phiadj$ and by \texttt{"LPad"}$\,=8$ for
+$\zeta$.  Say why the $\zeta$ padding is larger (more nested operators), and
+quote the observed truncation error for the padding you actually use.}
+
+\subsection{Reality and conjugation in mode space}
+\label{sec:reality}
+% ---------------------------------------------------------------------
+% ROADMAP.  Short but load-bearing: every sign error in an implementation
+% of this scheme will come from here.  Three points: the conjugation rule,
+% where the (-1)^s is not 1, and the practical shortcut of computing
+% conjugate quantities from their own defining equation rather than by
+% conjugating a mode array.
+% ---------------------------------------------------------------------
+Conjugation is the single most error-prone step in an implementation of
+Sec.~\ref{sec:adjusted}, and we restate the rule here in the form in which it
+is applied.  For a field of spin weight $s$ with $\sYY{s}{\l}{\emm}$
+coefficients $X_{\lmnk}$, the conjugate field has spin weight $-s$ and
+$\sYY{-s}{\l}{\emm}$ coefficients
+\begin{equation}\label{eq:conj mode modes}
+\big(\bar X\big)_{\lmnk}
+=
+(-1)^{s+\emm}\;\overline{X_{\l,-\emm,-n,-k}} ,
+\end{equation}
+the reflection $(\emm,n,k)\to(-\emm,-n,-k)$ supplying the frequency flip
+$\wmnk\to-\wmnk$.  Thus $\bar\Phi$ at mode $(\lmnk)$ is built from $\Phi$ at
+$(\l,-\emm,-n,-k)$, and similarly for $\fbHo$.
+
+Two cautions follow.  First, the sign $(-1)^{s}$ is unity for all of
+$\psifive$, $\fHo$ and $\PhiN{n}$, so it can be omitted throughout the
+Hertz-potential sector without consequence; it is \emph{not} unity for
+$\zetam$, for the intermediate chains $\edthH\fbHo$ and
+$\edthpH\edthH^{2}\fbHo$, or for the $nm$ and $n\bar m$ metric components
+(Table~\ref{tab:spin weights}).  Second, where a conjugate quantity satisfies
+a defining equation of its own it is cheaper and safer to use it: we obtain
+$\zetam$ from
+\begin{equation}\label{eq:zeta m direct}
+\zetam = \edthpH\fHo,
+\end{equation}
+the GHP conjugate of \eqref{eq:zeta m Held}, rather than by applying
+\eqref{eq:conj mode modes} to $\zetamb$.
+
+\PZ{\textbf{Please check two things in the notebooks.}
+(a) \texttt{BondiGauge\_Adjusted.nb} defines
+\texttt{cconj[expr] := ComplexExpand[Conjugate[expr]] /. \{$\omega\to-\omega$\}},
+i.e.\ the frequency flip is inside \texttt{cconj}; the generic notebook
+defines \texttt{cconj} \emph{without} the flip (it has a separate
+\texttt{cconj\$$\omega$} that includes it) and carries the flip instead through
+the $(-\emm,-n,-k)$ argument reflection.  Both are self-consistent, but
+\texttt{cconjSch} differs between the two notebooks in exactly this way,
+and any expression copied from one into the other will be wrong by
+$\omega\to-\omega$.
+(b) The generic notebook defines both \texttt{cconjMode} (with $(-1)^{\emm}$)
+and \texttt{cconjMode\$s} (with $(-1)^{\emm+s}$).  Only the latter is
+correct in general; confirm that every odd-spin-weight use calls the
+\texttt{\$s} variant, or that the missing $(-1)^{s}$ has been inserted by
+hand at the call site, as it appears to have been in
+\texttt{Re$\S$dagMode$\Phi$Ops["nm"]} and \texttt{LieZetagComps["nmb"]}.}
+
+
+% =====================================================================
+\section{Schwarzschild implementation}
+\label{sec:schw}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  Everything is closed form here, so this section should read as
+% a worked example: give the explicit formulas, then show the cancellation,
+% then the numerics.  This is also where the reader can check the whole
+% paper by hand, so do not compress it.
+% ---------------------------------------------------------------------
+
+\subsection{Closed-form mode formulas}
+\label{sec:schw closed form}
+In Schwarzschild the spheroidal harmonics reduce to spherical harmonics and
+the mixing coefficients in \eqref{eq:spheroidal to spherical} become
+$\delta_{L\l}$.  The angular constants reduce to
+\begin{equation}\label{eq:B schw}
+\Bco{2} = \frac{1}{4}\frac{(\l+2)!}{(\l-2)!}
+= \frac{1}{4}(\l+2)(\l+1)\l(\l-1) = \frac{\LamL}{4},
+\qquad
+\Bco{1} = \frac{1}{2}\frac{(\l+1)!}{(\l-1)!} = \frac{\l(\l+1)}{2},
+\end{equation}
+with $\LamL\defeq(\l-1)\l(\l+1)(\l+2)$, and the denominator
+\eqref{eq:Dlw def} becomes
+\begin{equation}\label{eq:D schw}
+\Dlw \;\longrightarrow\; \Bco{2}^{2}+9M^{2}\omega^{2}
+= \frac{\LamL^{2}}{16}+9M^{2}\omega^{2},
+\end{equation}
+which we continue to denote $\Dlw$.  The seed and the four Held integration
+constants are then
+\begin{subequations}\label{eq:schw closed form}
+\begin{align}
+\fHo_{\l\emm}(\omega)
+&=
+\frac{2i\omega^{3}}{\Dlw}\;\psifiveM{\l\emm}(\omega),
+\label{eq:f schw}\\[4pt]
+\PhiN{0}_{\l\emm}(\omega)
+&=
+\frac{-\tfrac23 i\omega(-1)^{\emm}}{\Dlw}
+\Big[\Bco{2}\Bco{1}-3iM\omega\big(1+\sqrt{\Bco{2}}\big)\Big]
+\bar\psi^{5\circ}_{0,\l,-\emm}(-\omega),
+\label{eq:Phi0 schw}\\[4pt]
+\PhiN{1}_{\l\emm}(\omega)
+&=
+\frac{2\omega^{2}(-1)^{\emm}}{\Dlw}
+\big[\Bco{2}-3iM\omega\big]
+\bar\psi^{5\circ}_{0,\l,-\emm}(-\omega),
+\label{eq:Phi1 schw}\\[4pt]
+\PhiN{2}_{\l\emm}(\omega)
+&=
+\frac{4i\omega^{3}\,\Bco{2}/\Bco{1}\,(-1)^{\emm}}{\Dlw}
+\bar\psi^{5\circ}_{0,\l,-\emm}(-\omega),
+\label{eq:Phi2 schw}\\[4pt]
+\PhiN{3}_{\l\emm}(\omega)
+&=
+\frac{-4\omega^{4}(-1)^{\emm}}{\Dlw}
+\bar\psi^{5\circ}_{0,\l,-\emm}(-\omega),
+\label{eq:Phi3 schw}
+\end{align}
+\end{subequations}
+and the residual gauge vector is
+\begin{subequations}\label{eq:zeta schw}
+\begin{align}
+\zetamM{\l\emm}(\omega)
+&=
+\frac{-2i\omega^{3}\sqrt{\Bco{2}/\Bco{1}}}{\Dlw}
+\;\psifiveM{\l\emm}(\omega),
+\label{eq:zeta m schw}\\[4pt]
+\zetalM{\l\emm}(\omega)
+&=
+\frac{\omega^{2}\sqrt{\Bco{2}}}{\Dlw}
+\;\psifiveM{\l\emm}(\omega)\;+\;{\rm c.c.},
+\label{eq:zeta l schw}\\[4pt]
+\zetanM{\l\emm}(\omega)
+&=
+\frac{-\omega^{2}\sqrt{\Bco{2}}}{\Dlw}
+\Big(\Bco{1}+\tfrac12\Big)
+\;\psifiveM{\l\emm}(\omega)\;+\;{\rm c.c.},
+\label{eq:zeta n schw}
+\end{align}
+\end{subequations}
+where ``$+\,{\rm c.c.}$'' denotes the mode-space real part \eqref{eq:Re mode},
+i.e.\ the addition of $(-1)^{\emm}\bar\psi^{5\circ}_{0,\l,-\emm}(-\omega)$
+inside the same prefactor.
+\PZ{\textbf{Discrepancy to resolve.}  Equation \eqref{eq:Phi0 schw} uses
+$\Bco{2}\Bco{1} = \tfrac18(\l+2)(\l+1)^{2}\l^{2}(\l-1)$, following
+Vahid's notes Eq.~(29).  \texttt{BondiGauge\_Adjusted.nb} instead codes
+$\tfrac18(\l+2)(\l+1)\l^{2}(\l-1)^{2}$, i.e.\ $(\l+1)^2(\l-1)$ replaced by
+$(\l+1)(\l-1)^2$ -- these differ for every $\l\ge2$.  Everything else in
+\eqref{eq:schw closed form}--\eqref{eq:zeta schw} agrees with the notebook up
+to the uniform factor of 2 in the $\PhiN{n}$ noted in
+Sec.~\ref{sec:conventions}.  The cleanest test is whether the $O(r)$
+cancellation in Sec.~\ref{sec:schw verification} still holds with the notes'
+coefficient.}
+
+Note that $\sqrt{\Bco{2}}=\tfrac12\sqrt{\LamL}$ and
+$\Bco{2}/\Bco{1} = \tfrac12(\l+2)(\l-1)$, which is the form in which these
+factors appear in the implementation.
+
+\subsection{Reconstruction and Lie-derivative operators in modes}
+\label{sec:schw operators}
+% ROADMAP: give the S^dagger components (App. C) and the L_zeta g components
+% (App. D) specialised to a = 0, and say in one sentence that both are
+% now ordinary radial ODEs in the single variable r with the l-dependence
+% appearing only through Lambda_l.
+The explicit Schwarzschild mode expressions for
+$(\S^{\dagger}\Phi)_{ab}$ and $(\Lie_{\zeta}g)_{ab}$ are collected in
+Appendices~\ref{app:Sdag} and \ref{app:Lie}.  Both are diagonal in $\l$ and
+depend on it only through $\LamL$.
+
+\subsection{Verification of the falloff}
+\label{sec:schw verification}
+% ROADMAP: this is the "proof" the paper offers.  Do it symbolically:
+% expand h^adj_{ab} in powers of r and show the O(r), O(r^0) coefficients
+% vanish.  Present as a table:  component | O(r) coeff | O(r^0) coeff |
+% leading surviving power.  Include at least one nonaxisymmetric mode and
+% one m = 0 mode, since the Re-projection differs.
+\PZ{Table here.  Columns: NP component; coefficient of $r$; coefficient of
+$r^{0}$; leading surviving power.  Rows: $nn$, $nm$, $n\bar m$, $mm$,
+$\bar m\bar m$, for say $(\l,\emm)=(2,2),(2,0),(3,2),(3,-3)$.  Your
+notebook already computes exactly these via
+\texttt{Coefficient[hAdjustment[comp][l,m][r],r]}.}
+
+An independent check is provided by the ``old'' and ``new'' implementations
+of $\S^{\dagger}$ in the accompanying notebooks: one applies the operator
+directly in closed form, the other builds it from the Held operators of
+Sec.~\ref{sec:held operators} and reduces at the end.  The two agree to
+machine precision for all modes tested.
+\PZ{Quote the actual agreement level (the notebook does
+\texttt{SetPrecision[Chop[checkTable],32]}).  This is a good, cheap
+validation to report.}
+
+\subsection{Results for circular equatorial orbits}
+\label{sec:schw results}
+\PZ{TODO -- numerics.  Suggested content: (i) a plot of the NP components of
+$h^{\rm ret}$ and $h^{\rm adj}$ versus $r$ out to $r\sim10^{3}M$, showing the
+$O(r)$ growth removed; (ii) a convergence plot in $\l_{\max}$; (iii) the
+orbital parameters used ($r_{0}=10M$ in the notebook) and the source of the
+$\psifive$ data (\texttt{psi0LargeRdata\_lmax40\_rOutbd1212.wxf}).
+Please also state how $\psifive$ was extracted -- a large-$r$ fit to the
+radial solution, or the $\mathscr I$ amplitude directly?  The notebook
+filename suggests a fit, which is worth documenting since it sets the
+achievable precision.}
+
+
+% =====================================================================
+\section{Kerr implementation}
+\label{sec:kerr}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  The structure mirrors Sec. 5 but the emphasis shifts: nothing
+% is closed form, so the section is about the *pipeline* and its cost.
+% Make the cost statement explicit -- it is the practical selling point:
+%   per (m,n,k): one spheroidal expansion per l, then O(l_max) tridiagonal
+%   applications.  Negligible next to the Teukolsky solves.
+% ---------------------------------------------------------------------
+
+\subsection{What changes relative to Schwarzschild}
+\label{sec:kerr pipeline}
+% ROADMAP: open by naming the three sources of l-mixing.  A reader who has
+% followed Sec. V needs to know exactly where Kerr stops being diagonal,
+% and there are precisely three places -- no more.
+In Schwarzschild every step of Sec.~\ref{sec:algorithm} is diagonal in $\l$.
+In Kerr, exactly three ingredients break that diagonality, and they are the
+whole of the additional work:
+\begin{enumerate}[label=(\alph*),leftmargin=*]
+\item the input Teukolsky solution is expanded in spin-weighted
+\emph{spheroidal} harmonics, whose overlap with the spherical basis spreads
+each $\l$ over a band of $L$ (Sec.~\ref{sec:kerr mixing});
+\item the Held angular operators $\edthH$, $\edthpH$ acquire off-diagonal
+$a\omega$ terms, and the multiplication operators $\tah$, $\tabh$, $\Oh$ ---
+absent in Schwarzschild --- are themselves tridiagonal
+(Sec.~\ref{sec:kerr chains});
+\item $\rho^{-1}=-(r-ia\cos\theta)$ is no longer proportional to the
+identity, so assembling $\Phiadj$ from the $\PhiN{n}$ mixes three further
+neighbours (Sec.~\ref{sec:kerr assembly}).
+\end{enumerate}
+Everything else --- the algebraic inversion for $\fHo$, the triangular system
+for the $\PhiN{n}$, the $\thpH\to-i\omega$ replacement --- is unchanged.  In
+particular every operator remains \emph{diagonal in $\emm$}, so the
+completion commutes with an $\emm$-mode decomposition of the field; the
+$\emm$-mode scheme of Ref.~\cite{Dolan:2012jg} may be used without
+modification.
+
+\subsection{Asymptotic amplitudes for generic bound orbits}
+\label{sec:generic orbits}
+% ROADMAP: the mode lattice, the canonical half, the caching structure.
+% This is the expensive part of the whole calculation and deserves an
+% honest cost statement.
+For a generic bound geodesic the frequencies are \eqref{eq:omega mnk} and the
+amplitudes $\Zinf{+2}{\lmnk}$ are computed mode by mode over the lattice
+\begin{equation}\label{eq:mode lattice}
+|s|\le\l\le\l_{\max},
+\qquad
+|\emm|\le\l,
+\qquad
+|n|\le n_{\max},
+\qquad
+|k|\le k_{\max}.
+\end{equation}
+Only the canonical half of the lattice,
+\begin{equation}\label{eq:canonical half}
+\emm>0
+\quad\text{or}\quad
+\big(\emm=0 \ \text{and}\ [\,n>0 \ \text{or}\ (n=0\ \text{and}\ k\ge0)\,]\big),
+\end{equation}
+need be computed directly; the remaining amplitudes follow from the
+reflection symmetry \eqref{eq:Z symmetry}.  This halves the dominant cost of
+the calculation, which is the set of Teukolsky radial solves and not the
+completion itself (Sec.~\ref{sec:kerr cost}).
+\PZ{State the $(n,k)$ truncation used in production and how it was chosen
+(residual amplitude threshold?).  The notebook's exploratory values are
+$\l_{\max}=4$, $n_{\max}=k_{\max}=4$, $p=10M$, $e=0.1$,
+$\cos\chi=\cos(\pi/4)$, $a=0.667M$.  Worth also describing the per-$\l$
+caching: the implementation writes one file per $\l$ as it goes and merges
+into a global amplitude table, so a run is restartable --- a practical point
+that belongs in the text if you want others to reproduce this.}
+
+\subsection{Spheroidal-to-spherical mixing}
+\label{sec:kerr mixing}
+% ROADMAP: this is ingredient (a).  Give the projection, the band structure,
+% and the truncation.  The key practical statement is that the b's are
+% computed ONCE per (s, l, m, a omega) and memoised -- every Held chain
+% downstream reuses them.
+The seed $\fHo$ of \eqref{eq:f mode kerr} is obtained in the spheroidal
+basis, one amplitude per $(\lmnk)$, exactly as in Schwarzschild.  It is then
+projected onto the spherical basis using \eqref{eq:spheroidal to spherical}:
+writing $\fHo_{\lmnk}$ for the spheroidal amplitude, the spherical
+coefficients are
+\begin{equation}\label{eq:f Y basis}
+\fHo_{L\emm nk}
+=
+\sum_{\l}\fHo_{\lmnk}\;b^{(+2,\l,\emm)}_{L}(a\wmnk),
+\end{equation}
+and likewise for $\fbHo$ with $s=-2$.  Because the mixing coefficients depend
+on $(s,\l,\emm,a\omega)$ only, they are computed once per mode and reused by
+every Held chain downstream; in practice this memoization dominates the
+efficiency of the whole completion, since the chains of
+Sec.~\ref{sec:kerr chains} would otherwise recompute the same expansion
+$O(10)$ times per mode.
+
+Denote by $N_{\rm mix}$ the half-width at which the expansion is truncated,
+\begin{equation}\label{eq:mixing truncation}
+b^{(s,\l,\emm)}_{L}\ \text{retained for}\ |L-\l|\le N_{\rm mix}.
+\end{equation}
+\PZ{Quote $N_{\rm mix}$ and justify it.  The notebook uses
+\texttt{"NumTerms"}$\,\to30$ with a chop tolerance of $10^{-25}$, which is
+far more than needed for $a\omega\lesssim1$; a plot of $|b_{L}|$ against
+$|L-\l|$ at the largest $a\wmnk$ occurring in your run would let you quote a
+much smaller effective $N_{\rm mix}$ and would answer the truncation
+question cleanly.  This also feeds directly into the padding budget of
+Table~\ref{tab:bandwidth}.}
+
+\subsection{Held chains as banded operators}
+\label{sec:kerr chains}
+% ROADMAP: ingredient (b).  The content here is (i) bandwidth accounting and
+% (ii) the memoisation point.  Both are genuinely useful and neither is in
+% Hollands-Toomani.
+Each of $\edthH$, $\edthpH$, $\tah$, $\tabh$ and $\Oh$ is tridiagonal in $\l$
+at fixed $\emm$ by \eqref{eq:held matrices}--\eqref{eq:mult matrices}, and
+$\thpH$ is diagonal by \eqref{eq:thornp matrix}.  A chain of $p$ such
+operators is therefore banded with half-bandwidth $p$: its value at output
+multipole $L$ depends on the input at $L-p,\dots,L+p$.  Applying this to
+\eqref{eq:Phi n Held} and \eqref{eq:zeta Held} gives the padding budget of
+Table~\ref{tab:bandwidth}.
+
+\begin{table}[htb]
+\begin{ruledtabular}
+\begin{tabular}{llc}
+quantity & longest operator chain & half-bandwidth \\
+\hline
+$\PhiN{3}$ & $\thpH$ & $0$ \\
+$\PhiN{2}$ & $\edthpH\edthH$ & $2$ \\
+$\PhiN{1}$ & $\edthpH^{2}\edthH^{2}$ & $4$ \\
+$\PhiN{0}$ & $\edthpH^{3}\edthH^{3}$ & $6$ \\
+$\zetamb$  & $\edthH$ & $1$ \\
+$\zetal$   & $\edthH^{2}$ & $2$ \\
+$\zetan$   & $\edthpH\edthH^{3}$ & $4$ \\
+$\rho^{-n}$ & $\mathsf C^{n}$ & $n\le3$ \\
+\hline
+$\Phiadj$ & $\max\{6,\,1{+}4,\,2{+}2,\,3{+}0\}$ & $6$ \\
+\end{tabular}
+\end{ruledtabular}
+\caption{Half-bandwidth in $\l$ of each stage of the completion, at fixed
+$(\emm,n,k)$.  To obtain $\Phiadj$ correctly for $L\le L_{\rm out}$ the seed
+$\fbHo$ must be supplied for $\l\le L_{\rm out}+6$, and that seed must itself
+be assembled from spheroidal amplitudes out to
+$\l\le L_{\rm out}+6+N_{\rm mix}$.}
+\label{tab:bandwidth}
+\end{table}
+
+Two implementation points follow.  First, because every operator couples
+$L\to\{L-1,L,L+1\}$, a naive recursive evaluation of a chain of length $p$
+costs $3^{p}$ leaf evaluations --- $729$ for $\PhiN{0}$ --- whereas
+evaluating and caching each intermediate chain once, level by level, reduces
+the cost to $O(p\,L_{\max})$.  We therefore build and store the intermediate
+quantities
+\begin{equation}\label{eq:chains}
+\edthH\fbHo,\quad
+\edthH^{2}\fbHo,\quad
+\edthH^{3}\fbHo,\quad
+\edthpH\edthH\fbHo,\quad
+\edthpH\edthH^{2}\fbHo,\quad
+\edthpH^{2}\edthH^{2}\fbHo,\quad
+\edthpH^{3}\edthH^{3}\fbHo,
+\end{equation}
+together with $\tabh\,\edthH\fbHo$ and $\tabh\,\edthpH\edthH^{2}\fbHo$, and
+assemble the $\PhiN{n}$ and $\zeta^{\circ}$ components from them.  Second,
+the spin weight changes along each chain
+($-2\to-1\to0\to+1$ under successive $\edthH$), and the matrix elements
+\eqref{eq:held matrices} depend on it, so the spin weight must be tracked
+with the intermediate rather than inferred at the end.
+
+\subsection{Assembling $\Phiadj$}
+\label{sec:kerr assembly}
+% ROADMAP: ingredient (c).  Short -- the equation is already in Sec. IV D.
+% What is worth adding here is the practical ordering (Horner) and the
+% statement that this is where the +3 padding is consumed.
+With the $\PhiN{n}$ in hand as vectors over $\l$ at fixed $(\emm,n,k)$, the
+adjusted Hertz potential follows from \eqref{eq:Phi adj vector}.  It is
+evaluated in Horner form,
+\begin{equation}\label{eq:Phi adj horner}
+\boldsymbol{\Phi}^{\rm adj}
+=
+\boldsymbol{\Phi}^{0\circ}
++\mathsf R\Big(\boldsymbol{\Phi}^{1\circ}
++\mathsf R\big(\boldsymbol{\Phi}^{2\circ}
++\mathsf R\,\boldsymbol{\Phi}^{3\circ}\big)\Big),
+\end{equation}
+which requires three tridiagonal multiplications rather than six and consumes
+three multipoles of padding.  Note that $\mathsf R$ carries the explicit
+radial dependence through $-r\,\mathbb{1}$, so \eqref{eq:Phi adj horner} is a
+polynomial in $r$ of degree three with $\l$-banded matrix coefficients;
+$\Phiadj$ and its first two radial derivatives, which are what
+Appendix~\ref{app:Sdag} requires, are obtained from it analytically.
+
+\subsection{The gauge vector in the spherical basis}
+\label{sec:kerr zeta}
+The components of $\zeta^{a}$ are built from the same cached chains.  Two
+details differ from the Hertz sector.  First, $\zetal$ and $\zetan$ are real
+spin-zero scalars and are assembled through the projection
+\eqref{eq:Re mode}, which pairs the $(\emm,n,k)$ and $(-\emm,-n,-k)$ chains;
+$\zetam$ is instead obtained directly from \eqref{eq:zeta m direct} to avoid
+an explicit spin-weighted conjugation.  Second, the minimum output multipole
+depends on the component: nearest-neighbour mixing can feed the spin-zero
+components down to $L=|\emm|$, whereas the spin-$(\pm1)$ components start at
+\begin{equation}\label{eq:Lmin}
+L_{\min}
+=
+\begin{cases}
+|\emm| , & \text{components } \zetal,\ \zetan \quad (s=0),\\[2pt]
+\max(1,|\emm|), & \text{components } \zetam,\ \zetamb \quad (s=\pm1).
+\end{cases}
+\end{equation}
+Finally, since $\fHo\propto\omega^{3}$, modes with $\wmnk=0$ contribute
+nothing to the radiative completion and are skipped.
+\PZ{Quote the $L$-padding actually used for $\zeta$ and the chop tolerance
+below which coefficients are discarded.  Table~\ref{tab:bandwidth} suggests
+$4$ suffices for $\zetan$; the notebook uses $8$, so either the extra margin
+is unnecessary or I have miscounted the chain --- worth checking, since it
+doubles the cost of this stage.}
+
+\subsection{Cost and truncation}
+\label{sec:kerr cost}
+% ROADMAP: the selling point.  Make the comparison explicit and quantitative
+% once you have timings.
+At fixed $(\emm,n,k)$ the completion consists of one complex division per
+$\l$ for the seed, one spheroidal projection per $\l$, and a fixed number
+($\approx20$) of tridiagonal applications over the padded $\l$-range.  Its
+cost is therefore $O(L_{\max})$ per $(\emm,n,k)$, against the
+$O(L_{\max})$ \emph{Teukolsky radial solves} needed to produce the input
+amplitudes in the first place, each of which is more expensive by orders of
+magnitude.  The asymptotic completion is thus essentially free relative to
+the calculation it corrects.
+\PZ{Back this with one timing number --- e.g.\ wall-clock for the amplitude
+run versus wall-clock for the completion at the same $\l_{\max}$.  A single
+sentence with real numbers is worth a paragraph of argument here.}
+
+\subsection{Results for circular equatorial orbits}
+\label{sec:kerr results}
+\PZ{TODO -- numerics.  Same three plots as Sec.~\ref{sec:schw results}, plus:
+(i) a convergence study in $N_{\rm mix}$ at fixed $\l_{\max}$, which is the
+one genuinely new truncation in Kerr; (ii) a spin sweep if you have it;
+(iii) the $a\to0$ limit of the Kerr pipeline compared against the closed-form
+Schwarzschild results of Sec.~\ref{sec:schw} --- that is the strongest single
+validation available and costs nothing to run.}
+
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+% ---------------------------------------------------------------------
+% ROADMAP.  Four short paragraphs:
+%   1. What was done (one paragraph, no new content).
+%   2. What it buys: the second-order source is now integrable at scri, so
+%      asymptotic flux and memory formulas can be evaluated on the
+%      reconstructed metric.  Connect to Hollands-Toomani Sec 3.3.2.
+%   3. Limitations: stationary (omega = 0) completion still separate;
+%      truncation in l for the cos-theta mixing; horizon-side analogue not
+%      treated (the Sigma_- / H^- problem).
+%   4. Outlook: second-order puncture, Lorenz-gauge transformation,
+%      time-domain implementation.
+% ---------------------------------------------------------------------
+\PZ{TODO -- see the roadmap comment in the source.  Point 3 is the one to be
+careful about: be explicit that this paper treats the $\scri$ side only, and
+that the ingoing ($H^{-}$) counterpart is a separate construction.}
+
+
+\begin{acknowledgments}
+This work made use of the Black Hole Perturbation Toolkit~\cite{BHPToolkit},
+in particular the \texttt{Teukolsky}, \texttt{KerrGeodesics} and
+\texttt{SpinWeightedSpheroidalHarmonics} packages.
+\PZ{Add funding acknowledgements.}
+\end{acknowledgments}
+
+
+% =====================================================================
+\appendix
+% =====================================================================
+
+\section{Held angular operators: degenerate cases and conventions}
+\label{app:held ops}
+% ROADMAP: give the l = 0 entries omitted from (4.x), and state the
+% convention for the square roots / branch choices.
+For $\l=0$ the expressions \eqref{eq:held matrices}--\eqref{eq:mult matrices}
+degenerate to
+\begin{subequations}\label{eq:held l0}
+\begin{align}
+\big(\edthH f\big)_{0\emm} &= a\omega\sqrt{\tfrac{s(s-1)}{6}}\;f_{1\emm},
+&
+\big(\edthpH f\big)_{0\emm} &= a\omega\sqrt{\tfrac{s(s+1)}{6}}\;f_{1\emm},\\
+\big(\tah f\big)_{0\emm} &= ia\sqrt{\tfrac{s(s-1)}{6}}\;f_{1\emm},
+&
+\big(\tabh f\big)_{0\emm} &= ia\sqrt{\tfrac{s(s+1)}{6}}\;f_{1\emm},\\
+\big(\Oh f\big)_{00} &= -\frac{2ia}{\sqrt3}\;f_{10}.
+&&
+\end{align}
+\end{subequations}
+The $\edthH$, $\edthpH$, $\tah$ and $\tabh$ entries are transcribed from the
+\texttt{If[l==0,...]} branches of the implementation.  The $\Oh$ entry is
+instead the $\l=0$ limit of \eqref{eq:Omega matrix}: only $s=0$, $\emm=0$
+occurs there, and $c_{1}(0,0)=1/\sqrt3$.
+\PZ{The notebook's $\l=0$ branch for $\Oh$ reads
+$ia\sqrt{-2(s-1)(s+1)/3}\,f_{1,0}$, which at $s=0$ gives $+ia\sqrt{2/3}$
+rather than the $-2ia/\sqrt3$ above --- the same disagreement flagged after
+\eqref{eq:Omega matrix}, carried into the degenerate case.  Since only $s=0$
+can occur at $\l=0$, the $s$-dependence in that branch is inert in any event.
+These entries matter only for the spin-zero gauge-vector components, where
+Kerr nearest-neighbour mixing can feed $\l=0,1$; cf.\ the $L_{\min}$ switch
+\eqref{eq:Lmin}.}
+
+\section{Teukolsky--Starobinsky constants}
+\label{app:TS}
+For $s=\pm2$ the complex Teukolsky--Starobinsky constant is
+\begin{equation}\label{eq:TS constant}
+\Cts_{\l\emm}(a\omega) = D_{\l\emm}(a\omega) + 12\,i\,P\,\tilde\omega ,
+\end{equation}
+with
+\begin{equation}\label{eq:D TS}
+D_{\l\emm}
+=
+\Big[
+\lambda_{\rm Ch}^{2}(\lambda_{\rm Ch}-2)^{2}
++8a\tilde\omega(\emm-a\tilde\omega)(\lambda_{\rm Ch}-2)(5\lambda_{\rm Ch}-4)
++48(a\tilde\omega)^{2}\big(2(\lambda_{\rm Ch}-2)+3(\emm-a\tilde\omega)^{2}\big)
+\Big]^{1/2},
+\end{equation}
+where $\lambda_{\rm Ch}=\lambda+s^{2}+s$ and $\lambda$ is the spin-weighted
+spheroidal eigenvalue, and $P=\pm1$ is the parity factor of
+\eqref{eq:Zplus from Zminus}; see Ref.~\cite{Casals:2020fsb} for a careful
+discussion of these constants and of the conventions attached to $P$.
+In Schwarzschild $\lambda_{\rm Ch}=\l(\l+1)$,
+$D_{\l}=\LamL$, and
+\begin{equation}\label{eq:TS schw}
+\Cts\,\bar\Cts = \LamL^{2}+144M^{2}\omega^{2}
+= 16\big(\Bco{2}^{2}+9M^{2}\omega^{2}\big),
+\end{equation}
+which reproduces the Schwarzschild limit of \eqref{eq:f mode kerr} and fixes
+the normalisation $\Cts\bar\Cts=16\,\Dlw$ used there.
+
+
+\section{Reconstruction operator in modes (Schwarzschild)}
+\label{app:Sdag}
+% ROADMAP: give the IRG components of S^dagger acting on a single
+% {}_{-2}Y_{lm} mode of Phi.  These are what the notebook codes.
+With $\Phi=\sum_{\l\emm}\Phi_{\l\emm}(r)\,\sYY{-2}{\l}{\emm}$ in the ingoing
+radiation gauge, the nonvanishing components of $\S^{\dagger}\Phi$ are
+\begin{subequations}\label{eq:Sdag modes}
+\begin{align}
+\big(\S^{\dagger}\Phi\big)_{nn}
+&= -\frac{1}{r^{2}}\sqrt{\frac{\LamL}{16}}
+\Big[\Phi_{\l\emm}(r)+(-1)^{\emm}\bar\Phi_{\l,-\emm}(r)\Big],
+\label{eq:Sdag nn}\\[4pt]
+\big(\S^{\dagger}\Phi\big)_{nm}
+&= -\frac{(-1)^{\emm}}{r^{2}}\sqrt{\frac{(\l-1)(\l+2)}{8}}\;
+\overline{\Big[-2\Phi_{\l,-\emm}(r)+r\,\Phi'_{\l,-\emm}(r)\Big]},
+\label{eq:Sdag nm}\\[4pt]
+\big(\S^{\dagger}\Phi\big)_{n\bar m}
+&= \frac{\sqrt{(\l-1)(\l+2)}}{2\sqrt2\,r^{2}}
+\Big[-2\Phi_{\l\emm}(r)+r\,\Phi'_{\l\emm}(r)\Big],
+\label{eq:Sdag nmb}\\[4pt]
+\big(\S^{\dagger}\Phi\big)_{mm}
+&= (-1)^{\emm}\,\overline{\Big[\frac{1}{r}\Phi'_{\l,-\emm}(r)
+-\frac12\Phi''_{\l,-\emm}(r)\Big]},
+\label{eq:Sdag mm}\\[4pt]
+\big(\S^{\dagger}\Phi\big)_{\bar m\bar m}
+&= \frac{1}{r}\Phi'_{\l\emm}(r)-\frac12\Phi''_{\l\emm}(r),
+\label{eq:Sdag mbmb}
+\end{align}
+\end{subequations}
+with
+$\big(\S^{\dagger}\Phi\big)_{ll}=\big(\S^{\dagger}\Phi\big)_{ln}
+=\big(\S^{\dagger}\Phi\big)_{lm}=\big(\S^{\dagger}\Phi\big)_{l\bar m}
+=\big(\S^{\dagger}\Phi\big)_{m\bar m}=0$.
+The signs multiplying the conjugated amplitudes in
+\eqref{eq:Sdag nn}--\eqref{eq:Sdag mbmb} are not independent choices: each is
+the factor $(-1)^{s+\emm}$ of the conjugation rule \eqref{eq:conj mode},
+evaluated at the spin weight of the component being formed.  Thus
+\eqref{eq:Sdag nn} and \eqref{eq:Sdag mm} carry $(-1)^{\emm}$, because
+$h_{nn}$ has $s=0$ and $h_{mm}$ has $s=+2$, while \eqref{eq:Sdag nm} carries
+$-(-1)^{\emm}$, because $h_{nm}$ has $s=+1$.
+\PZ{Two things to check here.
+(a) \emph{Overall factor.}  \eqref{eq:Sdag nn} already contains the
+combination $\Phi+(-1)^{\emm}\bar\Phi$, which \emph{is} twice the mode-space
+real part \eqref{eq:Re mode}, yet the notebook multiplies the whole set by a
+further factor of 2.  Fix the convention once and propagate it; the falloff
+cancellation is insensitive to an overall factor but the amplitudes are not.
+(b) \emph{Which component carries the minus.}  In
+\texttt{Re$\S$dagMode$\Phi$Ops} the $-(-1)^{\emm}$ sits on \texttt{"nm"} and
+\texttt{"nmb"} is the primitive expression, whereas in
+\texttt{LieZetagComps} it is the other way round --- \texttt{"nm"} is
+primitive and \texttt{"nmb"} carries the sign.  Both are internally
+consistent, but they can only be added together in \eqref{eq:h adj} if the
+two conventions for which of $m^{a}$, $\bar m^{a}$ is contracted first agree.
+Worth verifying explicitly, since an error here would flip the sign of one
+$O(r)$ term and would not show up in the $nn$ or $mm$ channels.}
+
+\section{Lie derivative of the metric along $\zeta^{a}$}
+\label{app:Lie}
+% ROADMAP: the long Held expressions.  These are transcribed from Vahid's
+% notes eqs (18)-(20).  They are long enough that a transcription error is
+% likely -- flag them and check against the notebook's LieZetagComps, which
+% is the a = 0 specialisation.
+With $\Lie_{\zeta}g_{ab}l^{a}=0$ and $\Lie_{\zeta}g_{ab}m^{a}\bar m^{b}=0$,
+the remaining components are
+\begin{align}
+\Lie_{\zeta}g_{ab}\,m^{a}m^{b}
+&=
+-2\bar\rho\,\edthH\edthH\zetal
++2\edthpH\edthH\fHo
++2\Oh\thpH\fHo
++4\bar\rho\,\tah\,\edthpH\fHo
++8\rhopH\fHo ,
+\label{eq:Lie mm}
+\end{align}
+\begin{align}
+\Lie_{\zeta}g_{ab}\,n^{a}m^{b}
+&=
+\bar\rho\,\edthpH\edthH\edthH\zetal
+-2\rho\bar\rho\,\tabh\,\edthH\edthH\zetal
++\rho(\rho+\bar\rho)\Psih\,\edthH\zetal
+\non
+&\quad
+-\bar\rho\,\Oh\,\edthpH\edthpH\edthH\fHo
++2\rho\,\tabh\,\edthpH\edthH\fHo
+\non
+&\quad
++\frac{1}{\bar\rho}\Big(
+-2\bar\rho\,\Oh{}^{2}\,\edthpH\thpH\fHo
++2(\rho+\bar\rho)\Oh\tabh\,\thpH\fHo
+-2\bar\rho\,\tah\,\edthpH\edthpH\fHo
+\non
+&\qquad\quad
+-(\rho^{2}\Oh+\rho)\Psih\,\edthpH\fHo
+\Big)
+\non
+&\quad
++\bar\rho\,\Psibh\,\edthpH\fHo
+-6\bar\rho\,\Oh\rhopH\,\edthpH\fHo
++4\rho\bar\rho\,\tah\tabh\,\edthpH\fHo
++8\rho\rhopH\tabh\,\fHo ,
+\label{eq:Lie nm}
+\end{align}
+and
+\begin{align}
+\Lie_{\zeta}g_{ab}\,n^{a}n^{b}
+&=
+\Re\Big[
+4\rho\bar\rho\,\tabh\,\edthpH\edthH\edthH\zetal
+-4\rho^{2}\bar\rho\,\tabh{}^{2}\,\edthH\edthH\zetal
++2\rho^{2}\Psih\,\edthpH\edthH\zetal
++4\rho^{2}\bar\rho\,\Psih\tabh\,\edthH\zetal
+\non
+&\qquad
+-2\edthpH\edthpH\edthpH\edthH\fHo
+-\frac{2}{\rho}\Big(
+4\Oh\,\edthpH\edthpH\thpH\fHo
+-4\rho\bar\rho\,\Oh\tabh\,\edthpH\edthpH\edthH\fHo
+\non
+&\qquad\qquad
++4\big(4+\bar\rho\,\Oh-\rho\bar\rho\,\Oh{}^{2}\big)\tabh\,\edthpH\thpH\fHo
+\Big)
+\non
+&\qquad
+-\big(8\rhopH+3\rho\Psih+3\bar\rho\Psibh+2\rho^{2}\Oh{}^{2}\Psih
++8\rho\bar\rho\,\tah\tabh\big)\edthpH\edthpH\fHo
+\non
+&\qquad
++4\rho^{2}\tabh{}^{2}\,\edthpH\edthH\fHo
++4\rho(\rho+2\bar\rho)\Oh\tabh{}^{2}\,\thpH\fHo
++8\rho^{2}\bar\rho\,\tah\tabh{}^{2}\,\edthpH\fHo
+\non
+&\qquad
++4\rho\bar\rho\,\Psibh\tabh{}^{2}\,\edthpH\fHo
+-24\rho\bar\rho\,\Oh\rhopH\tabh\,\edthpH\fHo
++16\rho^{2}\rhopH\tabh{}^{2}\,\fHo
+\Big].
+\label{eq:Lie nn}
+\end{align}
+The remaining components follow by conjugation,
+$\Lie_{\zeta}g_{ab}n^{a}\bar m^{b}=\overline{\Lie_{\zeta}g_{ab}n^{a}m^{b}}$
+and
+$\Lie_{\zeta}g_{ab}\bar m^{a}\bar m^{b}=\overline{\Lie_{\zeta}g_{ab}m^{a}m^{b}}$,
+which in mode space are \eqref{eq:conj mode} at $s=+1$ and $s=+2$
+respectively, i.e.
+\begin{equation}\label{eq:Lie conj modes}
+\big(\Lie_{\zeta}g\big)_{n\bar m,\l\emm}
+= -(-1)^{\emm}\,\overline{\big(\Lie_{\zeta}g\big)_{nm,\l,-\emm}},
+\qquad
+\big(\Lie_{\zeta}g\big)_{\bar m\bar m,\l\emm}
+= (-1)^{\emm}\,\overline{\big(\Lie_{\zeta}g\big)_{mm,\l,-\emm}} .
+\end{equation}
+The relative minus sign between the two is the $(-1)^{s}$ of
+\eqref{eq:conj mode} and is not optional.
+\PZ{\textbf{Transcription warning.}  \eqref{eq:Lie mm}--\eqref{eq:Lie nn} are
+transcribed from Eqs.~(18)--(20) of \texttt{metric-reconst.pdf}, where the
+$n^{a}n^{b}$ expression in particular is typeset across a page break and the
+grouping of the $1/\rho$ bracket in \eqref{eq:Lie nn} is ambiguous.  Please
+check them against \texttt{LieZetagComps} in the notebook (which is the
+$a\to0$ specialisation, so it will validate the $\Psih$, $\rhopH$ and
+$\zetal$ terms but \emph{not} the $\tah$, $\tabh$, $\Oh$ terms).  A Kerr-side
+check against Hollands--Toomani would be worth doing before submission.}
+
+\PZ{The $a\to0$ specialisation actually used in the Schwarzschild numerics is
+considerably shorter; consider giving it as a separate displayed set, since a
+reader reproducing Sec.~\ref{sec:schw} needs only that.  I have not
+transcribed it here to avoid duplicating an expression that is already long,
+but it is the \texttt{"nn"/"nm"/"nmb"/"mm"/"mbmb"} entries of
+\texttt{LieZetagComps} with $\rho=\bar\rho=-1/r$, $a=0$.}
+
+
+\bibliographystyle{apsrev4-1}
+\bibliography{MyReferences,extra}
+
+\end{document}

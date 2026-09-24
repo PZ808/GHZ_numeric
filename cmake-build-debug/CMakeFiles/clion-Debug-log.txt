@@ -1,0 +1,5 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -G Ninja -S /Users/antares/Projects/physics_codes/GHZ_numeric -B /Users/antares/Projects/physics_codes/GHZ_numeric/cmake-build-debug
+-- Found OpenMP: -fopenmp -I/opt/homebrew/opt/libomp/include
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/antares/Projects/physics_codes/GHZ_numeric/cmake-build-debug

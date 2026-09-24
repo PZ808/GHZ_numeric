@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/asymptotic/BondiHeldSeedSolve.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/asymptotic/BondiHeldSeedSolve.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/asymptotic/SchwarzschildBondiGauge.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/asymptotic/SchwarzschildBondiGauge.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/asymptotic/SchwarzschildPsi0Modes.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/Coords.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/Coords.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/KerrMetric.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/KerrMetric.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/KerrParams.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/KerrParams.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/KinnersleyTetrad.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/geom/KinnersleyTetrad.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/GHPScalars.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/GHPScalars.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/HeldScalars.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/HeldScalars.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/SpinCoeffNP.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/SpinCoeffNP.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/WeylScalars.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/ghp/WeylScalars.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/orbit/KerrOrbit.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/orbit/KerrOrbit.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/spectral/KinnersleySpectralHeldOperators.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/spectral/KinnersleySpectralHeldOperators.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/spectral/PoleFactorizedSpectralHeldOperators.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/spectral/SpectralDiffer.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/src/ghz/spectral/SpectralDiffer.cpp.o.d"
+  "CMakeFiles/bondi_plot_data.dir/tools/bondi_plot_data.cpp.o"
+  "CMakeFiles/bondi_plot_data.dir/tools/bondi_plot_data.cpp.o.d"
+  "bondi_plot_data"
+  "bondi_plot_data.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/bondi_plot_data.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

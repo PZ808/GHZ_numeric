@@ -1,0 +1,15 @@
+spectral_unit_tests 8 0.000731646
+spectral_physical_unit_tests 8 0.00424008
+spectral_solve_unit_tests 8 0.0083759
+cubic_splines_tests 8 0.000374094
+kinnersley_held_operators_unit_tests 18 0.05421
+effective_source_unit_tests 8 0.00045588
+teukolsky_source_unit_tests 8 0.000355958
+bound_orbit_tests 8 0.00405543
+corrector_tests 8 0.647024
+proxy_solver_tests 6 0.0867065
+bondi_held_mode_reconstruction_unit_tests 4 0.120747
+bondi_schwarzschild_data_collocation_tests 9 0.0497536
+bondi_zeta_circular_orbit_tests 7 0.00733637
+bondi_metric_falloff_tests 3 0.0645228
+---

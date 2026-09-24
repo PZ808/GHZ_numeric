@@ -1,0 +1,1 @@
+/opt/homebrew/opt/llvm/bin/clang++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/opt/homebrew/opt/libomp/lib CMakeFiles/cubic_splines_tests.dir/tests/unit/cubic_splines_tests.cpp.o -o cubic_splines_tests   -L/opt/homebrew/lib
