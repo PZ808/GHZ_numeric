@@ -226,9 +226,77 @@ cancelled at approximately 2.15e-13 and 2.24e-12, with direct-sum radial
 slopes close to -1. This verifies the existing reference-data path, not a
 Julia-to-Bondi conversion, and was not a fresh rebuild.
 
+## Kerr m-mode radial-decay check, 2026-09-24
+
+`BondiGauge_Adjusted.nb` contains the Kerr-compatible operator block in the
+section labeled `Operators (Kerr compatible)`. The implementation in
+`tools/bondi_kerr_m_mode_check.cpp` follows that block's structure: it uses
+the Kerr rho dyad, Held tau and Omega scalars, the Kerr Held eth operators,
+the Hertz-potential radial reconstruction, and the residual-gauge Lie terms.
+It is therefore the appropriate m-mode diagnostic for the current pipeline;
+the older `BondiHeldMetricReconstruction` remains the Schwarzschild Laurent
+reference.
+
+Using `Data/gsn_circular_a0.5_m2.csv` generated from the Julia SN amplitudes
+for M=1, a=0.5, p=10, e=0, x=1, ell<=8, m=2, the coupled seed solve at
+Nz=17 gave residual 7.19e-10 and
+
+    f(z=0)     = 2.7912920054e-4 + 9.0739644394e-4 i
+    fbar(z=0)  = 2.7912920054e-4 + 9.0739644394e-4 i.
+
+The reconstructed-plus-Lie norms have radial slopes measured between
+r=200 and r=2000 of
+
+    nn: -1.00105158,   nm: -1.00488740,   mm: -0.99999866.
+
+Thus all three components show the expected 1/r falloff. The a=0 control
+gave slopes -1.00116929, -1.00496784, -1.00000000 and reproduced the
+existing Schwarzschild operator separately with worst relative error
+2.22e-12. The Kerr result currently validates radial decay and the
+Schwarzschild reduction; it is not yet an independent coefficient-by-
+coefficient comparison against Mathematica's Kerr notebook output.
+
 A Julia (2,2,0,0) reference-mode calculation was started but interrupted
 before returning an amplitude; no new Julia numerical result was obtained.
 The default environment loaded the installed package under
 `~/.julia/packages/GeneralizedSasakiNakamura/iL6U6`, rather than the checkout.
 Its main module file compared identical to the checkout; the whole installed
 source tree was not compared.
+
+## Kerr ell,m banded adjustment
+
+The coefficient-space construction is present in
+`MathematicaNotebooks/EffectiveSource/lm_mode/BondiGauge_Adjusted_Generic.nb`.
+Its `CosThetaMatrix[s,m,ells]` is tridiagonal with
+
+    c_l = sqrt[((l^2-m^2)(l^2-s^2))/(l^2(4 l^2-1))],
+    b_l = -s m/[l(l+1)],
+
+and the adjusted spin -2 field uses
+
+    R = -r I + i a CosThetaMatrix[-2,m,ells],
+    Phi = Phi0 + R Phi1 + R^2 Phi2 + R^3 Phi3.
+
+The C++ helper `include/ghz/asymptotic/BondiEllMBanded.hpp` now implements
+this matrix and the same sparse Horner evaluation.  It keeps the ell support
+through `ell_max+3`, as required by the rho^-3 term.  The helper is included
+in and compiles with `bondi_kerr_m_mode_check`; the full ell,m reconstruction
+still needs the remaining Held-operator coefficient matrices and will then be
+compared against the collocation path.
+
+One notebook detail needs attention during the port: the displayed
+`PhiAdjustmentYVector` block calls `Phi0H` through `Phi3H` with four
+arguments, while the later accessors in the same notebook are defined with
+six (`L,m,n,k,lmax,a`).  The C++ interface therefore takes the already
+expanded coefficient vectors explicitly, avoiding that arity ambiguity.
+
+The Kerr diagnostic now checks the matrix form of the Held angular operators
+and scalars directly against the production pole-factorized implementation.
+For the test mode at `a=0.5`, the `eth` and `ethbar` discrepancies are below
+`2e-13`, multiplication by `Omega_H=-2 i a cos(theta)` agrees with the
+tridiagonal cosine matrix below `2e-15`, and the `tau_H` matrix agrees below
+`7e-16`.  The earlier apparent `tau_H` mismatch was a checker bug: its two
+off-diagonal terms had accidentally omitted the factor of `a`.  The literal
+`Generic.nb` box form also displays `I (I a)` in one upper-neighbor term,
+whereas the adjusted operator block uses `I a`; the latter is the form now
+implemented and verified.

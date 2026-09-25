@@ -359,3 +359,16 @@ add_test(NAME bondi_zeta_circular_orbit_tests
 add_test(NAME bondi_metric_falloff_tests
         COMMAND bondi_metric_falloff_tests
         ${CMAKE_SOURCE_DIR}/tests/data/psi0_schwarzschild_r0_10_lmax20_mostly_minus.csv)
+
+# Kerr SN-seeded m-mode asymptotic diagnostic (run with exported Julia data).
+get_target_property(BONDI_DIAGNOSTIC_SOURCES bondi_schwarzschild_data_collocation_tests SOURCES)
+list(FILTER BONDI_DIAGNOSTIC_SOURCES EXCLUDE REGEX "tests/unit/")
+add_executable(bondi_kerr_m_mode_check tools/bondi_kerr_m_mode_check.cpp ${BONDI_DIAGNOSTIC_SOURCES})
+target_include_directories(bondi_kerr_m_mode_check PRIVATE include)
+target_link_libraries(bondi_kerr_m_mode_check PRIVATE OpenMP::OpenMP_CXX fftw3)
+add_test(NAME bondi_kerr_m_mode_decay
+    COMMAND bondi_kerr_m_mode_check ${CMAKE_CURRENT_SOURCE_DIR}/Data/gsn_circular_a0.5_m2.csv
+            ${CMAKE_CURRENT_BINARY_DIR}/kerr_m_mode_decay_test.csv 13)
+add_test(NAME bondi_kerr_schwarzschild_control
+    COMMAND bondi_kerr_m_mode_check ${CMAKE_CURRENT_SOURCE_DIR}/Data/gsn_circular_a0.0_m2.csv
+            ${CMAKE_CURRENT_BINARY_DIR}/kerr_schwarzschild_control_test.csv 13)
