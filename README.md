@@ -1,312 +1,96 @@
-## GHZ_numeric
+**GHZ_numeric — GHZ transport and Bondi-like metric reconstruction**
 
-**Green–Hollands–Zimmerman (GHZ) Transport Solver**
+Numerical tools for the Green–Hollands–Zimmerman (GHZ) reconstruction scheme in Kerr spacetime. The repository combines C++ geometry, GHP/Held calculus, and spectral solvers with Mathematica puncture/source calculations and Julia Teukolsky input. The implemented Kerr **m-mode completion** constructs the Hertz completion and residual gauge contribution on an angular grid and checks the resulting Bondi-like radial decay.
 
-A modular C++ framework for building the numerical infrastructure needed to solve the
-**GHZ transport equations** in an $$m$$-mode effective source scheme 
-for generic bound orbits in Kerr spacetime.
+The [paper-to-code map](Notes/Bondi_GHZ_paper_code_map.md) connects the sections, equations, and figures of *Metric reconstruction in a Bondi-like gauge* to files, classes, and functions. It includes the Kerr m-mode pipeline, the Schwarzschild reference calculations, and the separate GHZ corrector hierarchy. Its equation numbers refer to the draft inspected on 29 September 2026.
 
----
-
-## Overview
-
-`GHZ_numeric` provides reusable components for Kerr geometry and GHP/Held calculus,
-together with spectral differentiation tools and transport ODE solvers used in the
-GHZ corrector hierarchy.
-
-Core capabilities include:
-
-- **Kerr geometry**
-    - Kerr metric functions and invariants
-    - Multiple coordinate charts (Boyer–Lindquist, ingoing Kerr, outgoing Kerr)
-- **Frames (tetrads)**
-    - Construction of null tetrads (e.g. Kinnersley)
-    - Consistency checks and tetrad/metric utilities
-- **GHP / Held scalars**
-    - Type-safe GHP scalars with $$(p,q)$$ weights
-    - Held background fields and coefficients
-    - NP/GHP quantities and spin coefficients
-- **Spectral numerics**
-    - Legendre–Gauss–Lobatto (LGL) in $$z=\cos\theta$$, Chebyshev in $$r$$
-    - Differentiation matrices, barycentric interpolation, spectral filtering
-    - Pole-safe Held operator implementations 
-- **Transport solvers**
-    - ODE infrastructure for integrating GHZ transport systems along rays ($$z$$-slices)
-    - Builder-style operator construction for hierarchy levels
-
-Planned / in-progress modules:
-- Importing Teukolsky spectral data from external solvers
-- Metric reconstruction utilities
-
----
-
-## 🧱 Project Structure
-
-The project uses a standard `include/` + `src/` split with a shallow module structure.
-
-```text
-include/
-  ghz/
-    core/        # basic types, utilities
-    geom/        # coordinates, metrics, tetrads
-    ghp/         # GHP + Held scalars/coefs, NP/GHP quantities
-    spectral/    # spectral fields, differentiation, filters, operators
-    transport/   # ODE systems, transport solvers, corrector hierarchy tools
-    orbit/       # bound orbit parametrizations and frequencies
-    source/      # source/effective-source construction utilities
-
-src/
-  ghz/
-    core/
-    geom/
-    ghp/
-    spectral/
-    transport/
-    orbit/
-    source/
-
-**The codebase is organized into modular namespaces and directories reflecting the core components:**
-- *Geometry objects* (metrics, charts, tetrads) live in `geom/`.
-- *GHP/Held objects* (weighted scalars, spin coefficients, Weyl scalars) live in `ghp/`.
-- *Numerical operators on grids/slices* (LGL/Cheb differ, filters, Held operators) live in `spectral/`.
-- *ODE integration and corrector plumbing* lives in `transport/`.
-- *Orbit and source models* live in `orbit/` and `source/`.
-```
-
----
-
-## Conceptual Architecture
+**The Kerr m-mode pipeline**
 
 ```mermaid
 flowchart TD
-    subgraph Geometry
-        A[Metric]  -->   B[KerrMetric] 
-        P[KerrParams] --> B[KerrMetric]  --> C[CoordinateSystem] 
-        C--> D[KerrCharts] 
-        C --> T[Tetrad] --> KT[KinnersleyTetrad]
-        
-    end
-    subgraph Scalars
-        KT --> F[GHPScalar]
-        F --> G[GHPField Bgkd]
-        G --> H[HeldField Bgkd] 
-      end
-     subgraph Spectral 
-        I[GHPSpectralField] --> K[SpectralDiffer]
-        H --> TS[Transport eqn solver]
-        K --> OP[Held Op]
-     end
-    subgraph Orbit
-     B --> O[KerrOrbit] 
-     O --> BO[KerrBoundOrbit FFT]
-     D --> BO
-    end
-    subgraph Source 
-     P[Puncture data] --> TSRC[Eff source m modes] --> S[SourceBuilder]
-     S --> X[GHZCorrector Sol Layer]
-    end
-  subgraph Transport
-    BO --> TSRC[Eff source m modes]
-    H --> TS[Transport Equations ZSlice Solver]
-    TSRC --> TS
-    X[GHZCorrector Sol Layer] --> OP --> TS
-  end
+    J["Julia: spin -2 Teukolsky infinity amplitudes"] --> Q["Sum angular input at fixed m and frequency on LGL nodes"]
+    Q --> F["Coupled angular solve for the two HMS spin sectors"]
+    F --> P["Kerr Hertz completion: potential"]
+    P --> R["Reconstructed metric: primitive / rec"]
+    F --> G["Residual gauge contribution: lie"]
+    R --> A["Adjusted completion: rec + lie"]
+    G --> A
+    A --> D["Radial decay checks for nn, nm, mm"]
+    T["Windowed effective stress tensor"] --> C["Condition source on two radial patches"]
+    C --> X["Corrector hierarchy: xmmbar, xnm, xnn"]
 ```
 
-Each class is independent and documented internally.  
-The `main.cpp` file demonstrates how to:
-- Construct the Kerr metric.
-- Build a tetrad.
-- Compute NP and GHP spin coefficients.
-- Verify metric–tetrad consistency.
+[export_gsn_circular_m_mode.jl](scripts/export_gsn_circular_m_mode.jl) obtains separated Teukolsky amplitudes from [GeneralizedSasakiNakamura.jl](https://github.com/ricokaloklo/GeneralizedSasakiNakamura.jl), expands the spheroidal harmonics into spherical coefficients, and exports the summed angular input. The C++ executable [bondi_kerr_m_mode_check.cpp](tools/bondi_kerr_m_mode_check.cpp) evaluates those coefficients on Legendre–Gauss–Lobatto (LGL) nodes. Seed inversion and reconstruction then operate on the summed m-mode fields.
 
----
+Its `KerrDiagnostic` class implements the nonzero-spin Kerr construction:
 
-# Transport Equation Hierarchy Layering
-## 1. Data ingestion layer
-- From Mathematica we produce the effective source components $$T^{\mathcal R}_{\mu\nu}$$ on some source grid, then in C++:
-  - interpolate/resample onto the solver grid
-  - extract the left boundary values at $$r_{min}$$ (say for box windowed puncture)
-  - store the  source fields (IRG case) $$T^{\mathcal R}_{ll}$$, 
-  - $$T^{\mathcal R}_{lm}$$,
-  - $$T^{\mathcal R}_{l\bar m}$$ 
-  - $$T^{\mathcal R}_{nn}$$ on the full 2D grid.
-## 2. Hierarchical solve layer
-- Solve radial ODEs slice-by-slice in $$z$$ (i.e. along rays) for each corrector field, building up the hierarchy level by level.
-using ZSliceSolver class member solver_single_z
-- Level 1:
-  - Solve for $$X_{m\bar m}$$ via ODE with source $$T_{ll}$$ and ICs from left worldtube boundary 
-  - Build derivative pack of $$X_{mmbar}$$ using the Held operators (e.g. $$X$$, $$P[X]$$, $$EH[X]$$, etc)
-- Level 2:
-- Solve for $$X_{mmbar}$$ via ODE with source $$T_{lm} + \mathcal N[X_{m\bar m}]$$ and ICs from left boundary data
-  - Build derivative pack of $$X_{nm}$$ for use in the next level
-- Level 3:
-  - Solve for $$X_{nn}$$ via ODE with source $$T_{ln} + \mathcal U[X_{mmbar}] + \mathcal V[X_{nm}]$$ and ICs from left boundary data
-## 3. Final corrector field assembly layer
-- Build the residual corrector fields on the full 2D grid by adding the analytically known vacuum region contributions
-  (homogeneous solutions with coefficients fixed by the right $$r_{max}$$ worldtube boundary data) 
+- `potential` constructs all four Held Hertz-completion coefficients and their cubic in $\rho^{-1}=-r+iaz$.
+- `primitive` and `rec` apply metric reconstruction using spectral angular derivatives and analytic radial derivatives.
+- `lie` constructs the residual gauge contribution, including the Kerr Held coefficients $\tau^\circ$ and $\Omega^\circ$.
+- The radius loop adds the complex reconstructed and gauge fields before taking norms, then checks $1/r$ decay of the `nn`, `nm`, and `mm` components.
 
+The Julia-driven route solves two coupled fourth-order angular equations using the leading radiative coefficient of $\psi_4$. The direct $\psi^{5\circ}$ route is also implemented by [BondiHeldSeedSolver](include/ghz/asymptotic/BondiHeldSeedSolve.hpp), using the eighth-order angular chain. See the [input and convention notes](Notes/GSN_Bondi_interface.md) for the relation between the two routes.
 
+**Corrector and shared numerical infrastructure**
 
-```mermaid
-flowchart TD
-A["Mathematica effective source T_ab(r, z)"]
-    B["Resample / interpolate onto solver grid (r_i, z_j)<br/>with z = cos(theta)"]
+The sourced corrector is a separate branch. [solve_worldtube_hierarchy](include/ghz/transport/Corrector.hpp) solves $x_{m\bar m}$, $x_{nm}$, and $x_{nn}$ sequentially, using source terms and derivatives from earlier levels. Chebyshev collocation on two radial patches avoids differentiating across the particle's nonsmooth source. The first two equations are second order; the final equation is first order. The inward formulation uses `BCSide::Right` with appropriate outer boundary data; this must be selected explicitly.
 
-    C["Boundary values at r = r_min<br/>used for InitialData Xmmbar / Xnm / Xnn"]
-    D["Bulk source fields on full 2D grid<br/>T_ll, T_lm, T_ln, and any edth / thorn-derived fields"]
+| Location | Main contents |
+|---|---|
+| [geom](include/ghz/geom/) | Kerr parameters, metrics, coordinate charts, and the Kinnersley tetrad. |
+| [ghp](include/ghz/ghp/) | Weighted GHP scalars, NP coefficients, and Held background fields. |
+| [spectral](include/ghz/spectral/) | LGL and Chebyshev differentiation, interpolation, spectral fields, and pole-factorized Held operators. |
+| [asymptotic](include/ghz/asymptotic/) | HMS inversion, Schwarzschild modal/grid completion and gauge references, and partial banded Kerr coefficient-space helpers. |
+| [transport](include/ghz/transport/) | Two-domain collocation, hierarchy orchestration, source builders, and the alternative Runge–Kutta framework. |
+| [source](include/ghz/source/) | Effective-source archives, interpolation/conditioning, boundary data, angular projection, and spin +2 Teukolsky source assembly. |
+| [orbit](include/ghz/orbit/) | Circular and bound Kerr orbits, frequencies, phases, and Fourier ingredients. |
+| [tools](tools/) and [scripts](scripts/) | Kerr completion executable, Schwarzschild diagnostic data, Julia exports, and plotting. |
+| [MathematicaNotebooks](MathematicaNotebooks/) | Punctures, effective sources, projections, correctors, and reconstruction workflows. |
+| [tests](tests/) | Geometry/operator, source, transport, and Bondi checks with reference data. |
 
-    E["Solve X_mmbar<br/>builder: for X_mmbar<br/>source: T_ll<br/>IC: y0_mmbar(z_j)"]
-    F["Build derivative pack of X_mmbar<br/>X, P_X, EH_X, ..."]
-  
+C++ declarations generally live in `include/ghz/` and implementations in the matching `src/ghz/` directories. The Kerr m-mode completion currently lives in the diagnostic executable under `tools/`.
 
-    G["Solve X_nm<br/>builder:  ODE for X_nm<br/>source: T_lm + N[X_mmbar]<br/>IC: y0_nm(z_j)"]
-    H["Build derivative pack of X_nm<br/>X, P_X, EbH_X, ..."]
+**Build and checks**
 
-    I["Solve X_nn<br/>builder:  ODE for X_nn<br/>source: T_ln + Re U[X_mmbar] + Re V[X_nm]<br/>IC: y0_nn(z_j)"]
+The current [CMake configuration](CMakeLists.txt) requires CMake 3.20 or newer and C++20, with Eigen3, FFTW3, OpenMP, and Boost headers. It currently hard-codes Homebrew LLVM and dependency paths under `/opt/homebrew`; those settings need adjustment for other toolchains or platforms.
 
-    J["Final corrector fields on full (r, z) grid"]
+From the repository root, with those dependencies available:
 
-    A --> B
-    B --> C
-    B --> D
-    D --> E
-    C --> E
-    E --> F
-    F --> G
-    C --> G
-    G --> H
-    H --> I
-    C --> I
-    I --> J
-``` 
+```sh
+cmake -S . -B build
+cmake --build build -j 4
+ctest --test-dir build --output-on-failure
+```
 
-# Core Components
+For the Kerr completion checks using the committed Julia-exported input tables:
 
-Below are the main classes and their purposes.
+```sh
+cmake --build build --target bondi_kerr_m_mode_check -j 4
+ctest --test-dir build -R '^bondi_kerr_' --output-on-failure
+```
 
----
+To generate the Kerr radial scan and figure:
 
-# 0. Core 
+```sh
+./build/bondi_kerr_m_mode_check Data/gsn_circular_a0.5_m2.csv Data/gsn_kerr_m2_decay_n13.csv 13
+python3 scripts/plot_gsn_kerr_decay.py
+```
 
-## 0.1.`GhzTypes`
-Core type definitions and utilities supporting boost multiprecision, complex numbers, and linear algebra.
+The plotting script requires NumPy and Matplotlib. It writes `plots/gsn_kerr/radial_decay.png` and `.pdf`.
 
-# 1. `geom`
-## 1.0 `Metric`, `KerrMetric`, `KerrParams`, `KerrMetric{Coords}` 
- - defines metric, physical parameters (e.g `r_plus`) and compactification/conformal parameters as in https://arxiv.org/pdf/1910.13452
-## 1.1 `Coords`
-- Coordinate classes and helpers to build coordinate charts for BoyerLindquist,
-IngoingKerr, OutgoingKerr, OutgoingKerrCompact, Outgoing conformally compactified coordinates 
-- `CoordinateHelper` providing transformations and basic metric functions in each coordinate system
-## 1.2 `KerrCharts`
- -  classes for each chart based containing `Coords` for each
- - `build_at` functionality to generate the metric at a coordinate point
-## 1.3 `Tetrads` and `KinnersleyTetrad`
- - Base class `Tetrads`  with containers for $$l$$, $n$$, 
-   $$m$$, $$\bar m$$ `SpinCoefficients`, `SpinCoefficientsGHP`, `HeldCoefficients`,
-   `WeylScalars` 
- - `KinnersleyTetrad<Coordtype T>`` builds a Kinnersley tetrad at spacetime point in various templated 
-  charts 
- - Computes:
-Basis vectors
--- Newman–Penrose spin coefficients
--- GHP coefficients
--- Weyl scalars
--- Held coefficients
-## 1.4 `DataDomain`
+To regenerate the input amplitudes, use a Julia environment containing `GeneralizedSasakiNakamura` and `SpinWeightedSpheroidalHarmonics`:
 
-# 2. GHP
-## 2.0 `SpinCoeffNP`, `WeylScalars`
-## 2.1  `GHPScalars 
-### 2.1.a ``GHPScalar<Complex T>`
-- Operator overloads: `+, -, *, / with correct GHP transformation behavior
-- Type-safe representation of weighted scalars
+```sh
+julia --startup-file=no -O1 scripts/export_gsn_circular_m_mode.jl 0.5 8
+julia --startup-file=no -O1 scripts/export_gsn_circular_m_mode.jl 0.0 8
+```
 
-This is the basic algebraic object used everywhere.
-## 2.2 `GHPFieldVectorized`
+The exporter fixes a circular equatorial orbit with $M=\mu=1$, $r_0=10$, and $m=\pm2$. Its arguments set Kerr spin, the source multipole cutoff, and an optional output path. Julia is only needed to regenerate these inputs, not to run the C++ checks with the committed CSV files.
 
-### 2.2.a   `FieldVectorized<typename T,size_type dim>`
+**Numerical examples and current scope**
 
-As base class of `GHPFieldVectorized (base on FieldVectorized<GHPScalar<Complex>,2>)
-and HeldFieldVectorized (based on FieldVectorized<GHPScalar<Complex>,1>;)`
+The [Kerr decay notes](Notes/GSN_Kerr_m_mode_decay.md) record the circular-orbit checks, the Schwarzschild limit, resolution comparisons, and reproduction commands. [Schwarzschild checks](plots/bondi_schwarzschild/README.md) document the angular seed comparison, modal/grid cancellation, and gauge-vector contraction tests. These checks establish the behavior of the completion and gauge pieces; the gauge-contraction test alone is not a computation of the full Detweiler redshift.
 
-GHPFieldVectorized represents a fast vectorized row-major fields of 
-Geroch-Held-Penrose (GHP) scalars with spin-boost weights (p,q)
-on an $$N_r \times N_z$$   grid of $$r,z$$ values.
+The implemented Kerr Hertz completion includes the full $\rho=-1/(r-iaz)$ dependence. The current executable demonstrates a nonstationary, single-m circular-orbit calculation. It does not assemble the minimal Hertz solution, sourced corrector, and Kerr parameter perturbation into a complete residual metric. Generic bound-orbit geometry and mode metadata are present, while the full generic-orbit puncture/source pipeline and static sector require further work.
 
-- Stored as a 2D grid `[r][z]` or 1d  `[z]` array of GHP/Held scalars with metadata for dimensions
-- Arithmetic operator overloads which handle GHP weights 
-- accessors and views for slicings in $$r$$ or $$z$$
-- lambda functions which fill the values given a function of $$r$$,$$z$$
-- GHP covariant tranformations inc. as conjugation and spin-boosts
-- Used for background quantities such as GHP spin coefficients 
-- Used for spectral field perturbed quantities, e.g. the corrector fields
-
----
-
-# 3 `spectral`
-## 3.0  Spectral Fields (`ghz/spectral`)
-- **`SpectralFieldVectorized<T>`**: generic 2D spectral field container with contiguous storage and fast slice views.
-  - stores mode metadata (e.g. $$m$$, $$\omega$$, and/or $$\{m,k_r,k_z\}$$ depending on configuration)
-  - provides `RSlice`/`ZSlice` views via `std::span`/raw pointers
-  - supports OpenMP-friendly element-wise operations
-
-- **`SpectralGHPVectorized`**: GHP-aware spectral field (combines `GHPFieldVectorized` + `SpectralFieldVectorized`)
-  - stores **GHP scalars** with spin/boost weights $$(p,q)$$
-  - adds **spectral mode metadata** (e.g. \(m,\omega\) or $$(m,k_r,k_z$$))
-  - supports OpenMP element-wise arithmetic and conjugation
-  - provides row/column slicing via `std::span` and pointer-backed views
-  - uses a fully contiguous memory layout for cache efficiency
-
-## 3.1 `SpectralGHPFieldVectorized`
-## 3.2. `SpectralDiffer`
-Legendre–Gauss–Lobatto collocation, barycentric interpolation and differentiation.
-- builds nodes and differentiation matrices for spectral fields
-
-Provides:
-
-- LGL node construction in the z-direction and Chebyshev nodes in the r-direction
--  d/dz via Legendre differentiation matrices
--  d/dr via Chebyshev differentiation matrices
-- Barycentric interpolation
-
-Used to operate on `ZSlice` objects of a `SpectralField`.
-
-## 3.3 `KinnersleyHeldOperators<CoordType T>`
-Implements Held operators on spectral field slices
- - used to build the transport operators in the GHZ hierarchy
-## 3.4 `SpectralCoordinateMaps` and `PhysicalChebRadialOps` 
-
-
-# 4 `orbit`
-## 4.0 `KerrBoundOrbit`
-Action–angle parametrization of bound orbits in Kerr spacetime.
-
-- Computes mino and BL frequencies via elliptic integrals
-- Decomposes motion into secular and oscillatory pieces 
-- Builds Fourier decomposition of phase variables 
-- Keplerian parametrization
-- Supplies data needed for constructing puncture sources
-
-# 5 `source`
-
-# 6 `transport`
----
-
-## ⚙️ Build Instructions
-
-### Requirements
-- **C++17** or newer (tested with Clang and GCC).
-- **CMake ≥ 3.15**.
--  **Boost** for multiprecision, elliptic integral, and linear algebra
-
-### Build
-
-```bash
-git clone https://github.com/<yourname>/GHZ_numeric.git
-cd GHZ_numeric
-mkdir build && cd build
-cmake ..
-make
-
+The C++ diagnostic uses `rec + lie` and its documented Hertz normalization. The paper draft writes the gauge term with a minus sign, so use the [paper map's convention notes](Notes/Bondi_GHZ_paper_code_map.md) when translating formulas.
